@@ -30,11 +30,14 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[ORM\Column]
+    #[ORM\Column( type: 'string', nullable: true )]
     private ?string $password = null;
 
     #[ORM\OneToMany(targetEntity: Ruestzeit::class, mappedBy: 'userid', orphanRemoval: true)]
     private Collection $ruestzeiten;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
 
     public function __construct()
     {
@@ -95,14 +98,16 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @see PasswordAuthenticatedUserInterface
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): static
+    public function setPassword(?string $password): static
     {
-        $this->password = $password;
+        if (!is_null($password)) {
+            $this->password = $password;
+        }        
 
         return $this;
     }
@@ -142,6 +147,18 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface
                 $ruestzeiten->setUserid(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }

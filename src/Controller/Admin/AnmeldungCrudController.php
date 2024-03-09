@@ -3,9 +3,16 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Anmeldung;
+use App\Service\CsvExporter;
+use App\Service\ExcelExporter;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
@@ -19,9 +26,20 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class AnmeldungCrudController extends AbstractCrudController
 {
+    private AdminUrlGenerator $adminUrlGenerator;
+    private RequestStack $requestStack;
+
+    public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack)
+    {
+        $this->adminUrlGenerator = $adminUrlGenerator;
+        $this->requestStack = $requestStack;
+    }
+        
     public static function getEntityFqcn(): string
     {
         return Anmeldung::class;
@@ -52,6 +70,41 @@ class AnmeldungCrudController extends AbstractCrudController
             ;
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+;
+        $exportAction = Action::new('export')
+            ->linkToUrl(function () {
+                $request = $this->requestStack->getCurrentRequest();
+                return $this->adminUrlGenerator->setAll($request->query->all())
+                    ->setAction('export')
+                    ->generateUrl();
+            })
+// ... line 81
+            ->setIcon('fa fa-download')
+            ->createAsGlobalAction();
+            
+        return parent::configureActions($actions)
+            // ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
+            //     $action->displayIf(static function (Anmeldung $question) {
+            //         // always display, so we can try via the subscriber instead
+            //         return true;
+            //         //return !$question->getIsApproved();
+            //     });
+            // })
+            // ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
+            // ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
+            // ->setPermission(Action::EDIT, 'ROLE_MODERATOR')
+            // ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
+            // ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
+            // ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
+            // ->add(Crud::PAGE_DETAIL, $viewAction)
+            // ->add(Crud::PAGE_INDEX, $viewAction)
+            // ->add(Crud::PAGE_DETAIL, $approveAction)
+            ->add(Crud::PAGE_INDEX, $exportAction);
+    }
+
+
     public function configureFields(string $pageName): iterable
     {
 
@@ -60,7 +113,7 @@ class AnmeldungCrudController extends AbstractCrudController
         if($pageName == Crud::PAGE_NEW) {
             yield AssociationField::new('ruestzeit', 'Rüstzeit');
         }
-        
+
         yield FormField::addColumn(6);        
 
         yield TextField::new('firstname', 'Vorname');
@@ -118,4 +171,13 @@ class AnmeldungCrudController extends AbstractCrudController
             ->add(TextFilter::new('city'))
             ;
     }
+
+    public function export(AdminContext $context, ExcelExporter $csvExporter)
+    {
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
+        $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
+        $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
+
+        return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
+    }  
 }

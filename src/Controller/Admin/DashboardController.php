@@ -41,28 +41,6 @@ class DashboardController extends AbstractDashboardController
         // return $this->render('some/path/my-dashboard.html.twig');
     }
 
-    public function configureUserMenu(UserInterface $user): UserMenu
-    {
-        // Usually it's better to call the parent method because that gives you a
-        // user menu with some menu items already created ("sign out", "exit impersonation", etc.)
-        // if you prefer to create the user menu from scratch, use: return UserMenu::new()->...
-        return parent::configureUserMenu($user)
-            // use the given $user object to get the user name
-            ->setName($user->getUserIdentifier())
-            // use this method if you don't want to display the name of the user
-            ->displayUserName(false)
-
-            // you can return an URL with the avatar image
-            ->displayUserAvatar(false)
-
-            // you can use any type of menu item, except submenus
-            ->addMenuItems([
-                // MenuItem::linkToRoute('My Profile', 'fa fa-id-card', '...', ['...' => '...']),
-                MenuItem::linkToRoute('Benutzerprofil', 'fa fa-user-cog', '...', ['...' => '...']),
-                // MenuItem::section(),
-                // MenuItem::linkToLogout('Logout', 'fa fa-sign-out'),
-            ]);
-    }
         
     public function configureDashboard(): Dashboard
     {
@@ -81,6 +59,9 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Rüstzeiten', 'fas fa-map-marker-alt', Ruestzeit::class);
         yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-square-check', Anmeldung::class);
         
-        yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class);
+        yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
+                ->setAction('edit')
+                ->setEntityId($this->getUser()->getId())
+                ;
     }
 }

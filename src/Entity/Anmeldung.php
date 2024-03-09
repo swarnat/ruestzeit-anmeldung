@@ -219,7 +219,7 @@ class Anmeldung
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getAge(): Integer {
+    public function getAge(): int {
         $birthdate = $this->getBirthdate();
 
         if(empty($this->getBirthdate())) return 0;
