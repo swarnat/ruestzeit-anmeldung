@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ruestzeit.title }} | Anmeldung
+{% endblock %}
+
+{% block body %}
+
+	<div class="example-wrapper">
+		<h1 class="title">{{ ruestzeit.title }}</h1>
+
+		<section class="mb-6">
+			{{ ruestzeit.description | raw }}
+
+		</section>
+		<div class="notification is-primary">
+			insgesamt {{ ruestzeit.memberlimit }}
+			Plätze verfügbar<br/>
+			Anmeldungen möglich ab
+			{{ ruestzeit.registrationstart | format_datetime('medium', 'short') }}
+		</div>
+
+
+		<form class="box">
+			<h2 class="title">Anmeldung</h2>
+
+			{% if ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
+			<div class="columns">
+				<div class="column">
+					<div class="field">
+						<label class="label">Vorname des Teilnehmers</label>
+						<div class="control">
+							<input class="input" type="text" placeholder="Text input" required>
+						</div>
+					</div>
+				</div>
+				<div class="column">
+					<div class="field">
+						<label class="label">Nachname des Teilnehmers</label>
+						<div class="control">
+							<input class="input" type="text" placeholder="Nachname" required>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<div class="columns">
+				<div class="column">
+
+					<div class="field">
+						<label class="label">Nachname des Teilnehmers</label>
+						<div class="control">
+							<input class="input" type="text" placeholder="TT.MM.JJJJ" required>
+						</div>
+					</div>
+				</div>
+				<div class="column">
+
+					<div class="field">
+						<label class="label">E-Mail für weitere Informaitonen</label>
+						<div class="control">
+							<input class="input" type="email" placeholder="" required>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="mb-5">
+				<label class="checkbox">
+					<input type="checkbox" name="agb">
+					Ich akzeptiere, dass die Anmeldung verbindlich ist.
+				</label>
+				<label class="checkbox">
+					<input type="checkbox" name="dsgvo">
+					Ich akzeptiere, die Daten des Teilnehmers für die Zeit der Rüstzeit gespeichert werden.
+				</label>
+
+			</div>
+
+			<button class="button is-success">Anmeldung absenden</button>
+			{% else %}
+				<div class="notification">
+					Aktuell ist die Anmeldung noch nicht möglich.
+				</div>
+			{% endif %}
+		</form>
+	</div>
+{% endblock %}
