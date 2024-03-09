@@ -1,7 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ ruestzeit.title }} | Anmeldung
+{% block title %}
+	{{ ruestzeit.title }}
+	| Anmeldung
 {% endblock %}
+
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
+
 
 {% block body %}
 
@@ -13,70 +18,171 @@
 
 		</section>
 		<div class="notification is-primary">
-			insgesamt {{ ruestzeit.memberlimit }}
+			insgesamt
+			{{ ruestzeit.memberlimit }}
 			Plätze verfügbar<br/>
 			Anmeldungen möglich ab
 			{{ ruestzeit.registrationstart | format_datetime('medium', 'short') }}
 		</div>
 
 
-		<form class="box">
+		<form class="box" method="POST" action="#" enctype="multipart/form-data">
 			<h2 class="title">Anmeldung</h2>
 
+			<div class="alert alert-danger text-center" role="alert">
+
+				{% set formErrors = form.vars.errors.form.getErrors(true) %}
+
+				{% if formErrors|length %}
+					<div class="notification  is-danger" role="alert">
+						Es wurden Fehler im Formular festgestellt. Bitte prüfen Sie Ihre Eingaben.
+					</div>
+				{% endif %}
+
+			</div>
+
 			{% if ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
-			<div class="columns">
-				<div class="column">
-					<div class="field">
-						<label class="label">Vorname des Teilnehmers</label>
-						<div class="control">
-							<input class="input" type="text" placeholder="Text input" required>
+				<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}">
+				<input type="hidden" name="timing" value="{{ 'now'|date('U') }}">
+
+				<div class="columns">
+					<div class="column">
+						<div class="field">
+							<label class="label">Vorname des Teilnehmers<sup>*</sup>
+							</label>
+							<div class="control">
+								<input class="input" type="text" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" >
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.firstname) }}
+						</div>
+					</div>
+
+					<div class="column">
+						<div class="field">
+							<label class="label">Nachname des Teilnehmers<sup>*</sup>
+							</label>
+							<div class="control">
+								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" >
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.lastname) }}
 						</div>
 					</div>
 				</div>
-				<div class="column">
-					<div class="field">
-						<label class="label">Nachname des Teilnehmers</label>
-						<div class="control">
-							<input class="input" type="text" placeholder="Nachname" required>
+				<div class="columns">
+					<div class="column">
+
+						<div class="field">
+							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ"  tabindex="6">
+								<span class="icon is-small is-left">
+									<i class="fas fa-calendar"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.birthdate) }}
+						</div>
+						<div class="field">
+							<label class="label">Telefon<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" required tabindex="7">
+								<span class="icon is-small is-left">
+									<i class="fas fa-phone"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.phone) }}
+						</div>
+						<div class="field emailfield">
+							<label class="label">E-Mail<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input" type="email" name="anmeldung[email]" tabindex="20">
+								<span class="icon is-small is-left">
+									<i class="fas fa-envelope"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+						</div>
+						<div class="field">
+							<label class="label">Anmerkungen</label>
+							<div class="control">
+								<textarea class="textarea" type="text" name="{{ field_name(form.notes) }}" rows="4" tabindex="8">{{ field_value(form.notes) }}</textarea>
+							</div>
+							<p class="help">Besonderheiten / Allergien</p>
+							{{ form_errors(form.notes) }}
 						</div>
 					</div>
+					<div class="column">
+						<div class="card">
+							<header class="card-header">
+								<p class="card-header-title">
+									Adresse
+								</p>
+							</header>
+							<div class="card-content">
+								<div class="field">
+									<label class="label">Strasse<sup>*</sup>
+									</label>
+									<div class="control">
+										<input class="input" tabindex="3" name="{{ field_name(form.address) }}" value="{{ field_value(form.address) }}" type="text" placeholder="" required>
+									</div>
+									<p class="help">Pflichtfeld</p>
+									{{ form_errors(form.address) }}
+								</div>
 
-				</div>
-			</div>
-			<div class="columns">
-				<div class="column">
+								<div class="columns">
+									<div class="column">
+										<div class="field">
+											<label class="label">Postleitzahl<sup>*</sup>
+											</label>
+											<div class="control">
+												<input class="input" tabindex="4" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required>
+											</div>
+											<p class="help">Pflichtfeld</p>
+											{{ form_errors(form.postalcode) }}
+										</div>
+									</div>
+									<div class="column">
+										<div class="field">
+											<label class="label">Ort<sup>*</sup>
+											</label>
+											<div class="control">
+												<input class="input" tabindex="5" name="{{ field_name(form.city) }}" value="{{ field_value(form.city) }}" type="text" placeholder="" required>
+											</div>
+											<p class="help">Pflichtfeld</p>
+											{{ form_errors(form.city) }}
+										</div>
 
-					<div class="field">
-						<label class="label">Nachname des Teilnehmers</label>
-						<div class="control">
-							<input class="input" type="text" placeholder="TT.MM.JJJJ" required>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
-				<div class="column">
 
-					<div class="field">
-						<label class="label">E-Mail für weitere Informaitonen</label>
-						<div class="control">
-							<input class="input" type="email" placeholder="" required>
-						</div>
-					</div>
+				<div class="mb-5">
+					<label class="checkbox">
+						<input type="checkbox" required name="{{ field_name(form.agb_agree) }}" value="1">
+						Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
+					</label>
+					{{ form_errors(form.agb_agree) }}
+
+					<label class="checkbox">
+						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1">
+						Ich akzeptiere, dass die Daten des Teilnehmers für die Zeit der Rüstzeit gespeichert werden.<sup>*</sup>
+					</label>
+					{{ form_errors(form.dsgvo_agree) }}
+
 				</div>
-			</div>
 
-			<div class="mb-5">
-				<label class="checkbox">
-					<input type="checkbox" name="agb">
-					Ich akzeptiere, dass die Anmeldung verbindlich ist.
-				</label>
-				<label class="checkbox">
-					<input type="checkbox" name="dsgvo">
-					Ich akzeptiere, die Daten des Teilnehmers für die Zeit der Rüstzeit gespeichert werden.
-				</label>
+				{{ form_rest(form) }}
 
-			</div>
-
-			<button class="button is-success">Anmeldung absenden</button>
+				<button class="button is-success">Anmeldung absenden</button>
 			{% else %}
 				<div class="notification">
 					Aktuell ist die Anmeldung noch nicht möglich.

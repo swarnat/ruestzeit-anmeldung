@@ -1,28 +1,40 @@
-
-
 body {
-    background-color: #eee;
+  background-color: #eee;
 }
 .container {
-
-    li {
-        list-style: square;
-        margin-left:20px;
-    }
+  li {
+    list-style: square;
+    margin-left: 20px;
+  }
 }
 
 .entry_description {
-    background-color: #fff; 
-    min-height: 25vh;
-    padding:10px 20px;
+  background-color: #fff;
+  min-height: 25vh;
+  padding: 10px 20px;
 }
 
 .login {
-    &.container {
-        background-color:transparent;
-    }
+  &.container {
+    background-color: transparent;
+  }
 }
 
 h1.title {
-    margin-top:1.5rem;
+  margin-top: 1.5rem;
+}
+
+.container {
+  div.emailfield {
+    position: absolute;
+    top: calc(100% - 200%);
+  }
+}
+form sup {
+  color:red;
+  margin-left:5px;
+}
+form .invalid-feedback {
+  color:red;
+  font-size:12px;
 }

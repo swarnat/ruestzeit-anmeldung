@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AnmeldungRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -20,12 +21,15 @@ class Anmeldung
     private ?int $id = null;
 
     #[ORM\Column(length: 64)]
+    #[Assert\NotBlank]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 64)]
+    #[Assert\NotBlank]
     private ?string $lastname = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\NotBlank]
     private ?\DateTimeInterface $birthdate = null;
 
     #[ORM\ManyToOne(inversedBy: 'anmeldungen')]
@@ -33,12 +37,15 @@ class Anmeldung
     private ?Ruestzeit $ruestzeit = null;
 
     #[ORM\Column(length: 10)]
+    #[Assert\NotBlank]
     private ?string $postalcode = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank]
     private ?string $city = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $address = null;
 
     #[ORM\Column(length: 100, nullable: true)]
@@ -55,6 +62,14 @@ class Anmeldung
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column]
+    #[Assert\NotBlank]
+    private ?bool $dsgvo_agree = null;
+
+    #[ORM\Column]
+    #[Assert\NotBlank]
+    private ?bool $agb_agree = null;
 
 
     public function getId(): ?int
@@ -228,5 +243,29 @@ class Anmeldung
         return $this->getBirthdate()
              ->diff(new DateTime('now', $tz))
              ->y;        
+    }
+
+    public function isDsgvoAgree(): ?bool
+    {
+        return $this->dsgvo_agree;
+    }
+
+    public function setDsgvoAgree(bool $dsgvo_agree): static
+    {
+        $this->dsgvo_agree = $dsgvo_agree;
+
+        return $this;
+    }
+
+    public function isAgbAgree(): ?bool
+    {
+        return $this->agb_agree;
+    }
+
+    public function setAgbAgree(bool $agb_agree): static
+    {
+        $this->agb_agree = $agb_agree;
+
+        return $this;
     }
 }
