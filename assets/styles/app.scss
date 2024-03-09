@@ -4,9 +4,6 @@ body {
     background-color: #eee;
 }
 .container {
-    background-color: #fff;
-    min-height: 100vh;
-    padding:10px 20px;
 
     li {
         list-style: square;
@@ -14,3 +11,18 @@ body {
     }
 }
 
+.entry_description {
+    background-color: #fff; 
+    min-height: 25vh;
+    padding:10px 20px;
+}
+
+.login {
+    &.container {
+        background-color:transparent;
+    }
+}
+
+h1.title {
+    margin-top:1.5rem;
+}

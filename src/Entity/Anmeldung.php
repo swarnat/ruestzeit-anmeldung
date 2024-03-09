@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\AnmeldungRepository;
+use DateTime;
+use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: AnmeldungRepository::class)]
@@ -214,5 +217,16 @@ class Anmeldung
     public function setCreatedAtValue()
     {
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    public function getAge(): Integer {
+        $birthdate = $this->getBirthdate();
+
+        if(empty($this->getBirthdate())) return 0;
+
+        $tz  = new DateTimeZone('Europe/Brussels');
+        return $this->getBirthdate()
+             ->diff(new DateTime('now', $tz))
+             ->y;        
     }
 }

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: RuestzeitRepository::class)]
@@ -36,6 +37,10 @@ class Ruestzeit
 
     #[ORM\Column(length: 255, unique: true)]
     private ?string $slug = null;
+
+    #[ORM\ManyToOne(inversedBy: 'ruestzeiten')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Admin $admin = null;
 
     public function __construct()
     {
@@ -148,4 +153,28 @@ class Ruestzeit
 
         return $this;
     }
+
+    public function computeSlug(SluggerInterface $slugger)
+    {
+        if (!$this->slug || '-' === $this->slug) {
+            $this->slug = (string) $slugger->slug((string) $this)->lower();
+        }
+    }
+
+    public function getMemberCount()
+    {
+        return $this->getAnmeldungen()->count();
+    }
+
+    public function getAdmin(): ?Admin
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(?Admin $admin): static
+    {
+        $this->admin = $admin;
+
+        return $this;
+    }    
 }
