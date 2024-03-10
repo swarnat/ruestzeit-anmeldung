@@ -3,22 +3,32 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>
-			{% block title %}Welcome!{% endblock %}
+			{% block title %}Welcome!
+			{% endblock %}
 		</title>
 		<link
 		rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
 		{# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
 		{% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
+			{{ encore_entry_link_tags('app') }}
 			{{ encore_entry_link_tags('Bulma') }}
 		{% endblock %}
 
 		{% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
+			{{ encore_entry_script_tags('app') }}
 			{{ encore_entry_script_tags('Bulma') }}
 		{% endblock %}
 	</head>
 	<body>
-		    {% block body %}        <div class="container"></div>{% endblock %}
+		{% block body %}
+			<div class="container"></div>
+		{% endblock %}
+
+		<div class="footer">
+			<div class="content has-text-centered">
+				<a href="/impressum">Impressum</a> - 
+				<a href="https://kirche-hohndorf.de/datenschutzerklaerung/" target="_blank">Datenschutz</a>
+			</div>
+		</div>
 	</body>
 </html>
