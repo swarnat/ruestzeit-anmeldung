@@ -8,11 +8,13 @@ use DateTimeZone;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\Types\Integer;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AnmeldungRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(["ruestzeit", "firstname", "lastname", "birthdate"])]
 class Anmeldung
 {
     #[ORM\Id]

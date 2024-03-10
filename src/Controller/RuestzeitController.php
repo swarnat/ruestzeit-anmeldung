@@ -32,10 +32,12 @@ class RuestzeitController extends AbstractController
         $formView = $form->createView();
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $anmeldung->setRuestzeit($ruestzeit);
+            // $anmeldung->setRuestzeit($ruestzeit);
 
             $this->entityManager->persist($anmeldung);
             $this->entityManager->flush();
+
+            flash()->addSuccess('Die Anmeldung wurde erfolgreich gespeichert. Vielen Dank!', 'Erfolgreich');
 
             return $this->redirectToRoute('homepage');
         }

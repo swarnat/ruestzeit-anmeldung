@@ -38,12 +38,22 @@
 						Es wurden Fehler im Formular festgestellt. Bitte prüfen Sie Ihre Eingaben.
 					</div>
 				{% endif %}
-
 			</div>
 
 			{% if ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
 				<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}">
 				<input type="hidden" name="timing" value="{{ 'now'|date('U') }}">
+
+				{{ form_errors(form.ruestzeit) }}
+
+				<div class="field" style='display:none;'>
+					<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
+					</label>
+					<div class="control">
+						{{ form_widget(form.ruestzeit) }}
+					</div>
+					<p class="help">Pflichtfeld</p>
+				</div>
 
 				<div class="columns">
 					<div class="column">
@@ -65,8 +75,6 @@
 							<div class="control">
 								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" >
 							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.lastname) }}
 						</div>
 					</div>
 				</div>
@@ -167,13 +175,13 @@
 
 				<div class="mb-5">
 					<label class="checkbox">
-						<input type="checkbox" required name="{{ field_name(form.agb_agree) }}" value="1">
+						<input type="checkbox" required name="{{ field_name(form.agb_agree) }}" value="1" required>
 						Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
 					</label>
 					{{ form_errors(form.agb_agree) }}
 
 					<label class="checkbox">
-						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1">
+						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1" required>
 						Ich akzeptiere, dass die Daten des Teilnehmers für die Zeit der Rüstzeit gespeichert werden.<sup>*</sup>
 					</label>
 					{{ form_errors(form.dsgvo_agree) }}
