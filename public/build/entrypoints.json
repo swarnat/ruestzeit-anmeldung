@@ -1,0 +1,23 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/build/runtime.5fd71670.js",
+        "/build/674.71a84660.js",
+        "/build/app.7ec5adcb.js"
+      ],
+      "css": [
+        "/build/app.6569558c.css"
+      ]
+    },
+    "Bulma": {
+      "js": [
+        "/build/runtime.5fd71670.js"
+      ],
+      "css": [
+        "/build/706.683a8493.css",
+        "/build/Bulma.213ed8e2.css"
+      ]
+    }
+  }
+}
