@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Enum\AnmeldungStatus;
+use App\Enum\MealType;
+use App\Form\AnmeldungType;
 use App\Repository\AnmeldungRepository;
 use DateTime;
 use DateTimeZone;
@@ -51,6 +54,7 @@ class Anmeldung
     private ?string $address = null;
 
     #[ORM\Column(length: 100, nullable: true)]
+    #[Assert\NotBlank]
     private ?string $phone = '';
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -73,6 +77,14 @@ class Anmeldung
     #[Assert\NotBlank]
     private ?bool $agb_agree = null;
 
+    #[ORM\Column(type: "string", enumType: MealType::class)]
+    private MealType $mealtype;
+
+    #[ORM\Column(type: "string", enumType: AnmeldungStatus::class)]
+    private AnmeldungStatus $status = AnmeldungStatus::OPEN;
+
+    #[ORM\Column]
+    private ?int $registrationPosition = 0;
 
     public function getId(): ?int
     {
@@ -94,6 +106,29 @@ class Anmeldung
     public function setFirstname(string $firstname): static
     {
         $this->firstname = $firstname;
+
+        return $this;
+    }
+    public function getMealtype(): MealType
+    {
+        return $this->mealtype;
+    }
+
+    public function setMealtype(MealType $mealtype): static
+    {
+        $this->mealtype = $mealtype;
+
+        return $this;
+    }
+
+    public function getStatus(): AnmeldungStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(AnmeldungStatus $status): static
+    {
+        $this->status = $status;
 
         return $this;
     }
@@ -175,7 +210,7 @@ class Anmeldung
         return $this->phone;
     }
 
-    public function setPhone(string $phone): static
+    public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
 
@@ -267,6 +302,18 @@ class Anmeldung
     public function setAgbAgree(bool $agb_agree): static
     {
         $this->agb_agree = $agb_agree;
+
+        return $this;
+    }
+
+    public function getRegistrationPosition(): ?int
+    {
+        return $this->registrationPosition;
+    }
+
+    public function setRegistrationPosition(int $registrationPosition): static
+    {
+        $this->registrationPosition = $registrationPosition;
 
         return $this;
     }

@@ -29,6 +29,13 @@
 		<form class="box" method="POST" action="#" enctype="multipart/form-data">
 			<h2 class="title">Anmeldung</h2>
 
+			{% if ruestzeit.isFull() == true %}
+				<div class="notification is-info">
+					Die möglichen Anmeldungen sind bereits voll. Deine Anmeldung wird auf einer Warteliste berücksichtigt.<br/>
+					Wir informieren dich rechtzeitig, ob du teilnehmen kannst.
+				</div>
+			{% endif %}
+
 			<div class="alert alert-danger text-center" role="alert">
 
 				{% set formErrors = form.vars.errors.form.getErrors(true) %}
@@ -61,7 +68,7 @@
 							<label class="label">Vorname des Teilnehmers<sup>*</sup>
 							</label>
 							<div class="control">
-								<input class="input" type="text" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" >
+								<input class="input" type="text" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" required>
 							</div>
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.firstname) }}
@@ -73,8 +80,11 @@
 							<label class="label">Nachname des Teilnehmers<sup>*</sup>
 							</label>
 							<div class="control">
-								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" >
+								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" required>
 							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.lastname) }}
+
 						</div>
 					</div>
 				</div>
@@ -85,7 +95,7 @@
 							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ"  tabindex="6">
+								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required>
 								<span class="icon is-small is-left">
 									<i class="fas fa-calendar"></i>
 								</span>
@@ -97,7 +107,7 @@
 							<label class="label">Telefon<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" required tabindex="7">
+								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" tabindex="7" required>
 								<span class="icon is-small is-left">
 									<i class="fas fa-phone"></i>
 								</span>
@@ -124,6 +134,29 @@
 							<p class="help">Besonderheiten / Allergien</p>
 							{{ form_errors(form.notes) }}
 						</div>
+
+						<div class="field">
+							<label class="label">Verpflegung<sup>*</sup>
+							</label>
+							<div class="control">
+								<label class="radio">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required>
+									Alles
+								</label>
+								<label class="radio">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required>
+									Vegetarisch
+								</label>
+								<label class="radio">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required>
+									Vegan
+								</label>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.mealtype) }}
+						</div>
+
+
 					</div>
 					<div class="column">
 						<div class="card">
@@ -149,11 +182,12 @@
 											<label class="label">Postleitzahl<sup>*</sup>
 											</label>
 											<div class="control">
-												<input class="input" tabindex="4" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required>
+												<input class="input" tabindex="5" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required>
 											</div>
 											<p class="help">Pflichtfeld</p>
 											{{ form_errors(form.postalcode) }}
 										</div>
+
 									</div>
 									<div class="column">
 										<div class="field">
@@ -175,7 +209,7 @@
 
 				<div class="mb-5">
 					<label class="checkbox">
-						<input type="checkbox" required name="{{ field_name(form.agb_agree) }}" value="1" required>
+						<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required>
 						Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
 					</label>
 					{{ form_errors(form.agb_agree) }}

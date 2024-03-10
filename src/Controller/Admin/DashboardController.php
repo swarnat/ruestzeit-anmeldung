@@ -56,9 +56,22 @@ class DashboardController extends AbstractDashboardController
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
 
         yield MenuItem::linktoRoute('Homepage', 'fas fa-home', 'homepage');
+
+        yield MenuItem::section('Rüstzeiten');
         yield MenuItem::linkToCrud('Rüstzeiten', 'fas fa-map-marker-alt', Ruestzeit::class);
-        yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-square-check', Anmeldung::class);
+
+        yield MenuItem::section('Anmeldungen');
+
+        yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-square-check', Anmeldung::class)
+            ->setController(AnmeldungCrudController::class)
+        ;
+
+        yield MenuItem::linkToCrud('Warteliste', 'fas fa-hourglass-half', Anmeldung::class)
+            ->setController(WaitinglistCrudController::class)
+        ;
         
+        yield MenuItem::section('Verwaltung');
+
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
                 ->setAction('edit')
                 ->setEntityId($this->getUser()->getId())

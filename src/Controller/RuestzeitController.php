@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anmeldung;
+use App\Enum\AnmeldungStatus;
 use App\Form\AnmeldungType;
 use App\Repository\RuestzeitRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,12 +33,29 @@ class RuestzeitController extends AbstractController
         $formView = $form->createView();
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // $anmeldung->setRuestzeit($ruestzeit);
+            $anmeldung->setRuestzeit($ruestzeit);
 
+            $query = $this->entityManager->createQueryBuilder('anmeldung');
+            $query->from(Anmeldung::class, 'anmeldung');
+            $query->select('MAX(anmeldung.registrationPosition) + 1 max_position');
+            $query->where('anmeldung.ruestzeit = :ruestzeit')->setParameter('ruestzeit', $ruestzeit);
+
+            $result = $query->getQuery()->getSingleResult();
+
+            $anmeldung->setRegistrationPosition($result['max_position']);
+
+            if($ruestzeit->isFull()) {
+                $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
+            } else {
+                $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
+            }
+            
             $this->entityManager->persist($anmeldung);
             $this->entityManager->flush();
 
-            flash()->addSuccess('Die Anmeldung wurde erfolgreich gespeichert. Vielen Dank!', 'Erfolgreich');
+            flash()->addSuccess('Die Anmeldung wurde erfolgreich gespeichert. Vielen Dank!', 'Erfolgreich', [
+                'timeout' => 30000
+            ]);
 
             return $this->redirectToRoute('homepage');
         }

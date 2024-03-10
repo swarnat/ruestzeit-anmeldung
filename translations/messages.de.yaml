@@ -1,0 +1,6 @@
+ALL: 'Alles'
+VEGAN: 'Vegan'
+VEGETARIAN: 'Vegetarisch'
+OPEN: 'Offen'
+ACTIVE: 'Aktiv'
+WAITLIST: 'Warteliste'

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\AnmeldungStatus;
 use App\Repository\RuestzeitRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -115,6 +116,16 @@ class Ruestzeit
     /**
      * @return Collection<int, Anmeldung>
      */
+    public function getActiveAnmeldungen(): Collection
+    {
+        return $this->getAnmeldungen()->filter(function(Anmeldung $anmeldung) {
+            return $anmeldung->getStatus() == AnmeldungStatus::ACTIVE;
+        });
+    }
+
+    /**
+     * @return Collection<int, Anmeldung>
+     */
     public function getAnmeldungen(): Collection
     {
         return $this->anmeldungen;
@@ -163,7 +174,12 @@ class Ruestzeit
 
     public function getMemberCount()
     {
-        return $this->getAnmeldungen()->count();
+        return $this->getActiveAnmeldungen()->count();
+    }
+
+    public function isFull()
+    {
+        return $this->getActiveAnmeldungen()->count() >= $this->memberlimit;
     }
 
     public function getAdmin(): ?Admin
@@ -176,5 +192,6 @@ class Ruestzeit
         $this->admin = $admin;
 
         return $this;
-    }    
+    }  
+
 }

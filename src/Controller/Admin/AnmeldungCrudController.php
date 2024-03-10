@@ -3,18 +3,26 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Anmeldung;
+use App\Enum\AnmeldungStatus;
+use App\Enum\MealType;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\QueryBuilder as ORMQueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
@@ -27,12 +35,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AnmeldungCrudController extends AbstractCrudController
 {
-    private AdminUrlGenerator $adminUrlGenerator;
-    private RequestStack $requestStack;
+    protected AdminUrlGenerator $adminUrlGenerator;
+    protected RequestStack $requestStack;
 
     public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack)
     {
@@ -45,6 +56,17 @@ class AnmeldungCrudController extends AbstractCrudController
         return Anmeldung::class;
     }
 
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): ORMQueryBuilder
+    {
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        $queryBuilder
+            ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::ACTIVE);
+
+        return $queryBuilder;
+    }    
+
+    
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
@@ -53,7 +75,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setDateFormat('d.MM.Y')
             ->setTimeFormat('HH:mm')
             ->setDateTimeFormat('d.MM.Y HH:mm')
-            // ->renderContentMaximized()
+            ->renderContentMaximized()
             ->setTimezone('Europe/Berlin')
             ->setPageTitle('index', '%entity_label_plural% Übersicht')
             ->setPageTitle('edit', '%entity_label_singular% bearbeiten')
@@ -82,8 +104,15 @@ class AnmeldungCrudController extends AbstractCrudController
             })
 // ... line 81
             ->setIcon('fa fa-download')
+
             ->createAsGlobalAction();
             
+            $cancelAction = Action::new('cancel')
+                ->linkToCrudAction('cancel')
+                ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])                
+                ->setIcon('fa fa-cancel')
+            ;
+
         return parent::configureActions($actions)
             // ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
             //     $action->displayIf(static function (Anmeldung $question) {
@@ -101,7 +130,11 @@ class AnmeldungCrudController extends AbstractCrudController
             // ->add(Crud::PAGE_DETAIL, $viewAction)
             // ->add(Crud::PAGE_INDEX, $viewAction)
             // ->add(Crud::PAGE_DETAIL, $approveAction)
-            ->add(Crud::PAGE_INDEX, $exportAction);
+
+            ->add(Crud::PAGE_INDEX, $exportAction)
+            ->add(Crud::PAGE_INDEX, $cancelAction)
+            ;
+
     }
 
 
@@ -116,10 +149,18 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield FormField::addColumn(6);        
 
+        // yield ChoiceField::new('status', 'Status der Anmeldung')
+        //     ->setChoices(AnmeldungStatus::cases())
+        //     ->setFormType(EnumType::class);
+
         yield TextField::new('firstname', 'Vorname');
         yield TextField::new('lastname', 'Nachname');
 
         yield DateField::new('birthdate', 'Geburtstag');
+
+        yield ChoiceField::new('mealtype', 'Verpflegung')
+            ->setChoices(MealType::cases())
+            ->setFormType(EnumType::class);
         
         if($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')->setDisabled(true);
@@ -133,7 +174,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield FormField::addFieldset( );
 
-        yield TextareaField::new('notes', 'Anmerkungen');
+        if($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
 
         $createdAt = DateTimeField::new('createdAt')->setFormTypeOptions([
             'years' => range(date('Y'), date('Y') + 5),
@@ -155,8 +196,6 @@ class AnmeldungCrudController extends AbstractCrudController
         yield FormField::addFieldset('Kontakt');
 
         yield TextField::new('phone', 'Telefon');
-        
-       
   
     }
 
@@ -179,5 +218,24 @@ class AnmeldungCrudController extends AbstractCrudController
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
 
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
-    }  
+    } 
+    
+    public function cancel(AdminContext $context, UrlGeneratorInterface $urlGenerator) {
+        $anmeldung = $context->getEntity()->getInstance();
+        
+        $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);
+
+        $anmeldung->setStatus(AnmeldungStatus::CANCEL);
+
+        $entityManager->persist($anmeldung);
+        $entityManager->flush();
+
+
+        $url = $this->container->get(AdminUrlGenerator::class)
+            ->setController(AnmeldungCrudController::class)
+            ->setAction(Action::INDEX)
+            ->generateUrl();
+        return new RedirectResponse($url);
+    }
+    
 }
