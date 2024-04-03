@@ -99,11 +99,13 @@ class WaitinglistCrudController extends AnmeldungCrudController
 
         yield FormField::addColumn(6);
 
-        yield FormField::addFieldset('Adresse');
+        if ($pageName != Crud::PAGE_INDEX) {
+            yield TextField::new('address', 'Strasse');
 
-        yield TextField::new('address', 'Strasse');
+            yield TextField::new('postalcode', 'Postleitzahl');
+        }
+        yield TextField::new('landkreis', 'Landkreis');
 
-        yield TextField::new('postalcode', 'Postleitzahl');
         yield TextField::new('city', 'Ort');
 
         yield FormField::addFieldset('Kontakt');
@@ -148,4 +150,5 @@ class WaitinglistCrudController extends AnmeldungCrudController
             ->generateUrl();
         return new RedirectResponse($url);
     }
+
 }

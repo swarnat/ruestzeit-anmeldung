@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	</head>
+    <style>
+        body {
+            font-family: Arial;
+        }
+
+        table {
+            width:100%;
+            border-collapse: collapse;
+        }
+        table.memberlist td {
+            border:1px solid #777;
+            font-size:13px;
+        }
+        h4 {
+            font-size:20px;
+        }
+    </style>
+	<body>
+        {% for landkreis, anmeldungen in landkreise %}
+            <h4>{{ anmeldungen | length }}x Teilnehmer {{ landkreis }}</h4>
+            <table cellspacing=0 cellpadding=10 class="memberlist">
+                <thead>
+                <tr>
+                    <th style="width:45px; text-align:left;">Nr.</th>
+                    <th style="width:200px; text-align:left;">Landkreis</th>
+                    <th style="width:200px; text-align:left;">Vorname</th>
+                    <th style="width:200px; text-align:left;">Nachname</th>
+                    <th style="width:250px; text-align:left;">Wohnort</th>
+                    <th>Unterschrift</th>
+                </tr>
+                </thead>
+                {% for anmeldung in anmeldungen %}                
+                    <tr>
+                        <td align="right">{{ loop.index }}</td>
+                        <td>{{ landkreis }}</td>
+                        <td>{{ anmeldung.firstname }}</td>
+                        <td>{{ anmeldung.lastname }}</td>
+                        <td>{{ anmeldung.postalcode }} {{ anmeldung.city }}</td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            {% if loop.last == false %}
+            <pagebreak>
+            {% endif %}
+        {% endfor %}
+	</body>
+</html>

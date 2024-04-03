@@ -86,6 +86,9 @@ class Anmeldung
     #[ORM\Column]
     private ?int $registrationPosition = 0;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $landkreis = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -222,7 +225,7 @@ class Anmeldung
         return $this->notes;
     }
 
-    public function setNotes(string $notes): static
+    public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
 
@@ -263,12 +266,6 @@ class Anmeldung
         $this->createdAt = $createdAt;
 
         return $this;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAtValue()
-    {
-        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getAge(): int {
@@ -314,6 +311,18 @@ class Anmeldung
     public function setRegistrationPosition(int $registrationPosition): static
     {
         $this->registrationPosition = $registrationPosition;
+
+        return $this;
+    }
+
+    public function getLandkreis(): ?string
+    {
+        return $this->landkreis;
+    }
+
+    public function setLandkreis(?string $landkreis): static
+    {
+        $this->landkreis = $landkreis;
 
         return $this;
     }

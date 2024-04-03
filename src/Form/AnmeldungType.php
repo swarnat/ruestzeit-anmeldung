@@ -37,7 +37,7 @@ class AnmeldungType extends AbstractType
             ->add('lastname')
             ->add('birthdate', null, [
                 'widget' => 'single_text',
-                'format' => 'dd.MM.YYYY',
+                'format' => 'dd.MM.yyyy',
                 // 2. Disable HTML5 option
                 'html5' => false                
             ])

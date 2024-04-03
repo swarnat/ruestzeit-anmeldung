@@ -13,12 +13,64 @@
 	<div class="container">
 		<h1 class="title">{{ ruestzeit.title }}</h1>
 
-		<section class="mb-5 entry_description">
-			{{ ruestzeit.description | raw }}
+		<section class="mb-5 entry_description_outer">
+			<div class="entry_child_container">
+				{% if (ruestzeit.showDates) or (ruestzeit.showLocation)  or (ruestzeit.imageUrl != "") %}
+					<div class="entry_cards entry_location_details is-hidden-mobile">
+						{% if ruestzeit.showDates %}
+							<div class="card">
+								<header class="card-header">
+									<p class="card-header-title">
+										Zusammenfassung
+									</p>
+								</header>
+								<div class="card-content">
 
+									Ab
+									{{ ruestzeit.dateFrom | format_date('medium') }}<br/>
+									Bis
+									{{ ruestzeit.dateTo | format_date('medium') }}
+								</div>
+							</div>
+						{% endif %}
+						{% if ruestzeit.showLocation %}
+							<div class="card">
+								<header class="card-header">
+									<p class="card-header-title">
+										{{ ruestzeit.location.title}}
+									</p>
+									<button class="card-header-icon" aria-label="more options">
+										<span class="icon">
+											<i class="fas fa-angle-down" aria-hidden="true"></i>
+										</span>
+									</button>
+								</header>
+								<div class="card-content">
+									{{ ruestzeit.location.street}}<br/>
+									{{ ruestzeit.location.postalcode}}
+									{{ ruestzeit.location.city}}<br/>
+									<br/>
+									<a class="button is-primary" target="_blank" href="https://www.google.com/maps/search/{{ ruestzeit.location.title ~ " " ~ ruestzeit.location.street ~ " " ~ ruestzeit.location.postalcode ~ " " ~ ruestzeit.location.city }}">Karte anzeigen</a>
+								</div>
+							</div>
+						{% endif %}
+						{% if ruestzeit.imageUrl != "" %}
+							<a href="{{ ruestzeit.flyerUrl }}" target="_blank">
+								<img src="{{ ruestzeit.imageUrl }}" alt="Flyer zur {{ ruestzeit.title }}" />
+							</a>
+						{% endif %}
+					</div>
+				{% endif %}
+
+			</div>
+
+			<div class="entry_description">
+				{{ ruestzeit.description | raw }}
+			</div>
 		</section>
+
 		<div class="notification is-primary">
-			insgesamt
+			Insgesamt
 			{{ ruestzeit.memberlimit }}
 			Plätze verfügbar<br/>
 			Anmeldungen möglich ab
@@ -140,15 +192,15 @@
 							</label>
 							<div class="control">
 								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required>
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="9">
 									Alles
 								</label>
 								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required>
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="9">
 									Vegetarisch
 								</label>
 								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required>
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="9">
 									Vegan
 								</label>
 							</div>
@@ -209,13 +261,13 @@
 
 				<div class="mb-5">
 					<label class="checkbox">
-						<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required>
+						<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required tabindex="10">
 						Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
 					</label>
 					{{ form_errors(form.agb_agree) }}
 
 					<label class="checkbox">
-						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1" required>
+						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1" required tabindex="10">
 						Ich akzeptiere, dass die Daten des Teilnehmers für die Zeit der Rüstzeit gespeichert werden.<sup>*</sup>
 					</label>
 					{{ form_errors(form.dsgvo_agree) }}

@@ -43,6 +43,31 @@ class Ruestzeit
     #[ORM\JoinColumn(nullable: false)]
     private ?Admin $admin = null;
 
+    #[ORM\ManyToOne(inversedBy: 'ruestzeiten')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Location $location = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_from = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $date_to = null;
+
+    #[ORM\Column]
+    private ?bool $show_location = true;
+
+    #[ORM\Column]
+    private ?bool $show_dates = true;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $internalTitle = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $flyerUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageUrl = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -190,6 +215,102 @@ class Ruestzeit
     public function setAdmin(?Admin $admin): static
     {
         $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getLocation(): ?Location
+    {
+        return $this->location;
+    }
+
+    public function setLocation(?Location $location): static
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    public function getDateFrom(): ?\DateTimeInterface
+    {
+        return $this->date_from;
+    }
+
+    public function setDateFrom(?\DateTimeInterface $date_from): static
+    {
+        $this->date_from = $date_from;
+
+        return $this;
+    }
+
+    public function getDateTo(): ?\DateTimeInterface
+    {
+        return $this->date_to;
+    }
+
+    public function setDateTo(?\DateTimeInterface $date_to): static
+    {
+        $this->date_to = $date_to;
+
+        return $this;
+    }
+
+    public function isShowLocation(): ?bool
+    {
+        return $this->show_location;
+    }
+
+    public function setShowLocation(bool $show_location): static
+    {
+        $this->show_location = $show_location;
+
+        return $this;
+    }
+
+    public function isShowDates(): ?bool
+    {
+        return $this->show_dates;
+    }
+
+    public function setShowDates(bool $show_dates): static
+    {
+        $this->show_dates = $show_dates;
+
+        return $this;
+    }
+
+    public function getInternalTitle(): ?string
+    {
+        return $this->internalTitle;
+    }
+
+    public function setInternalTitle(?string $internalTitle): static
+    {
+        $this->internalTitle = $internalTitle;
+
+        return $this;
+    }
+
+    public function getFlyerUrl(): ?string
+    {
+        return $this->flyerUrl;
+    }
+
+    public function setFlyerUrl(?string $flyerUrl): static
+    {
+        $this->flyerUrl = $flyerUrl;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): static
+    {
+        $this->imageUrl = $imageUrl;
 
         return $this;
     }  

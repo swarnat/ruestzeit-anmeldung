@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Admin;
 use App\Entity\Anmeldung;
+use App\Entity\Location;
 use App\Entity\Ruestzeit;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -58,16 +59,19 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linktoRoute('Homepage', 'fas fa-home', 'homepage');
 
         yield MenuItem::section('Rüstzeiten');
+        yield MenuItem::linkToCrud('Orte', 'fas fa-map-marker-alt', Location::class);
         yield MenuItem::linkToCrud('Rüstzeiten', 'fas fa-map-marker-alt', Ruestzeit::class);
 
         yield MenuItem::section('Anmeldungen');
 
-        yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-square-check', Anmeldung::class)
+        yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-file-import', Anmeldung::class)
             ->setController(AnmeldungCrudController::class)
         ;
 
         yield MenuItem::linkToCrud('Warteliste', 'fas fa-hourglass-half', Anmeldung::class)
             ->setController(WaitinglistCrudController::class)
+        ;
+        // yield MenuItem::linkToRoute("Import", 'fas fa-hourglass-half', 'app_anmeldung_import')
         ;
         
         yield MenuItem::section('Verwaltung');

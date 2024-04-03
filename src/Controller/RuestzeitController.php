@@ -6,6 +6,7 @@ use App\Entity\Anmeldung;
 use App\Enum\AnmeldungStatus;
 use App\Form\AnmeldungType;
 use App\Repository\RuestzeitRepository;
+use App\Service\PostalcodeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ class RuestzeitController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private PostalcodeService $postalcodeService
     ) {
     }
 
@@ -48,6 +50,11 @@ class RuestzeitController extends AbstractController
                 $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
             } else {
                 $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
+            }
+
+            $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
+            if(!empty($postalcodeData)) {
+                $anmeldung->setLandkreis($postalcodeData["region"]);
             }
             
             $this->entityManager->persist($anmeldung);

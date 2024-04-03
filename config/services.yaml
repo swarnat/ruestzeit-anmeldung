@@ -18,6 +18,7 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/Postalcodes/'
             - '../src/Kernel.php'
 
     App\EventListener\RequestListener:

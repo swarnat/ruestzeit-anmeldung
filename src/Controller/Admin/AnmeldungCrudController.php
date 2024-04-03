@@ -2,12 +2,20 @@
 
 namespace App\Controller\Admin;
 
+use App\AdminActions\Separator;
+use App\ChoicesLoader\Landkreis;
 use App\Entity\Anmeldung;
+use App\Entity\Ruestzeit;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
+use App\Filter\LandkreisFilter;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
+use App\Service\SignaturelistExporter;
+use App\Service\SignpaperExporter;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder as ORMQueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -32,9 +40,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -42,15 +52,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AnmeldungCrudController extends AbstractCrudController
 {
-    protected AdminUrlGenerator $adminUrlGenerator;
-    protected RequestStack $requestStack;
-
-    public function __construct(AdminUrlGenerator $adminUrlGenerator, RequestStack $requestStack)
-    {
-        $this->adminUrlGenerator = $adminUrlGenerator;
-        $this->requestStack = $requestStack;
+    public function __construct(
+        protected AdminUrlGenerator $adminUrlGenerator,
+        protected RequestStack $requestStack,
+        protected EntityManagerInterface $entityManager
+    ) {
     }
-        
+
     public static function getEntityFqcn(): string
     {
         return Anmeldung::class;
@@ -64,9 +72,9 @@ class AnmeldungCrudController extends AbstractCrudController
             ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::ACTIVE);
 
         return $queryBuilder;
-    }    
+    }
 
-    
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
@@ -89,12 +97,11 @@ class AnmeldungCrudController extends AbstractCrudController
             // ->setFormThemes(['my_theme.html.twig', 'admin.html.twig'])
             // ->addFormTheme('foo.html.twig')
             //  ->renderSidebarMinimized()
-            ;
+        ;
     }
 
     public function configureActions(Actions $actions): Actions
-    {
-;
+    {;
         $exportAction = Action::new('export')
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();
@@ -102,17 +109,33 @@ class AnmeldungCrudController extends AbstractCrudController
                     ->setAction('export')
                     ->generateUrl();
             })
-// ... line 81
+            // ... line 81
             ->setIcon('fa fa-download')
 
             ->createAsGlobalAction();
-            
-            $cancelAction = Action::new('cancel')
-                ->linkToCrudAction('cancel')
-                ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])                
-                ->setIcon('fa fa-cancel')
+
+            $signaturelistAction = Action::new('signaturelist', "Unterschriftenliste")
+            ->linkToUrl(function () {
+                $request = $this->requestStack->getCurrentRequest();
+                return $this->adminUrlGenerator->setAll($request->query->all())
+                    ->setAction('signaturelist')
+                    ->generateUrl();
+            })
+            // ... line 81
+            ->setIcon('fa fa-download')
+            ->createAsGlobalAction();
+
+        $cancelAction = Action::new('cancel', "Stornieren")
+            ->linkToCrudAction('cancel')
+            ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])
+            ->setIcon('fa fa-cancel')
+            ->setCssClass('btn btn-danger')
+            ->setTemplatePath('CancelAction.html.twig')
             ;
 
+           
+
+            /** @var \EasyCorp\Bundle\EasyAdminBundle\Config\Actions $actions */
         return parent::configureActions($actions)
             // ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
             //     $action->displayIf(static function (Anmeldung $question) {
@@ -131,23 +154,27 @@ class AnmeldungCrudController extends AbstractCrudController
             // ->add(Crud::PAGE_INDEX, $viewAction)
             // ->add(Crud::PAGE_DETAIL, $approveAction)
 
-            ->add(Crud::PAGE_INDEX, $exportAction)
-            ->add(Crud::PAGE_INDEX, $cancelAction)
-            ;
+            ->remove(Crud::PAGE_INDEX, "delete")
 
+            ->add(Crud::PAGE_INDEX, $exportAction)
+
+            ->add(Crud::PAGE_INDEX, $signaturelistAction)
+            ->add(Crud::PAGE_INDEX, $cancelAction)
+            ->reorder(Crud::PAGE_INDEX, ["edit", "cancel"])
+                        ;
     }
 
 
     public function configureFields(string $pageName): iterable
     {
 
-        yield FormField::addColumn(12); 
-        
-        if($pageName == Crud::PAGE_NEW) {
+        yield FormField::addColumn(12);
+
+        if ($pageName == Crud::PAGE_NEW) {
             yield AssociationField::new('ruestzeit', 'Rüstzeit');
         }
 
-        yield FormField::addColumn(6);        
+        yield FormField::addColumn(6);
 
         // yield ChoiceField::new('status', 'Status der Anmeldung')
         //     ->setChoices(AnmeldungStatus::cases())
@@ -158,23 +185,35 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield DateField::new('birthdate', 'Geburtstag');
 
+        if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Registrierungsposition');
+
         yield ChoiceField::new('mealtype', 'Verpflegung')
             ->setChoices(MealType::cases())
             ->setFormType(EnumType::class);
-        
-        if($pageName != Crud::PAGE_NEW) {
+
+        if ($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')->setDisabled(true);
         }
-        
+
 
         yield FormField::addFieldset('Zahlung');
 
-        yield BooleanField::new('prepayment_done', 'Anzahlung Überwiesen');
-        yield BooleanField::new('payment_done', 'Zahlung komplett');
+        $field = BooleanField::new('prepayment_done', 'Anzahlung Überwiesen');
+        if ($pageName == Crud::PAGE_INDEX) {
+            yield $field->setFormTypeOption('disabled', true);
+        }
+        yield $field;
 
-        yield FormField::addFieldset( );
+        $field = BooleanField::new('payment_done', 'Zahlung komplett');
+        if ($pageName == Crud::PAGE_INDEX) {
+            yield $field->setFormTypeOption('disabled', true);
+        }
+        yield $field;
 
-        if($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
+
+        yield FormField::addFieldset();
+
+        if ($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
 
         $createdAt = DateTimeField::new('createdAt')->setFormTypeOptions([
             'years' => range(date('Y'), date('Y') + 5),
@@ -184,23 +223,39 @@ class AnmeldungCrudController extends AbstractCrudController
             yield $createdAt->setFormTypeOption('disabled', true);
         }
 
+        if (Crud::PAGE_INDEX != $pageName) {
+            $agb = BooleanField::new('agb_agree', 'AGB akzeptiert');
+            yield $agb->setFormTypeOption('disabled', true);
+
+            $dsgvo = BooleanField::new('dsgvo_agree', 'Datenschutz Zustimmung');
+            yield $dsgvo->setFormTypeOption('disabled', true);
+        }
+
+
+
         yield FormField::addColumn(6);
 
         yield FormField::addFieldset('Adresse');
 
-        yield TextField::new('address', 'Strasse');
+        if ($pageName != Crud::PAGE_INDEX) {
+            yield TextField::new('address', 'Strasse');
 
-        yield TextField::new('postalcode', 'Postleitzahl');
+            yield TextField::new('postalcode', 'Postleitzahl');
+        }
+
         yield TextField::new('city', 'Ort');
-        
+        yield TextField::new('landkreis', 'Landkreis');
+
         yield FormField::addFieldset('Kontakt');
 
         yield TextField::new('phone', 'Telefon');
-  
     }
 
     public function configureFilters(Filters $filters): Filters
     {
+        //$query = $em->createQuery('SELECT u FROM MyProject\Model\User u WHERE u.age > 20');
+        //$users = $query->getResult();        
+
         return $filters
             ->add(EntityFilter::new('ruestzeit'))
             ->add(BooleanFilter::new('prepayment_done'))
@@ -208,21 +263,47 @@ class AnmeldungCrudController extends AbstractCrudController
             ->add(TextFilter::new('lastname'))
             ->add(TextFilter::new('postalcode'))
             ->add(TextFilter::new('city'))
-            ;
+            ->add(LandkreisFilter::new('landkreis')->setChoicesCallback(new Landkreis($this->entityManager, 1)))
+            ->add(
+                ChoiceFilter::new('mealtype')
+                    ->setTranslatableChoices(
+                        MealType::array()
+                        // [
+                        // MealType::ALL => \Symfony\Component\Translation\t((string)MealType::ALL, [], 'messages'),
+                        // MealType::VEGETARIAN->value => \Symfony\Component\Translation\t((string)MealType::VEGETARIAN->value, [], 'messages'),
+                        // MealType::VEGAN => \Symfony\Component\Translation\t((string)MealType::VEGAN, [], 'messages'),
+                        // ],
+                    )
+
+            );
     }
+
+
 
     public function export(AdminContext $context, ExcelExporter $csvExporter)
     {
-        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_INDEX));
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
         $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
 
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
-    } 
+    }
     
-    public function cancel(AdminContext $context, UrlGeneratorInterface $urlGenerator) {
-        $anmeldung = $context->getEntity()->getInstance();
+    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter)
+    {
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
         
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $this->container->get('doctrine')->getManagerForClass(Ruestzeit::class);
+        $ruestzeit = $entityManager->find(Ruestzeit::class, 1);
+
+        return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf');
+    }
+
+    public function cancel(AdminContext $context, UrlGeneratorInterface $urlGenerator)
+    {
+        $anmeldung = $context->getEntity()->getInstance();
+
         $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);
 
         $anmeldung->setStatus(AnmeldungStatus::CANCEL);
@@ -237,5 +318,4 @@ class AnmeldungCrudController extends AbstractCrudController
             ->generateUrl();
         return new RedirectResponse($url);
     }
-    
 }

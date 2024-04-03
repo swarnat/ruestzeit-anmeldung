@@ -1,0 +1,63 @@
+/*!***************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[4].oneOf[1].use[1]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[4].oneOf[1].use[2]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[4].oneOf[1].use[3]!./assets/styles/app.scss ***!
+  \***************************************************************************************************************************************************************************************************************************************************************************/
+body {
+  background-color: #eee;
+}
+
+.container li {
+  list-style: square;
+  margin-left: 20px;
+}
+
+.entry_description_outer {
+  background-color: #fff;
+  min-height: 25vh;
+}
+.entry_description_outer .entry_description {
+  padding: 25px;
+}
+
+.entry_location_details {
+  float: right;
+  width: 300px;
+  shape-outside: margin-box;
+  border-left: 30px solid #eee;
+  border-bottom: 30px solid #eee;
+  background-color: #eee;
+  border-radius: 0 !important;
+  border-bottom-left-radius: 30px !important;
+  margin-left: 10px;
+  margin-bottom: 10px;
+}
+.entry_location_details .card {
+  box-shadow: none !important;
+}
+.entry_location_details > .card:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.login.container {
+  background-color: transparent;
+}
+
+h1.title {
+  margin-top: 1.5rem;
+}
+
+.container div.emailfield {
+  position: absolute;
+  top: -100%;
+}
+
+form sup {
+  color: red;
+  margin-left: 5px;
+}
+
+form .invalid-feedback {
+  color: red;
+  font-size: 12px;
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLmNzcyIsIm1hcHBpbmdzIjoiOzs7QUFBQTtFQUNFO0FBQ0Y7O0FBRUU7RUFDRTtFQUNBO0FBQ0o7O0FBR0E7RUFDRTtFQUNBO0FBQUY7QUFHRTtFQUNFO0FBREo7O0FBTUE7RUFDRTtFQUVBO0VBS0E7RUFHQTtFQUNBO0VBQ0E7RUFFQTtFQUNBO0VBRUE7RUFDQTtBQVpGO0FBY0U7RUFDRTtBQVpKO0FBZUU7RUFDRTtBQWJKOztBQW9CRTtFQUNFO0FBakJKOztBQXFCQTtFQUNFO0FBbEJGOztBQXNCRTtFQUNFO0VBQ0E7QUFuQko7O0FBc0JBO0VBQ0U7RUFDQTtBQW5CRjs7QUFxQkE7RUFDRTtFQUNBO0FBbEJGLEMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vLi9hc3NldHMvc3R5bGVzL2FwcC5zY3NzIl0sInNvdXJjZXNDb250ZW50IjpbImJvZHkge1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAjZWVlO1xufVxuLmNvbnRhaW5lciB7XG4gIGxpIHtcbiAgICBsaXN0LXN0eWxlOiBzcXVhcmU7XG4gICAgbWFyZ2luLWxlZnQ6IDIwcHg7XG4gIH1cbn1cblxuLmVudHJ5X2Rlc2NyaXB0aW9uX291dGVyIHsgXG4gIGJhY2tncm91bmQtY29sb3I6ICNmZmY7IFxuICBtaW4taGVpZ2h0OiAyNXZoO1xuICAvLyBwYWRkaW5nOiAxMHB4IDIwcHg7XG5cbiAgLmVudHJ5X2Rlc2NyaXB0aW9uIHtcbiAgICBwYWRkaW5nOjI1cHg7XG4gIH1cblxufVxuXG4uZW50cnlfbG9jYXRpb25fZGV0YWlscyB7XG4gIGZsb2F0OiByaWdodDtcblxuICB3aWR0aDogMzAwcHg7XG4gIC8vIGhlaWdodDogMjUwcHg7ICBcblxuICAvLyBkaXNwbGF5OiBmbGV4O1xuICAvLyBhbGlnbi1pdGVtczogZmxleC1lbmQ7XG4gIHNoYXBlLW91dHNpZGU6IG1hcmdpbi1ib3g7XG5cbiAgLy8gcGFkZGluZzoxMHB4O1xuICBib3JkZXItbGVmdDozMHB4IHNvbGlkICNlZWU7XG4gIGJvcmRlci1ib3R0b206MzBweCBzb2xpZCAjZWVlO1xuICBiYWNrZ3JvdW5kLWNvbG9yOiAjZWVlO1xuXG4gIGJvcmRlci1yYWRpdXM6MCAhaW1wb3J0YW50O1xuICBib3JkZXItYm90dG9tLWxlZnQtcmFkaXVzOiAzMHB4ICFpbXBvcnRhbnQ7ICBcblxuICBtYXJnaW4tbGVmdDoxMHB4O1xuICBtYXJnaW4tYm90dG9tOjEwcHg7XG5cbiAgLmNhcmQge1xuICAgIGJveC1zaGFkb3c6IG5vbmUgIWltcG9ydGFudDtcbiAgfVxuXG4gID4gLmNhcmQ6bm90KDpsYXN0LWNoaWxkKSB7XG4gICAgbWFyZ2luLWJvdHRvbToyMHB4O1xuICB9XG59XG5cblxuXG4ubG9naW4ge1xuICAmLmNvbnRhaW5lciB7XG4gICAgYmFja2dyb3VuZC1jb2xvcjogdHJhbnNwYXJlbnQ7XG4gIH1cbn1cblxuaDEudGl0bGUge1xuICBtYXJnaW4tdG9wOiAxLjVyZW07XG59XG5cbi5jb250YWluZXIge1xuICBkaXYuZW1haWxmaWVsZCB7XG4gICAgcG9zaXRpb246IGFic29sdXRlO1xuICAgIHRvcDogY2FsYygxMDAlIC0gMjAwJSk7XG4gIH1cbn1cbmZvcm0gc3VwIHtcbiAgY29sb3I6cmVkO1xuICBtYXJnaW4tbGVmdDo1cHg7XG59XG5mb3JtIC5pbnZhbGlkLWZlZWRiYWNrIHtcbiAgY29sb3I6cmVkO1xuICBmb250LXNpemU6MTJweDtcbn1cblxuIl0sIm5hbWVzIjpbXSwic291cmNlUm9vdCI6IiJ9*/

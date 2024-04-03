@@ -26,4 +26,5 @@ class ImpressumController extends AbstractController
         
         return new Response($twig->render('impressum.html.twig'));
     }
+
 }
