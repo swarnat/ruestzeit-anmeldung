@@ -2,21 +2,21 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/build/runtime.js",
-        "/build/vendors-node_modules_core-js_modules_es_date_to-string_js-node_modules_imask_esm_index_js.js",
-        "/build/app.js"
+        "/build/runtime.5fd71670.js",
+        "/build/674.71a84660.js",
+        "/build/app.7ec5adcb.js"
       ],
       "css": [
-        "/build/app.css"
+        "/build/app.14cae73e.css"
       ]
     },
     "Bulma": {
       "js": [
-        "/build/runtime.js"
+        "/build/runtime.5fd71670.js"
       ],
       "css": [
-        "/build/vendors-node_modules_fortawesome_fontawesome-free_css_all_css.css",
-        "/build/Bulma.css"
+        "/build/706.683a8493.css",
+        "/build/Bulma.213ed8e2.css"
       ]
     }
   }
