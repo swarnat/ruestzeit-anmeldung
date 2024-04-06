@@ -16,7 +16,7 @@
 		<section class="mb-5 entry_description_outer">
 			<div class="entry_child_container">
 				{% if (ruestzeit.showDates) or (ruestzeit.showLocation)  or (ruestzeit.imageUrl != "") %}
-					<div class="entry_cards entry_location_details is-hidden-mobile">
+					<div class="entry_cards entry_location_details">
 						{% if ruestzeit.showDates %}
 							<div class="card">
 								<header class="card-header">
@@ -74,7 +74,7 @@
 			{{ ruestzeit.memberlimit }}
 			Plätze verfügbar<br/>
 			Anmeldungen möglich ab
-			{{ ruestzeit.registrationstart | format_datetime('medium', 'short') }}
+			{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
 		</div>
 
 
