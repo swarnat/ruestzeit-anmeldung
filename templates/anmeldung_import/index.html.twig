@@ -1,13 +1,23 @@
-{# ./src/templates/home/index.html.twig #}
-{% extends '@EasyAdmin/Default/layout.html.twig' %}
+{% extends '@EasyAdmin/page/content.html.twig' %}
 
-{# Let\'s remove/empty the header #}
-{% block content_header_wrapper %} {% endblock content_header_wrapper %}
+{% block content_title %}
+	Import von Anmeldungen
+{% endblock %}
+{% block page_content %}
+	<p>1. Exportiere eine Vorlage für Anmeldungen über folgenden Button:</p>
+	<a class="btn btn-primary" href="/admin?routeName=app_anmeldung_import_preset">Vorlage herunterladen</a>
 
-{# The main page content block #}
-{% block main %}
-   **PUT YOUR CODE HERE**
-{% endblock main %}
-
-{# Let\'s remove/empty the footer #}
-{% block content_footer_wrapper %} {% endblock content_footer_wrapper %}
+	<hr/>
+	<p>2. Importiere Anmeldungen der Vorlage, indem du die befüllte Datei hier auswähltst</p>
+	<div class="card">
+		<div class="card-body">
+			<form method="POST" enctype="multipart/form-data" action="/admin?routeName=app_anmeldung_import_run">
+				<div class="form-group">
+					<label for="exampleFormControlFile1">Datei mit Anmeldungen hier auswählen</label><br/>
+					<input type="file" name="import" class="form-control-file" id="exampleFormControlFile1">
+				</div>
+            <button type="submit" class="btn btn-primary" name="submit">Import starten</button>
+			</form>
+		</div>
+	</div>
+{% endblock %}

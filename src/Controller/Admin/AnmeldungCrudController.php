@@ -180,8 +180,8 @@ class AnmeldungCrudController extends AbstractCrudController
         //     ->setChoices(AnmeldungStatus::cases())
         //     ->setFormType(EnumType::class);
 
-        yield TextField::new('firstname', 'Vorname');
-        yield TextField::new('lastname', 'Nachname');
+        yield TextField::new('firstname', 'Vorname')->setCustomOption('xls-width', 200);
+        yield TextField::new('lastname', 'Nachname')->setCustomOption('xls-width', 200);
 
         yield DateField::new('birthdate', 'Geburtstag');
 
@@ -192,7 +192,15 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setFormType(EnumType::class);
 
         if ($pageName != Crud::PAGE_NEW) {
-            yield IntegerField::new('age', 'Alter')->setDisabled(true);
+            yield IntegerField::new('age', 'Alter')->setDisabled(true)->setCustomOption('generated', true);
+        }
+        if ($pageName == Crud::PAGE_NEW || $pageName == Crud::PAGE_EDIT) {
+            yield ChoiceField::new('status', 'Status')
+                ->setChoices(AnmeldungStatus::cases())
+                ->setFormType(EnumType::class);
+                
+                yield IntegerField::new('registrationPosition', 'Registrierungsposition');
+
         }
 
 
@@ -222,6 +230,9 @@ class AnmeldungCrudController extends AbstractCrudController
         if (Crud::PAGE_EDIT === $pageName) {
             yield $createdAt->setFormTypeOption('disabled', true);
         }
+        $createdAt->setTimezone("Europe/Berlin");
+        $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
+
 
         if (Crud::PAGE_INDEX != $pageName) {
             $agb = BooleanField::new('agb_agree', 'AGB akzeptiert');
@@ -244,7 +255,7 @@ class AnmeldungCrudController extends AbstractCrudController
         }
 
         yield TextField::new('city', 'Ort');
-        yield TextField::new('landkreis', 'Landkreis');
+        yield TextField::new('landkreis', 'Landkreis')->setCustomOption('generated', true);
 
         yield FormField::addFieldset('Kontakt');
 
@@ -263,7 +274,9 @@ class AnmeldungCrudController extends AbstractCrudController
             ->add(TextFilter::new('lastname'))
             ->add(TextFilter::new('postalcode'))
             ->add(TextFilter::new('city'))
-            ->add(LandkreisFilter::new('landkreis')->setChoicesCallback(new Landkreis($this->entityManager, 1)))
+            ->add(LandkreisFilter::new('landkreis')
+                ->setChoicesCallback(new Landkreis($this->entityManager, 1))
+            )
             ->add(
                 ChoiceFilter::new('mealtype')
                     ->setTranslatableChoices(

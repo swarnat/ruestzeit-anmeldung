@@ -147,6 +147,15 @@ class Ruestzeit
             return $anmeldung->getStatus() == AnmeldungStatus::ACTIVE;
         });
     }
+    /**
+     * @return Collection<int, Anmeldung>
+     */
+    public function getWaitlistAnmeldungen(): Collection
+    {
+        return $this->getAnmeldungen()->filter(function(Anmeldung $anmeldung) {
+            return $anmeldung->getStatus() == AnmeldungStatus::WAITLIST;
+        });
+    }
 
     /**
      * @return Collection<int, Anmeldung>

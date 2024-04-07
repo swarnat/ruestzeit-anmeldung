@@ -73,8 +73,10 @@
 			Insgesamt
 			{{ ruestzeit.memberlimit }}
 			Plätze verfügbar<br/>
-			Anmeldungen möglich ab
-			{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
+			{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
+				Anmeldungen möglich ab
+				{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }} Uhr
+			{% endif %}
 		</div>
 
 

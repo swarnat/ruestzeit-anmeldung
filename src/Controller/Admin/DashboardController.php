@@ -6,6 +6,7 @@ use App\Entity\Admin;
 use App\Entity\Anmeldung;
 use App\Entity\Location;
 use App\Entity\Ruestzeit;
+use App\Repository\RuestzeitRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -17,6 +18,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(private RuestzeitRepository $ruestzeitRepository)
+    {
+    }    
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
@@ -53,6 +57,8 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
+        $ruestzeit = $this->ruestzeitRepository->findOneBy([]);
+
         // yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
 
@@ -66,12 +72,17 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-file-import', Anmeldung::class)
             ->setController(AnmeldungCrudController::class)
+            ->setBadge($ruestzeit->getMemberCount() . '/' . $ruestzeit->getMemberlimit());
         ;
+
+        
 
         yield MenuItem::linkToCrud('Warteliste', 'fas fa-hourglass-half', Anmeldung::class)
             ->setController(WaitinglistCrudController::class)
+            ->setBadge(count($ruestzeit->getWaitlistAnmeldungen()));
         ;
-        // yield MenuItem::linkToRoute("Import", 'fas fa-hourglass-half', 'app_anmeldung_import')
+
+        yield MenuItem::linkToRoute("Import", 'fas fa-upload', 'app_anmeldung_import')
         ;
         
         yield MenuItem::section('Verwaltung');
