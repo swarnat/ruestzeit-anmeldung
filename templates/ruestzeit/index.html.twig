@@ -78,7 +78,11 @@
 				{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }} Uhr
 			{% endif %}
 		</div>
-
+		{% if allowRegistration %}
+			<div class="notification is-success">
+				Anmeldung per Registrierungscode aktiviert
+			</div>
+		{% endif %}
 
 		<form class="box" method="POST" action="#" enctype="multipart/form-data">
 			<h2 class="title">Anmeldung</h2>
@@ -101,7 +105,7 @@
 				{% endif %}
 			</div>
 
-			{% if ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
+			{% if allowRegistration or ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
 				<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}">
 				<input type="hidden" name="timing" value="{{ 'now'|date('U') }}">
 

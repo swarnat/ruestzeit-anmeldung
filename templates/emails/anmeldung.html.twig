@@ -1,0 +1,163 @@
+Folgende Anmeldung ist gerade eingegangen:
+
+<table style="font-family:Arial; width:800px;">
+    <tr>
+        <th>Vorname</th><td>{{ anmeldung.firstname }}</td>
+    
+        <th>Nachname</th><td>{{ anmeldung.lastname }}</td>
+    </tr>
+    <tr>
+        <th>Geburstag</th><td>{{ anmeldung.birthdate | format_date('medium') }}</td>
+        <th>Verpflegung</th><td>{{ anmeldung.mealtype.value }}</td>
+    </tr>
+    <tr>
+        <th>Strasse</th><td>{{ anmeldung.address }}</td>
+    
+        <th>Plz / Ort</th><td>{{ anmeldung.postalcode }} {{ anmeldung.city }}</td>
+    </tr>
+    <tr>
+        <th>Telefon</th><td>{{ anmeldung.phone }}</td>
+    </tr>
+    <tr>
+        <th>Position der Registrierung</th><td>{{ anmeldung.registrationPosition }}</td>
+    </tr>
+
+</table>
+<style>
+    th {
+        text-align:right;
+        padding-right:10px;
+    }
+</style>
+
+					{# <div class="column">
+						<div class="field">
+							<label class="label">Nachname des Teilnehmers<sup>*</sup>
+							</label>
+							<div class="control">
+								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" required>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.lastname) }}
+
+						</div>
+					</div>
+				</div>
+				<div class="columns">
+					<div class="column">
+
+						<div class="field">
+							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required>
+								<span class="icon is-small is-left">
+									<i class="fas fa-calendar"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.birthdate) }}
+						</div>
+						<div class="field">
+							<label class="label">Telefon<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" tabindex="7" required>
+								<span class="icon is-small is-left">
+									<i class="fas fa-phone"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.phone) }}
+						</div>
+						<div class="field emailfield">
+							<label class="label">E-Mail<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input" type="email" name="anmeldung[email]" tabindex="20">
+								<span class="icon is-small is-left">
+									<i class="fas fa-envelope"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+						</div>
+						<div class="field">
+							<label class="label">Anmerkungen</label>
+							<div class="control">
+								<textarea class="textarea" type="text" name="{{ field_name(form.notes) }}" rows="4" tabindex="8">{{ field_value(form.notes) }}</textarea>
+							</div>
+							<p class="help">Besonderheiten / Allergien</p>
+							{{ form_errors(form.notes) }}
+						</div>
+
+						<div class="field">
+							<label class="label">Verpflegung<sup>*</sup>
+							</label>
+							<div class="control">
+								<label class="radio">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="9">
+									Alles
+								</label>
+								<label class="radio">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="9">
+									Vegetarisch
+								</label>
+								<label class="radio">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="9">
+									Vegan
+								</label>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.mealtype) }}
+						</div>
+
+
+					</div>
+					<div class="column">
+						<div class="card">
+							<header class="card-header">
+								<p class="card-header-title">
+									Adresse
+								</p>
+							</header>
+							<div class="card-content">
+								<div class="field">
+									<label class="label">Strasse<sup>*</sup>
+									</label>
+									<div class="control">
+										<input class="input" tabindex="3" name="{{ field_name(form.address) }}" value="{{ field_value(form.address) }}" type="text" placeholder="" required>
+									</div>
+									<p class="help">Pflichtfeld</p>
+									{{ form_errors(form.address) }}
+								</div>
+
+								<div class="columns">
+									<div class="column">
+										<div class="field">
+											<label class="label">Postleitzahl<sup>*</sup>
+											</label>
+											<div class="control">
+												<input class="input" tabindex="5" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required>
+											</div>
+											<p class="help">Pflichtfeld</p>
+											{{ form_errors(form.postalcode) }}
+										</div>
+
+									</div>
+									<div class="column">
+										<div class="field">
+											<label class="label">Ort<sup>*</sup>
+											</label>
+											<div class="control">
+												<input class="input" tabindex="5" name="{{ field_name(form.city) }}" value="{{ field_value(form.city) }}" type="text" placeholder="" required>
+											</div>
+											<p class="help">Pflichtfeld</p>
+											{{ form_errors(form.city) }}
+										</div>
+
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div> #}
