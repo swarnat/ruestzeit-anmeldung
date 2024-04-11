@@ -96,6 +96,9 @@ class Anmeldung
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $email = null;
 
+    #[ORM\Column(length: 6, nullable: true)]
+    private ?string $schoolclass = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -354,6 +357,18 @@ class Anmeldung
     public function setEmail(?string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getSchoolclass(): ?string
+    {
+        return $this->schoolclass;
+    }
+
+    public function setSchoolclass(?string $schoolclass): static
+    {
+        $this->schoolclass = $schoolclass;
 
         return $this;
     }

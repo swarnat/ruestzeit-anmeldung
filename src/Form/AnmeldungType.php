@@ -46,6 +46,7 @@ class AnmeldungType extends AbstractType
             ->add('address')
             ->add('phone')
             ->add('email')
+            ->add('schoolclass')
             ->add('mealtype', EnumType::class, [
                 'class' => MealType::class
             ])

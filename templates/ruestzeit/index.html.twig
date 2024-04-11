@@ -242,6 +242,16 @@
 
 					</div>
 					<div class="column">
+						<div class="field">
+							<label class="label">Schulklasse<sup>*</sup>
+							</label>
+							<div class="control">
+								<input class="input" type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="3" required>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.schoolclass) }}
+						</div>
+
 						<div class="card">
 							<header class="card-header">
 								<p class="card-header-title">
@@ -299,7 +309,7 @@
 
 					<label class="checkbox">
 						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1" required tabindex="10">
-						Ich akzeptiere, dass die Daten des Teilnehmers für die Zeit der Rüstzeit gespeichert werden.<sup>*</sup>
+						Ich akzeptiere, dass die Daten des Teilnehmers für Planung und Auswertung gespeichert werden.<sup>*</sup>
 					</label>
 					{{ form_errors(form.dsgvo_agree) }}
 

@@ -162,8 +162,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
             ->add(Crud::PAGE_INDEX, $signaturelistAction)
             ->add(Crud::PAGE_INDEX, $cancelAction)
-            ->reorder(Crud::PAGE_INDEX, ["edit", "cancel"])
-                        ;
+            ->reorder(Crud::PAGE_INDEX, ["edit", "cancel"]);
     }
 
 
@@ -199,22 +198,25 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield DateField::new('birthdate', 'Geburtstag');
 
+        if ($pageName != Crud::PAGE_NEW) {
+            yield IntegerField::new('age', 'Alter')->setDisabled(true)->setCustomOption('generated', true);
+        }
+
+        yield IntegerField::new('schoolclass', 'Schulklasse');
+
         if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Registrierungsposition');
 
         yield ChoiceField::new('mealtype', 'Verpflegung')
             ->setChoices(MealType::cases())
             ->setFormType(EnumType::class);
 
-        if ($pageName != Crud::PAGE_NEW) {
-            yield IntegerField::new('age', 'Alter')->setDisabled(true)->setCustomOption('generated', true);
-        }
         
         if ($pageName == Crud::PAGE_NEW || $pageName == Crud::PAGE_EDIT) {
             yield ChoiceField::new('status', 'Status')
                 ->setChoices(AnmeldungStatus::cases())
                 ->setFormType(EnumType::class);
                 
-                yield IntegerField::new('registrationPosition', 'Registrierungsposition');
+                yield IntegerField::new('registrationPosition', 'Registrierungsposition')->setCustomOption('generated', true);
 
         }
 
