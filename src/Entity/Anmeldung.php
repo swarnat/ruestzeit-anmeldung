@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
+use App\Enum\PersonenTyp;
 use App\Form\AnmeldungType;
 use App\Repository\AnmeldungRepository;
 use DateTime;
@@ -88,6 +89,12 @@ class Anmeldung
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $landkreis = null;
+
+    #[ORM\Column(type: "string", enumType: PersonenTyp::class)]
+    private PersonenTyp $personenTyp = PersonenTyp::TEILNEHMER;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $email = null;
 
     public function getId(): ?int
     {
@@ -323,6 +330,30 @@ class Anmeldung
     public function setLandkreis(?string $landkreis): static
     {
         $this->landkreis = $landkreis;
+
+        return $this;
+    }
+
+    public function getPersonenTyp(): PersonenTyp
+    {
+        return $this->personenTyp;
+    }
+
+    public function setPersonenTyp(PersonenTyp $personenTyp): static
+    {
+        $this->personenTyp = $personenTyp;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(?string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }

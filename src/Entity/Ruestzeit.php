@@ -68,6 +68,9 @@ class Ruestzeit
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
+    #[ORM\Column(length: 75, nullable: true)]
+    private ?string $password = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -320,6 +323,18 @@ class Ruestzeit
     public function setImageUrl(?string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(?string $password): static
+    {
+        $this->password = $password;
 
         return $this;
     }  

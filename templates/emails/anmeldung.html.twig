@@ -1,4 +1,4 @@
-Folgende Anmeldung ist gerade eingegangen:
+Folgende Anmeldung ist soeben eingegangen:
 
 <table style="font-family:Arial; width:800px;">
     <tr>
@@ -17,9 +17,11 @@ Folgende Anmeldung ist gerade eingegangen:
     </tr>
     <tr>
         <th>Telefon</th><td>{{ anmeldung.phone }}</td>
+        <th>E-Mail</th><td>{{ anmeldung.email }}</td>
     </tr>
     <tr>
         <th>Position der Registrierung</th><td>{{ anmeldung.registrationPosition }}</td>
+        <th>Kategorie</th><td>{{ anmeldung.personentyp.value }}</td>
     </tr>
 
 </table>
@@ -28,6 +30,9 @@ Folgende Anmeldung ist gerade eingegangen:
         text-align:right;
         padding-right:10px;
     }
+	td, th {
+		padding:5px 10px;
+	}
 </style>
 
 					{# <div class="column">

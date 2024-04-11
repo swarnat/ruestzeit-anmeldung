@@ -56,7 +56,7 @@
 						{% endif %}
 						{% if ruestzeit.imageUrl != "" %}
 							<a href="{{ ruestzeit.flyerUrl }}" target="_blank">
-								<img src="{{ ruestzeit.imageUrl }}" alt="Flyer zur {{ ruestzeit.title }}" />
+								<img src="{{ ruestzeit.imageUrl }}" alt="Flyer zur {{ ruestzeit.title }}"/>
 							</a>
 						{% endif %}
 					</div>
@@ -75,7 +75,8 @@
 			Plätze verfügbar<br/>
 			{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
 				Anmeldungen möglich ab
-				{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }} Uhr
+				{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
+				Uhr
 			{% endif %}
 		</div>
 		{% if allowRegistration %}
@@ -161,6 +162,18 @@
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.birthdate) }}
 						</div>
+						<div class="field emailfield">
+							<label class="label">Alter<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input" type="number" name="anmeldung[agefield]" tabindex="20">
+								<span class="icon is-small is-left">
+									<i class="fas fa-envelope"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+						</div>
+
 						<div class="field">
 							<label class="label">Telefon<sup>*</sup>
 							</label>
@@ -173,11 +186,23 @@
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.phone) }}
 						</div>
-						<div class="field emailfield">
+						<div class="field">
 							<label class="label">E-Mail<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input" type="email" name="anmeldung[email]" tabindex="20">
+								<input class="input" type="text" name="{{ field_name(form.email) }}" value="{{ field_value(form.email) }}" placeholder="email@adresse.de" tabindex="8" required>
+								<span class="icon is-small is-left">
+									<i class="fas fa-envelope"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.phone) }}
+						</div>
+						<div class="field emailfield">
+							<label class="label">E-Mail Wdh.<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input" type="email" name="anmeldung[email_repeat]" rel="email" tabindex="20">
 								<span class="icon is-small is-left">
 									<i class="fas fa-envelope"></i>
 								</span>
@@ -283,6 +308,13 @@
 				{{ form_rest(form) }}
 
 				<button class="button is-success">Anmeldung absenden</button>
+				<div style="width:calc(100% - 200px); display:inline-block; padding-left:25px;">
+					<label>
+						<input type="checkbox" name="repeat_process" value="1">
+						Ich möchte im Anschluss einen weiteren Teilnehmer mit ähnlichen Angaben anmelden.<br/>
+						<em>In diesem Fall übernehmen wir einige Angaben.</em>
+					</label>
+				</div>
 			{% else %}
 				<div class="notification">
 					Aktuell ist die Anmeldung noch nicht möglich.

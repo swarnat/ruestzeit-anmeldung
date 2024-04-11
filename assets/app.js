@@ -12,7 +12,7 @@ window.addEventListener('load', function () {
     document.querySelector('.emailfield input').setAttribute('tabindex', -1)
     
     var timing = document.querySelector('[name="timing"]').value 
-    document.querySelector('.emailfield input').value = ((timing * 3) / 2) + "@example.com";
+    document.querySelector('.emailfield input[rel="email"]').value = ((timing * 3) / 2) + "@example.com";
 
 
     const element = document.getElementsByClassName('birthday_field'); 

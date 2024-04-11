@@ -9,7 +9,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[AsEntityListener(event: Events::prePersist, entity: Ruestzeit::class)]
-// #[AsEntityListener(event: Events::preUpdate, entity: Conference::class)]
+#[AsEntityListener(event: Events::preUpdate, entity: Ruestzeit::class)]
 class RuestzeitEntityListener
 {
     public function __construct(
@@ -24,6 +24,9 @@ class RuestzeitEntityListener
 
     public function preUpdate(Ruestzeit $conference, LifecycleEventArgs $event)
     {
+
+        $conference->setPassword(preg_replace("/[^a-zA-Z0-9-_]/", '', $conference->getPassword()));
+
         // Do not update slug after creation
         // $conference->computeSlug($this->slugger);
     }

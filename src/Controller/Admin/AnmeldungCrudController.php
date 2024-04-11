@@ -8,6 +8,7 @@ use App\Entity\Anmeldung;
 use App\Entity\Ruestzeit;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
+use App\Enum\PersonenTyp;
 use App\Filter\LandkreisFilter;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
@@ -114,7 +115,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
             ->createAsGlobalAction();
 
-            $signaturelistAction = Action::new('signaturelist', "Unterschriftenliste")
+        $signaturelistAction = Action::new('signaturelist', "Unterschriftenliste")
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();
                 return $this->adminUrlGenerator->setAll($request->query->all())
@@ -130,7 +131,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])
             ->setIcon('fa fa-cancel')
             ->setCssClass('btn btn-danger')
-            ->setTemplatePath('CancelAction.html.twig')
+            // ->setTemplatePath('CancelAction.html.twig')
             ;
 
            
@@ -165,6 +166,14 @@ class AnmeldungCrudController extends AbstractCrudController
     }
 
 
+    public function createEntity(string $entityFqcn) {
+        $entity = parent::createEntity($entityFqcn);
+
+        $entity->setAgbAgree(true);
+        $entity->setDsgvoAgree(true);
+        return $entity;
+    }
+
     public function configureFields(string $pageName): iterable
     {
 
@@ -183,6 +192,10 @@ class AnmeldungCrudController extends AbstractCrudController
         yield TextField::new('firstname', 'Vorname')->setCustomOption('xls-width', 200);
         yield TextField::new('lastname', 'Nachname')->setCustomOption('xls-width', 200);
 
+        yield ChoiceField::new('personenTyp', 'Kategorie')
+            ->setChoices(PersonenTyp::cases())
+            ->setFormType(EnumType::class);
+
         yield DateField::new('birthdate', 'Geburtstag');
 
         if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Registrierungsposition');
@@ -194,6 +207,7 @@ class AnmeldungCrudController extends AbstractCrudController
         if ($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')->setDisabled(true)->setCustomOption('generated', true);
         }
+        
         if ($pageName == Crud::PAGE_NEW || $pageName == Crud::PAGE_EDIT) {
             yield ChoiceField::new('status', 'Status')
                 ->setChoices(AnmeldungStatus::cases())
@@ -236,10 +250,16 @@ class AnmeldungCrudController extends AbstractCrudController
 
         if (Crud::PAGE_INDEX != $pageName) {
             $agb = BooleanField::new('agb_agree', 'AGB akzeptiert');
-            yield $agb->setFormTypeOption('disabled', true);
+            if (Crud::PAGE_NEW != $pageName) {
+                $agb->setFormTypeOption('disabled', true);
+            }
+            yield $agb;
 
             $dsgvo = BooleanField::new('dsgvo_agree', 'Datenschutz Zustimmung');
-            yield $dsgvo->setFormTypeOption('disabled', true);
+            if (Crud::PAGE_NEW != $pageName) {
+                $dsgvo->setFormTypeOption('disabled', true);
+            }
+            yield $dsgvo;
         }
 
 
@@ -260,6 +280,7 @@ class AnmeldungCrudController extends AbstractCrudController
         yield FormField::addFieldset('Kontakt');
 
         yield TextField::new('phone', 'Telefon');
+        yield TextField::new('email', 'E-Mail');
     }
 
     public function configureFilters(Filters $filters): Filters

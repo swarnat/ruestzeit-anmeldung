@@ -7,6 +7,8 @@ use App\Entity\Ruestzeit;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -34,7 +36,7 @@ class RuestzeitCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInPlural("Rüstzeiten")
             ->setEntityLabelInSingular("Rüstzeit")
-            ->setDateFormat('d.MM.Y')
+            ->setDateFormat('dd.MM.Y')
             ->setTimeFormat('HH:mm')
             ->setDateTimeFormat('d.MM.Y HH:mm')
             ->renderContentMaximized()
@@ -55,24 +57,40 @@ class RuestzeitCrudController extends AbstractCrudController
         ;
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        $passwordLink = Action::new('passwordlink', "Link inkl. Passwort")
+            ->linkToUrl(function (Ruestzeit $ruestzeit) {
+                return '/?pw=' . $ruestzeit->getPassword();
+            })
+            ->displayIf(function (Ruestzeit $ruestzeit) {
+                return $ruestzeit->getPassword() != '';
+            })
+
+            // ... line 81
+            ->setIcon('fa fa-link');
+
+        return parent::configureActions($actions)
+            ->remove(Crud::PAGE_INDEX, "delete")
+            ->add(Crud::PAGE_INDEX, $passwordLink);
+    }
+    
     public function configureFields(string $pageName): iterable
     {
-        yield FormField::addColumn(6);        
+        yield FormField::addColumn(6);
 
         yield TextField::new('title', 'Titel');
 
-        yield FormField::addColumn(6);        
+        yield FormField::addColumn(6);
 
         yield AssociationField::new('location', 'Ort')
             ->setCrudController(LocationCrudController::class);
 
-        
 
-        if($pageName != Crud::PAGE_INDEX) {
-            yield FormField::addColumn(12);        
-            yield TextEditorField::new('description', 'Beschreibung')->setTrixEditorConfig([
 
-            ]);
+        if ($pageName != Crud::PAGE_INDEX) {
+            yield FormField::addColumn(12);
+            yield TextEditorField::new('description', 'Beschreibung')->setTrixEditorConfig([]);
         }
 
         if ($pageName == 'index') {
@@ -82,7 +100,7 @@ class RuestzeitCrudController extends AbstractCrudController
         yield FormField::addColumn(6);
         yield IntegerField::new('memberlimit', 'Teilnehmerlimit');
 
-        if($pageName != Crud::PAGE_INDEX) {
+        if ($pageName != Crud::PAGE_INDEX) {
             yield FormField::addColumn(6);
             yield TextField::new('internalTitle', 'interne Bezeichnung')->setHelp('Angezeigt auf Unterschriftenliste');
         }
@@ -90,27 +108,32 @@ class RuestzeitCrudController extends AbstractCrudController
         yield FormField::addColumn(12);
         yield DateTimeField::new('registration_start', 'Anmeldestart')
             ->setTimezone("Europe/Berlin")
-            ->setFormTypeOption('view_timezone', "Europe/Berlin")
-        ;
+            ->setFormTypeOption('view_timezone', "Europe/Berlin");
 
         yield FormField::addColumn(6);
         yield UrlField::new('flyer_url', 'Flyer URL');
-        
+
         yield FormField::addColumn(6);
         yield UrlField::new('image_url', 'Flyer Image URL');
 
         yield FormField::addColumn(6);
         yield DateField::new('date_from', 'Rüstzeit ab');
-        
+
         yield FormField::addColumn(6);
         yield DateField::new('date_to', 'Rüstzeit bis');
 
-        if($pageName != Crud::PAGE_INDEX) {
+        if ($pageName != Crud::PAGE_INDEX) {
             yield FormField::addColumn(4);
             yield BooleanField::new('show_location', 'Rüstzeitort anzeigen');
 
             yield FormField::addColumn(4);
             yield BooleanField::new('show_dates', 'Rüstzeitdatum anzeigen');
+
+            yield FormField::addColumn(4);
+
+            yield FormField::addColumn(6);
+            yield TextField::new('password', 'Passwort')
+                ->setHelp('Mit diesem Passwort, kann die Anmeldesperre umgangen werden. a-z, A-Z, 0-9 und Sonderzeichen - _');
         }
     }
 
