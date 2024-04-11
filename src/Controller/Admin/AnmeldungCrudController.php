@@ -10,6 +10,7 @@ use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
 use App\Enum\PersonenTyp;
 use App\Filter\LandkreisFilter;
+use App\Repository\RuestzeitRepository;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
 use App\Service\SignaturelistExporter;
@@ -323,13 +324,11 @@ class AnmeldungCrudController extends AbstractCrudController
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
     }
     
-    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter)
+    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
         
-        /** @var EntityManagerInterface $entityManager */
-        $entityManager = $this->container->get('doctrine')->getManagerForClass(Ruestzeit::class);
-        $ruestzeit = $entityManager->find(Ruestzeit::class, 1);
+        $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
         return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf');
     }
