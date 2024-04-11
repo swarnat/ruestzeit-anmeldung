@@ -204,7 +204,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield IntegerField::new('schoolclass', 'Schulklasse');
 
-        if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Registrierungsposition');
+        if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Reg.Position');
 
         yield ChoiceField::new('mealtype', 'Verpflegung')
             ->setChoices(MealType::cases())
@@ -216,20 +216,20 @@ class AnmeldungCrudController extends AbstractCrudController
                 ->setChoices(AnmeldungStatus::cases())
                 ->setFormType(EnumType::class);
                 
-                yield IntegerField::new('registrationPosition', 'Registrierungsposition')->setCustomOption('generated', true);
+                yield IntegerField::new('registrationPosition', 'Reg.Position')->setCustomOption('generated', true);
 
         }
 
 
         yield FormField::addFieldset('Zahlung');
 
-        $field = BooleanField::new('prepayment_done', 'Anzahlung Überwiesen');
+        $field = BooleanField::new('prepayment_done', 'Anzahlung');
         if ($pageName == Crud::PAGE_INDEX) {
             yield $field->setFormTypeOption('disabled', true);
         }
         yield $field;
 
-        $field = BooleanField::new('payment_done', 'Zahlung komplett');
+        $field = BooleanField::new('payment_done', 'Zahlung ok');
         if ($pageName == Crud::PAGE_INDEX) {
             yield $field->setFormTypeOption('disabled', true);
         }
