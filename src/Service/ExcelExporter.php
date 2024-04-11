@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Enum\MealType;
 use App\Enum\AnmeldungStatus;
+use App\Enum\PersonenTyp;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
@@ -49,7 +50,7 @@ class ExcelExporter
         foreach ($result as $index => $row) {
             foreach ($row as $columnKey => $columnValue) {
                 if(is_object($columnValue)) {
-                    if($columnValue instanceof MealType || $columnValue instanceof AnmeldungStatus) {
+                    if($columnValue instanceof MealType || $columnValue instanceof AnmeldungStatus || $columnValue instanceof PersonenTyp) {
                         $columnValue = \Symfony\Component\Translation\t($columnValue->value, [], 'messages')->trans($this->translator);
                     } elseif($columnValue instanceof \DateTimeInterface) {
 
