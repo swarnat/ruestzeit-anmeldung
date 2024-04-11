@@ -43,13 +43,13 @@ class Anmeldung
     private ?Ruestzeit $ruestzeit = null;
 
     #[ORM\Column(length: 10)]
-    private ?string $postalcode = null;
+    private ?string $postalcode = "";
 
     #[ORM\Column(length: 100)]
-    private ?string $city = null;
+    private ?string $city = "";
 
     #[ORM\Column(length: 255)]
-    private ?string $address = null;
+    private ?string $address = "";
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Assert\NotBlank]
@@ -184,8 +184,9 @@ class Anmeldung
         return $this->postalcode;
     }
 
-    public function setPostalcode(string $postalcode): static
+    public function setPostalcode($postalcode): static
     {
+        if(empty($postalcode)) $postalcode = "";
         $this->postalcode = $postalcode;
 
         return $this;
@@ -196,8 +197,9 @@ class Anmeldung
         return $this->city;
     }
 
-    public function setCity(string $city): static
+    public function setCity($city): static
     {
+        if(empty($city)) $city = "";
         $this->city = $city;
 
         return $this;
@@ -208,8 +210,10 @@ class Anmeldung
         return $this->address;
     }
 
-    public function setAddress(string $address): static
+    public function setAddress($address): static
     {
+        if(empty($address)) $address = "";
+
         $this->address = $address;
 
         return $this;
