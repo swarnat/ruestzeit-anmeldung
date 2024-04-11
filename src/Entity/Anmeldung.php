@@ -43,15 +43,12 @@ class Anmeldung
     private ?Ruestzeit $ruestzeit = null;
 
     #[ORM\Column(length: 10)]
-    #[Assert\NotBlank]
     private ?string $postalcode = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank]
     private ?string $city = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
     private ?string $address = null;
 
     #[ORM\Column(length: 100, nullable: true)]

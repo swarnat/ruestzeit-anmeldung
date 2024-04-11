@@ -199,7 +199,9 @@ class AnmeldungCrudController extends AbstractCrudController
         yield DateField::new('birthdate', 'Geburtstag');
 
         if ($pageName != Crud::PAGE_NEW) {
-            yield IntegerField::new('age', 'Alter')->setDisabled(true)->setCustomOption('generated', true);
+            yield IntegerField::new('age', 'Alter')
+                ->setDisabled(true)
+                ->setCustomOption('generated', true);
         }
 
         yield IntegerField::new('schoolclass', 'Schulklasse');
@@ -272,13 +274,13 @@ class AnmeldungCrudController extends AbstractCrudController
         yield FormField::addFieldset('Adresse');
 
         if ($pageName != Crud::PAGE_INDEX) {
-            yield TextField::new('address', 'Strasse');
+            yield TextField::new('address', 'Strasse')->setRequired(false);
 
-            yield TextField::new('postalcode', 'Postleitzahl');
+            yield TextField::new('postalcode', 'Postleitzahl')->setRequired(false);
         }
 
-        yield TextField::new('city', 'Ort');
-        yield TextField::new('landkreis', 'Landkreis')->setCustomOption('generated', true);
+        yield TextField::new('city', 'Ort')->setRequired(false);
+        yield TextField::new('landkreis', 'Landkreis')->setRequired(false);
 
         yield FormField::addFieldset('Kontakt');
 
