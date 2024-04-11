@@ -63,6 +63,7 @@ class RuestzeitCrudController extends AbstractCrudController
             ->linkToUrl(function (Ruestzeit $ruestzeit) {
                 return '/?pw=' . $ruestzeit->getPassword();
             })
+            ->setHtmlAttributes(["target" => "_blank"])
             ->displayIf(function (Ruestzeit $ruestzeit) {
                 return $ruestzeit->getPassword() != '';
             })
