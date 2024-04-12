@@ -131,7 +131,7 @@ class RuestzeitController extends AbstractController
                     }
                 }
 
-                flash()->addSuccess('Die Anmeldung wurde erfolgreich gespeichert. Vielen Dank!', 'Erfolgreich', [
+                flash()->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', 'Erfolgreich', [
                     'timeout' => 30000
                 ]);
 
