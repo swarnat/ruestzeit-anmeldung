@@ -94,3 +94,44 @@ form .invalid-feedback {
   font-size:12px;
 }
 
+@media (max-width: 600px) {
+  h1.title {
+    font-size: clamp(15px, 5vw, 22px);
+    padding-left:5px;
+  }
+  .entry_description_outer {
+    display:grid;
+    grid-template-areas:
+      "content"
+      "header";
+
+
+    .entry_child_container {
+      grid-area: content; 
+    }      
+    .entry_description {
+      grid-area: header; 
+  
+      padding:10px;
+    }        
+  }
+
+
+  .entry_location_details {
+    width:100%;
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 0px;
+    border-bottom-left-radius: 0 !important;
+    margin-bottom:0;
+
+    .card {
+      display:none;
+    }
+
+    img {
+      width:calc(100% - 5px);
+    }
+  }
+
+}
