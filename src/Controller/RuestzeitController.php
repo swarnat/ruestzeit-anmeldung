@@ -34,8 +34,9 @@ class RuestzeitController extends AbstractController
 
         $allowRegistration = false;
 
-        if ($request->get('pw', null) !== null && 
-            $ruestzeit->getPassword() != '' && 
+        if (
+            $request->get('pw', null) !== null &&
+            $ruestzeit->getPassword() != '' &&
             $request->get('pw', null) === $ruestzeit->getPassword()
         ) {
             $allowRegistration = true;
@@ -53,15 +54,15 @@ class RuestzeitController extends AbstractController
             $anmeldungData = $request->get('anmeldung');
             $timingValue = (int)$request->get('timing');
 
-            if(!empty($anmeldungData['agefield'])) {
+            if (!empty($anmeldungData['agefield'])) {
                 $captcha = false;
-            } elseif($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
+            } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
                 $captcha = false;
             } else {
                 $captcha = true;
             }
-            
-            if($captcha) {
+
+            if ($captcha) {
                 $anmeldung->setRuestzeit($ruestzeit);
 
                 $query = $this->entityManager->createQueryBuilder('anmeldung');
@@ -71,7 +72,13 @@ class RuestzeitController extends AbstractController
 
                 $result = $query->getQuery()->getSingleResult();
 
-                $anmeldung->setRegistrationPosition($result['max_position']);
+                if (empty($result) || empty($result['max_position'])) {
+                    $maxPosition = 0;
+                } else {
+                    $maxPosition = $result['max_position'];
+                }
+
+                $anmeldung->setRegistrationPosition($maxPosition);
 
                 if ($ruestzeit->isFull()) {
                     $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
@@ -83,7 +90,7 @@ class RuestzeitController extends AbstractController
                 if (!empty($postalcodeData)) {
                     $anmeldung->setLandkreis($postalcodeData["region"]);
                 }
-                
+
                 $anmeldung->setPersonenTyp(PersonenTyp::TEILNEHMER);
 
                 $this->entityManager->persist($anmeldung);
@@ -110,7 +117,7 @@ class RuestzeitController extends AbstractController
 
                 $emailAddress = $anmeldung->getEmail();
 
-                if(!empty($emailAddress)) {
+                if (!empty($emailAddress)) {
                     $email = (new TemplatedEmail())
                         ->from('no-reply@kirche-hohndorf.de')
                         ->to($emailAddress)
@@ -131,11 +138,12 @@ class RuestzeitController extends AbstractController
                     }
                 }
 
-                flash()->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', 'Erfolgreich', [
-                    'timeout' => 30000
-                ]);
+                toastr()
+                    ->positionClass('toast-top-center toast-full-width')
+                    ->timeOut(10000)
+                    ->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', 'Erfolgreich');
 
-                if($repeatProcess) {
+                if ($repeatProcess) {
                     $nextAnmeldung = new Anmeldung();
                     $nextAnmeldung->setAddress($anmeldung->getAddress());
                     $nextAnmeldung->setPostalcode($anmeldung->getPostalcode());
@@ -147,8 +155,8 @@ class RuestzeitController extends AbstractController
                     // $request->request->set('firstname', '');
                     // $request->request->set('lastname', '');
                     // $form->handleRequest($request);            
-                    $formView = $form->createView();                    
-                    
+                    $formView = $form->createView();
+
                     return new Response($twig->render('ruestzeit/index.html.twig', [
                         'ruestzeit' => $ruestzeit,
                         'allowRegistration' => $allowRegistration,
@@ -162,9 +170,10 @@ class RuestzeitController extends AbstractController
                     return $this->redirectToRoute('homepage');
                 }
             } else {
-                flash()->addWarning('Fehler bei der Verarbeitung', 'Fehler', [
-                    'timeout' => 30000
-                ]);
+                toastr()
+                    ->positionClass('toast-top-center toast-full-width')
+                    ->timeOut(10000)
+                    ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
             }
         }
 

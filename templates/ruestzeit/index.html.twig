@@ -85,7 +85,8 @@
 			</div>
 		{% endif %}
 
-		<form class="box" method="POST" action="#" enctype="multipart/form-data">
+		{% set autocomplete = 'autocomplete="off" aria-autocomplete="none"' %}
+		<form class="box" method="POST" action="#" enctype="multipart/form-data" {{ autocomplete |raw }}>
 			<h2 class="title">Anmeldung</h2>
 
 			{% if ruestzeit.isFull() == true %}
@@ -107,8 +108,8 @@
 			</div>
 
 			{% if allowRegistration or ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
-				<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}">
-				<input type="hidden" name="timing" value="{{ 'now'|date('U') }}">
+				<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}" {{ autocomplete |raw }}>
+				<input type="hidden" name="timing" value="{{ 'now'|date('U') }}" {{ autocomplete |raw }}>
 
 				{{ form_errors(form.ruestzeit) }}
 
@@ -127,7 +128,7 @@
 							<label class="label">Vorname des Teilnehmers<sup>*</sup>
 							</label>
 							<div class="control">
-								<input class="input" type="text" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" required>
+								<input class="input" type="text" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" required {{ autocomplete |raw }}>
 							</div>
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.firstname) }}
@@ -139,7 +140,7 @@
 							<label class="label">Nachname des Teilnehmers<sup>*</sup>
 							</label>
 							<div class="control">
-								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" required>
+								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" required {{ autocomplete |raw }}>
 							</div>
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.lastname) }}
@@ -154,7 +155,7 @@
 							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required>
+								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required {{ autocomplete |raw }}>
 								<span class="icon is-small is-left">
 									<i class="fas fa-calendar"></i>
 								</span>
@@ -166,7 +167,7 @@
 							<label class="label">Alter<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input" type="number" name="anmeldung[agefield]" tabindex="20">
+								<input class="input" type="number" name="anmeldung[agefield]" tabindex="20" {{ autocomplete |raw }}>
 								<span class="icon is-small is-left">
 									<i class="fas fa-envelope"></i>
 								</span>
@@ -178,7 +179,7 @@
 							<label class="label">Telefon<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" tabindex="7" required>
+								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" tabindex="7" required {{ autocomplete |raw }}>
 								<span class="icon is-small is-left">
 									<i class="fas fa-phone"></i>
 								</span>
@@ -190,7 +191,7 @@
 							<label class="label">E-Mail<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input" type="text" name="{{ field_name(form.email) }}" value="{{ field_value(form.email) }}" placeholder="email@adresse.de" tabindex="8" required>
+								<input class="input" type="text" name="{{ field_name(form.email) }}" value="{{ field_value(form.email) }}" placeholder="email@adresse.de" tabindex="8" required {{ autocomplete |raw }}>
 								<span class="icon is-small is-left">
 									<i class="fas fa-envelope"></i>
 								</span>
@@ -202,7 +203,7 @@
 							<label class="label">E-Mail Wdh.<sup>*</sup>
 							</label>
 							<div class="control has-icons-left">
-								<input class="input" type="email" name="anmeldung[email_repeat]" rel="email" tabindex="20">
+								<input class="input" type="email" name="anmeldung[email_repeat]" rel="email" tabindex="20" autocomplete="off" {{ autocomplete |raw }}>
 								<span class="icon is-small is-left">
 									<i class="fas fa-envelope"></i>
 								</span>
@@ -212,7 +213,7 @@
 						<div class="field">
 							<label class="label">Anmerkungen</label>
 							<div class="control">
-								<textarea class="textarea" type="text" name="{{ field_name(form.notes) }}" rows="4" tabindex="8">{{ field_value(form.notes) }}</textarea>
+								<textarea class="textarea" type="text" name="{{ field_name(form.notes) }}" rows="4" tabindex="8" {{ autocomplete |raw }}>{{ field_value(form.notes) }}</textarea>
 							</div>
 							<p class="help">Besonderheiten / Allergien</p>
 							{{ form_errors(form.notes) }}
@@ -223,15 +224,15 @@
 							</label>
 							<div class="control">
 								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="9">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="9" {{ autocomplete |raw }}>
 									Alles
 								</label>
 								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="9">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="9" {{ autocomplete |raw }}>
 									Vegetarisch
 								</label>
 								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="9">
+									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="9" {{ autocomplete |raw }}>
 									Vegan
 								</label>
 							</div>
@@ -246,7 +247,7 @@
 							<label class="label">Schulklasse<sup>*</sup>
 							</label>
 							<div class="control">
-								<input class="input" type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="3" required>
+								<input class="input" type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="3" required {{ autocomplete |raw }}>
 							</div>
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.schoolclass) }}
@@ -263,7 +264,7 @@
 									<label class="label">Strasse<sup>*</sup>
 									</label>
 									<div class="control">
-										<input class="input" tabindex="3" name="{{ field_name(form.address) }}" value="{{ field_value(form.address) }}" type="text" placeholder="" required>
+										<input class="input" tabindex="3" name="{{ field_name(form.address) }}" value="{{ field_value(form.address) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
 									</div>
 									<p class="help">Pflichtfeld</p>
 									{{ form_errors(form.address) }}
@@ -275,7 +276,7 @@
 											<label class="label">Postleitzahl<sup>*</sup>
 											</label>
 											<div class="control">
-												<input class="input" tabindex="5" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required>
+												<input class="input" tabindex="5" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
 											</div>
 											<p class="help">Pflichtfeld</p>
 											{{ form_errors(form.postalcode) }}
@@ -287,7 +288,7 @@
 											<label class="label">Ort<sup>*</sup>
 											</label>
 											<div class="control">
-												<input class="input" tabindex="5" name="{{ field_name(form.city) }}" value="{{ field_value(form.city) }}" type="text" placeholder="" required>
+												<input class="input" tabindex="5" name="{{ field_name(form.city) }}" value="{{ field_value(form.city) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
 											</div>
 											<p class="help">Pflichtfeld</p>
 											{{ form_errors(form.city) }}
@@ -302,7 +303,7 @@
 
 				<div class="mb-5">
 					<label class="checkbox">
-						<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required tabindex="10">
+						<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required tabindex="10" {{ autocomplete |raw }}>
 						Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
 					</label>
 					{{ form_errors(form.agb_agree) }}
