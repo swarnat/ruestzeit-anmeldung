@@ -108,9 +108,7 @@ class RuestzeitController extends AbstractController
 
                 try {
                     $debug = $mailer->send($email);
-                    var_dump($debug);
                 } catch (TransportExceptionInterface $e) {
-                    var_dump($e);
                     // some error prevented the email sending; display an
                     // error message or try to resend the message
                 }
@@ -118,21 +116,19 @@ class RuestzeitController extends AbstractController
                 $emailAddress = $anmeldung->getEmail();
 
                 if (!empty($emailAddress)) {
-                    $email = (new TemplatedEmail())
-                        ->from('no-reply@kirche-hohndorf.de')
-                        ->to($emailAddress)
-                        ->htmlTemplate('emails/confirmation.html.twig')
-                        ->locale('de')
-                        ->subject('[' . $ruestzeit->getTitle() . '] Bestätigung der Anmeldung')
-                        ->context([
-                            'anmeldung' => $anmeldung,
-                        ]);
-
                     try {
-                        $debug = $mailer->send($email);
-                        var_dump($debug);
-                    } catch (TransportExceptionInterface $e) {
-                        var_dump($e);
+                        $email = (new TemplatedEmail())
+                            ->from('no-reply@kirche-hohndorf.de')
+                            ->to($emailAddress)
+                            ->htmlTemplate('emails/confirmation.html.twig')
+                            ->locale('de')
+                            ->subject('[' . $ruestzeit->getTitle() . '] Bestätigung der Anmeldung')
+                            ->context([
+                                'anmeldung' => $anmeldung,
+                            ]);
+
+                            $debug = $mailer->send($email);
+                    } catch (\Exception $e) {
                         // some error prevented the email sending; display an
                         // error message or try to resend the message
                     }
