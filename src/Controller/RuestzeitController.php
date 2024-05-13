@@ -32,6 +32,10 @@ class RuestzeitController extends AbstractController
     {
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
+        if(empty($ruestzeit)) {
+            return new Response($twig->render('ruestzeit/not-found.html.twig', []));
+        }
+
         $allowRegistration = false;
 
         if (
