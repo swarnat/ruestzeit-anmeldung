@@ -5,10 +5,14 @@ namespace App\Controller\Admin;
 use App\AdminActions\Separator;
 use App\ChoicesLoader\Landkreis;
 use App\Entity\Anmeldung;
+use App\Entity\Category;
 use App\Entity\Ruestzeit;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
 use App\Enum\PersonenTyp;
+use App\FieldTypes\CategorySelectionField;
+use App\FieldTypes\CategorySelectionType;
+use App\FieldTypes\TagType;
 use App\Filter\LandkreisFilter;
 use App\Repository\RuestzeitRepository;
 use App\Service\CsvExporter;
@@ -30,9 +34,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Factory\FilterFactory;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
@@ -252,6 +258,7 @@ class AnmeldungCrudController extends AbstractCrudController
         $createdAt->setTimezone("Europe/Berlin");
         $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
 
+        yield CategorySelectionField::new("categories", "Kategorien");
 
         if (Crud::PAGE_INDEX != $pageName) {
             $agb = BooleanField::new('agb_agree', 'AGB akzeptiert');

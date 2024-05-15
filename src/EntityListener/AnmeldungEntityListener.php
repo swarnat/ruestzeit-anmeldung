@@ -39,19 +39,14 @@ class AnmeldungEntityListener
         $this->setRegion($anmeldung);
         $anmeldung->setCreatedAt(new \DateTimeImmutable());
 
+        if($anmeldung->getRegistrationPosition() == 0) {
+            $this->setRegistrationPosition($anmeldung);
+        }
+                
         $status = $anmeldung->getStatus();
 
         if($status == AnmeldungStatus::OPEN) {
             $ruestzeit = $anmeldung->getRuestzeit();
-
-            $query = $this->entityManager->createQueryBuilder('anmeldung');
-            $query->from(Anmeldung::class, 'anmeldung');
-            $query->select('MAX(anmeldung.registrationPosition) + 1 max_position');
-            $query->where('anmeldung.ruestzeit = :ruestzeit')->setParameter('ruestzeit', $ruestzeit);
-
-            $result = $query->getQuery()->getSingleResult();
-
-            $anmeldung->setRegistrationPosition($result['max_position']);
 
             if ($ruestzeit->isFull()) {
                 $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
@@ -66,7 +61,31 @@ class AnmeldungEntityListener
     public function preUpdate(Anmeldung $anmeldung, LifecycleEventArgs $event)
     {
 
+        if($anmeldung->getRegistrationPosition() == 0) {
+            $this->setRegistrationPosition($anmeldung);
+        }
+        
         $this->setRegion($anmeldung);
 
+    }
+
+    private function setRegistrationPosition(Anmeldung $anmeldung) {
+        
+            $ruestzeit = $anmeldung->getRuestzeit();
+            
+            $query = $this->entityManager->createQueryBuilder('anmeldung');
+            $query->from(Anmeldung::class, 'anmeldung');
+            $query->select('MAX(anmeldung.registrationPosition) + 1 max_position');
+            $query->where('anmeldung.ruestzeit = :ruestzeit')->setParameter('ruestzeit', $ruestzeit);
+
+            $result = $query->getQuery()->getSingleResult();
+
+            if (empty($result) || empty($result['max_position'])) {
+                $maxPosition = 1;
+            } else {
+                $maxPosition = $result['max_position'];
+            }
+
+            $anmeldung->setRegistrationPosition($maxPosition);
     }
 }

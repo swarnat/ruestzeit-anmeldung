@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Admin;
 use App\Entity\Anmeldung;
+use App\Entity\Category;
 use App\Entity\Location;
 use App\Entity\Ruestzeit;
 use App\Repository\RuestzeitRepository;
@@ -72,14 +73,14 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToCrud('Teilnehmer', 'fas fa-file-import', Anmeldung::class)
             ->setController(AnmeldungCrudController::class)
-            ->setBadge($ruestzeit->getMemberCount() . '/' . $ruestzeit->getMemberlimit());
+            ->setBadge(!empty($ruestzeit) ? $ruestzeit->getMemberCount() . '/' . $ruestzeit->getMemberlimit() : 0 );
         ;
 
         
 
         yield MenuItem::linkToCrud('Warteliste', 'fas fa-hourglass-half', Anmeldung::class)
             ->setController(WaitinglistCrudController::class)
-            ->setBadge(count($ruestzeit->getWaitlistAnmeldungen()));
+            ->setBadge(!empty($ruestzeit) ? count($ruestzeit->getWaitlistAnmeldungen()) : 0);
         ;
 
         yield MenuItem::linkToRoute("Import", 'fas fa-upload', 'app_anmeldung_import')
@@ -87,6 +88,8 @@ class DashboardController extends AbstractDashboardController
         
         yield MenuItem::section('Verwaltung');
 
+        yield MenuItem::linkToCrud('Kategorie', 'fas fa-flag', Category::class);
+        
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
                 ->setAction('edit')
                 ->setEntityId($this->getUser()->getId())

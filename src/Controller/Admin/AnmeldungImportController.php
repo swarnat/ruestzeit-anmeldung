@@ -113,7 +113,13 @@ class AnmeldungImportController extends AbstractController
 
             $result = $query->getQuery()->getSingleResult();
 
-            $anmeldung->setRegistrationPosition($result['max_position'] + $rowPosition);            
+            if (empty($result) || empty($result['max_position'])) {
+                $maxPosition = 0;
+            } else {
+                $maxPosition = $result['max_position'];
+            }
+
+            $anmeldung->setRegistrationPosition($maxPosition + $rowPosition);            
 
             foreach ($fieldSequence as $index => $field) {
                 $property = ucfirst(str_replace('_', '', ucwords($field, '_')));

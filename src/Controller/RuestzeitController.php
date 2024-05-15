@@ -69,21 +69,6 @@ class RuestzeitController extends AbstractController
             if ($captcha) {
                 $anmeldung->setRuestzeit($ruestzeit);
 
-                $query = $this->entityManager->createQueryBuilder('anmeldung');
-                $query->from(Anmeldung::class, 'anmeldung');
-                $query->select('MAX(anmeldung.registrationPosition) + 1 max_position');
-                $query->where('anmeldung.ruestzeit = :ruestzeit')->setParameter('ruestzeit', $ruestzeit);
-
-                $result = $query->getQuery()->getSingleResult();
-
-                if (empty($result) || empty($result['max_position'])) {
-                    $maxPosition = 0;
-                } else {
-                    $maxPosition = $result['max_position'];
-                }
-
-                $anmeldung->setRegistrationPosition($maxPosition);
-
                 if ($ruestzeit->isFull()) {
                     $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
                 } else {

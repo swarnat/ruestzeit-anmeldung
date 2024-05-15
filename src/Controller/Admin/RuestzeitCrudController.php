@@ -138,6 +138,12 @@ class RuestzeitCrudController extends AbstractCrudController
         }
     }
 
+    public function createEntity(string $entityFqcn) {
+        $entity = new Ruestzeit();
+        $entity->setAdmin($this->getUser());
+
+        return $entity;
+    }    
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
