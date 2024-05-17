@@ -27,6 +27,9 @@ class Category
     #[ORM\ManyToMany(targetEntity: Anmeldung::class, mappedBy: 'categories')]
     private Collection $anmeldungen;
 
+    #[ORM\ManyToOne(inversedBy: 'categories')]
+    private ?Admin $user = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -89,6 +92,18 @@ class Category
         if ($this->anmeldungen->removeElement($anmeldungen)) {
             $anmeldungen->removeCategory($this);
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?Admin
+    {
+        return $this->user;
+    }
+
+    public function setUser(?Admin $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

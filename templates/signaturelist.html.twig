@@ -27,20 +27,28 @@
                 <thead>
                 <tr>
                     <th style="width:45px; text-align:left;">Nr.</th>
-                    <th style="width:200px; text-align:left;">Landkreis</th>
-                    <th style="width:200px; text-align:left;">Vorname</th>
-                    <th style="width:200px; text-align:left;">Nachname</th>
-                    <th style="width:250px; text-align:left;">Wohnort</th>
-                    <th>Unterschrift</th>
+                    <th style="width:160px; text-align:left;">Nachname</th>
+                    <th style="width:160px; text-align:left;">Vorname</th>
+                    <th style="width:200px; text-align:left;">Strasse</th>
+                    <th style="width:80px; text-align:left;">PLZ</th>
+                    <th style="width:200px; text-align:left;">Ort</th>
+                    <th style="width:50px; text-align:left;">Alter</th>
+                    <th style="width:50px; text-align:left;">M/T</th>
+
+                    <th style="width:200px; text-align:right;padding:0;">Unterschrift</th>
                 </tr>
                 </thead>
                 {% for anmeldung in anmeldungen %}                
                     <tr>
                         <td align="right">{{ loop.index }}</td>
-                        <td>{{ landkreis }}</td>
-                        <td>{{ anmeldung.firstname }}</td>
                         <td>{{ anmeldung.lastname }}</td>
-                        <td>{{ anmeldung.postalcode }} {{ anmeldung.city }}</td>
+                        <td>{{ anmeldung.firstname }}</td>
+                        <td>{{ anmeldung.address }}</td>
+                        <td>{{ anmeldung.postalcode }}</td>
+                        <td>{{ anmeldung.city }}</td>
+                        <td>{{ anmeldung.age }}</td>
+
+                        <td></td>
                         <td></td>
                     </tr>
                 {% endfor %}

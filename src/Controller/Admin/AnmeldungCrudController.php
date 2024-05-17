@@ -79,6 +79,9 @@ class AnmeldungCrudController extends AbstractCrudController
         $queryBuilder
             ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::ACTIVE);
 
+        $queryBuilder->leftJoin('entity.categories','c')
+                ->addSelect("c");
+
         return $queryBuilder;
     }
 
@@ -198,7 +201,7 @@ class AnmeldungCrudController extends AbstractCrudController
         yield TextField::new('firstname', 'Vorname')->setCustomOption('xls-width', 200);
         yield TextField::new('lastname', 'Nachname')->setCustomOption('xls-width', 200);
 
-        yield ChoiceField::new('personenTyp', 'Kategorie')
+        yield ChoiceField::new('personenTyp', 'Typ')
             ->setChoices(PersonenTyp::cases())
             ->setFormType(EnumType::class);
 
@@ -228,7 +231,6 @@ class AnmeldungCrudController extends AbstractCrudController
 
         }
 
-
         yield FormField::addFieldset('Zahlung');
 
         $field = BooleanField::new('prepayment_done', 'Anzahlung');
@@ -242,7 +244,6 @@ class AnmeldungCrudController extends AbstractCrudController
             yield $field->setFormTypeOption('disabled', true);
         }
         yield $field;
-
 
         yield FormField::addFieldset();
 
@@ -258,6 +259,7 @@ class AnmeldungCrudController extends AbstractCrudController
         $createdAt->setTimezone("Europe/Berlin");
         $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
 
+        // yield AssociationField::new("categories", "Kategorien");
         yield CategorySelectionField::new("categories", "Kategorien");
 
         if (Crud::PAGE_INDEX != $pageName) {
@@ -280,9 +282,9 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield FormField::addFieldset('Adresse');
 
-        if ($pageName != Crud::PAGE_INDEX) {
-            yield TextField::new('address', 'Strasse')->setRequired(false);
+        yield TextField::new('address', 'Strasse')->setRequired(false);
 
+        if ($pageName != Crud::PAGE_INDEX) {
             yield TextField::new('postalcode', 'Postleitzahl')->setRequired(false);
         }
 
@@ -330,6 +332,7 @@ class AnmeldungCrudController extends AbstractCrudController
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
         $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
+
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
 
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');

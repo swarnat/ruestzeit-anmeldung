@@ -61,6 +61,7 @@ final class CategorySelectionField implements FieldInterface
             ->setCustomOption(self::OPTION_RENDER_AS_EMBEDDED_FORM, false)
             ->setCustomOption(self::OPTION_EMBEDDED_CRUD_FORM_NEW_PAGE_NAME, null)
             ->setCustomOption(self::OPTION_EMBEDDED_CRUD_FORM_EDIT_PAGE_NAME, null)
+            ->setFormTypeOption("attr", ["data-ea-widget" => "ea-autocomplete"])
             ;
     }    
 
