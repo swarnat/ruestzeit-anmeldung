@@ -8,6 +8,7 @@ use App\Entity\Category;
 use App\Entity\Location;
 use App\Entity\Ruestzeit;
 use App\Repository\RuestzeitRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -95,4 +96,13 @@ class DashboardController extends AbstractDashboardController
                 ->setEntityId($this->getUser()->getId())
                 ;
     }
+
+    public function configureAssets(): Assets
+    {
+        return parent::configureAssets()
+                // ->addWebpackEncoreEntry('Bulma')
+                ->addWebpackEncoreEntry('admin')
+                // ->addWebpackEncoreEntry('app')
+                ;
+    }     
 }

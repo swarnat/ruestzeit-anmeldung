@@ -1,10 +1,11 @@
 {
-  "build/app.css": "/build/app.bf8b26e1.css",
-  "build/app.js": "/build/app.61332688.js",
-  "build/Bulma.css": "/build/Bulma.4a1ef0a2.css",
-  "build/runtime.js": "/build/runtime.5fd71670.js",
-  "build/674.71a84660.js": "/build/674.71a84660.js",
-  "build/706.683a8493.css": "/build/706.683a8493.css",
+  "build/app.css": "/build/app.css",
+  "build/app.js": "/build/app.js",
+  "build/admin.js": "/build/admin.js",
+  "build/Bulma.css": "/build/Bulma.css",
+  "build/runtime.js": "/build/runtime.js",
+  "build/vendors-node_modules_core-js_modules_es_date_to-string_js-node_modules_imask_esm_index_js.js": "/build/vendors-node_modules_core-js_modules_es_date_to-string_js-node_modules_imask_esm_index_js.js",
+  "build/vendors-node_modules_fortawesome_fontawesome-free_css_all_css.css": "/build/vendors-node_modules_fortawesome_fontawesome-free_css_all_css.css",
   "build/fonts/fa-solid-900.ttf": "/build/fonts/fa-solid-900.45a265d0.ttf",
   "build/fonts/fa-brands-400.ttf": "/build/fonts/fa-brands-400.6205fd00.ttf",
   "build/fonts/fa-solid-900.woff2": "/build/fonts/fa-solid-900.fb8184ad.woff2",
@@ -14,5 +15,8 @@
   "build/fonts/nunito-v26-latin-700.woff2": "/build/fonts/nunito-v26-latin-700.6a5cf87e.woff2",
   "build/fonts/nunito-v26-latin-regular.woff2": "/build/fonts/nunito-v26-latin-regular.9f3f4583.woff2",
   "build/fonts/fa-v4compatibility.ttf": "/build/fonts/fa-v4compatibility.2eb7b3ef.ttf",
-  "build/fonts/fa-v4compatibility.woff2": "/build/fonts/fa-v4compatibility.b3049b13.woff2"
+  "build/fonts/fa-v4compatibility.woff2": "/build/fonts/fa-v4compatibility.b3049b13.woff2",
+  "build/vendors-node_modules_axios_lib_axios_js.js": "/build/vendors-node_modules_axios_lib_axios_js.js",
+  "build/vendors-node_modules_core-js_internals_define-built-in_js.js": "/build/vendors-node_modules_core-js_internals_define-built-in_js.js",
+  "build/vendors-node_modules_core-js_modules_es_array_find_js-node_modules_core-js_modules_es_object_-615b67.js": "/build/vendors-node_modules_core-js_modules_es_array_find_js-node_modules_core-js_modules_es_object_-615b67.js"
 }

@@ -410,4 +410,9 @@ class Anmeldung
 
         return $this;
     }
+
+    public function haveCategory(Category $category): bool
+    {
+        return $this->getCategories()->indexOf($category) !== false;
+    }
 }
