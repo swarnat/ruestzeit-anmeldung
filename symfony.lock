@@ -35,6 +35,9 @@
             "ref": "b131e6cbfe1b898a508987851963fff485986285"
         }
     },
+    "ehyiah/ux-quill": {
+        "version": "2.0.3"
+    },
     "php-flasher/flasher-symfony": {
         "version": "v1.15.11"
     },

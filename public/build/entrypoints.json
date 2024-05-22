@@ -17,6 +17,12 @@
         "/build/admin.js"
       ]
     },
+    "quill-admin": {
+      "js": [
+        "/build/runtime.js",
+        "/build/quill-admin.js"
+      ]
+    },
     "Bulma": {
       "js": [
         "/build/runtime.js"

@@ -2,8 +2,8 @@
 {# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
 {# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
 {% for value in field.formattedValue %}
-<span class="badge badge-secondary" style="isolation: isolate;z-index: 2; z-index:2; background-color:{{ value.color }};">
-    <span style="z-index: 3; color:black; " >{{ value.title }}</span>
+<span class="badge badge-secondary" style="isolation: isolate;z-index: 2; z-index:2; color:{{ value.textcolor }}; background-color:{{ value.color }};">
+    {{ value.title }}
 </span>
 
 {% endfor %}

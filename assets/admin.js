@@ -54,3 +54,4 @@ window.addEventListener("load", function () {
 
   // document.getElementsByClassName("categoryAssignment")
 });
+

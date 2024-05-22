@@ -30,6 +30,9 @@ class Category
     #[ORM\ManyToOne(inversedBy: 'categories')]
     private ?Admin $user = null;
 
+    #[ORM\Column(length: 8, nullable: true)]
+    private ?string $textcolor = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -104,6 +107,18 @@ class Category
     public function setUser(?Admin $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getTextcolor(): ?string
+    {
+        return $this->textcolor;
+    }
+
+    public function setTextcolor(?string $textcolor): static
+    {
+        $this->textcolor = $textcolor;
 
         return $this;
     }

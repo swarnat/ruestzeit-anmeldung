@@ -17,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use Goodby\CSV\Export\Standard\Exporter;
 use Goodby\CSV\Export\Standard\ExporterConfig;
 use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Table;
@@ -37,6 +38,11 @@ class ExcelExporter
         private CategoryRepository $categoryRepository
     )
     {}
+
+    function num2column($n)
+    {
+        return \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($n);
+    }
 
     public function createResponseFromQueryBuilder(QueryBuilder $queryBuilder, FieldCollection $fields, string $filename): Response
     {
@@ -66,6 +72,8 @@ class ExcelExporter
 
             $conditional->getStyle()->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
             $conditional->getStyle()->getFill()->getEndColor()->setRGB(substr($category->getColor(), 1));
+
+            $conditional->getStyle('B2')->getFont()->getColor()->setRGB(substr($category->getTextcolor(), 1));
             
             $conditionalStyles = [];
             $conditionalStyles[] = $conditional;
@@ -164,14 +172,13 @@ class ExcelExporter
             // array_unshift($data, $headers);
         }
 
-        $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $colCounter = 0;
+        $colCounter = 1;
 
         $sumRow = [];
 
         foreach($headers as $colIndex => $_notused) {
 
-            $colId = substr($alphabet, $colCounter, 1);
+            $colId = $this->num2column($colCounter);
 
             if(isset($columnData[$colIndex])) {
                 if(!empty($columnData[$colIndex]["countnotempty"]) || $colCounter == 1) {
@@ -203,11 +210,11 @@ class ExcelExporter
             $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 
-            $colIndex = 0;
+            $colIndex = 1;
             foreach($headers as $index => $_unused) {
 
                 if(isset($conditionalStyles[$index])) {
-                    $colId = substr($alphabet, $colIndex, 1);
+                    $colId = $this->num2column($colIndex);
                     $cellStyle = $activeWorksheet->getStyle($colId . '2:' . $colId . "" . (count($data) + 100));
                     // $cellStyle = $activeWorksheet->getStyle("A2:A100");
 
@@ -217,7 +224,7 @@ class ExcelExporter
                 $colIndex++;
             }
 
-            $maxColumn = substr($alphabet, count($headers) - 1, 1);
+            $maxColumn = $this->num2column(count($headers));
 
             Calculation::getInstance($spreadsheet)->disableCalculationCache();
             $table = new Table();
@@ -229,7 +236,7 @@ class ExcelExporter
             $table->setRange('A1:' . $maxColumn . count($data) + 2);
             
             foreach($sumRow as $colIndex => $col) {
-                $colId = substr($alphabet, $colIndex, 1);
+                $colId = $this->num2column($colIndex);
 
                 if(!empty($col)) {
                     $table->getColumn($colId)->setTotalsRowFunction('count');
