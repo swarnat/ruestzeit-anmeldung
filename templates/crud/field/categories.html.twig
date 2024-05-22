@@ -1,0 +1,9 @@
+{# @var ea \EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext #}
+{# @var field \EasyCorp\Bundle\EasyAdminBundle\Dto\FieldDto #}
+{# @var entity \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto #}
+{% for value in field.formattedValue %}
+<span class="badge badge-secondary" style="isolation: isolate;z-index: 2; z-index:2; color:{{ value.textcolor }}; background-color:{{ value.color }};">
+    {{ value.title }}
+</span>
+
+{% endfor %}

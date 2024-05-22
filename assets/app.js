@@ -21,5 +21,7 @@ window.addEventListener('load', function () {
         mask: Date,
         lazy: true
       };
-    const mask = IMask(element[0], maskOptions);    
+    const mask = IMask(element[0], maskOptions);  
+ 
+
 })

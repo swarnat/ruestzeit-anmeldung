@@ -1,0 +1,107 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+	Zuweisungen von Teilnehmern an Kategorien
+{% endblock %}
+
+{% block page_content %}
+<table class="table table-condensed table-hover">
+    <thead>
+    <tr>
+        <th>Teilnehmer</th>
+        <th>Alter</th>
+        {% for category in categories %}
+            <th style="background-color:{{category.color}};color:{{category.textcolor}};">{{ category.title }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+        {% for teilnehmer in anmeldungen %}
+            <tr>
+                <th>{{ teilnehmer.firstname }} {{ teilnehmer.lastname }}</th>
+                <td>{{ teilnehmer.age }}</td>
+
+                {% for category in categories %}
+                    <td class="categoryCell category{{ category.id }}">
+                    <div class="categoryCellContainer">
+                    <input type="checkbox" 
+                            id="category{{ category.id }}-{{ teilnehmer.id }}-checkbox"
+                            class="categoryAssignment" 
+                            category="assignment" {% if teilnehmer.haveCategory(category) == true %}checked="checked"{% endif %} 
+                            data-category="{{ category.id }}" 
+                            data-anmeldung="{{ teilnehmer.id }}" />
+                        <label for="category{{ category.id }}-{{ teilnehmer.id }}-checkbox">Toggle</label>
+                        <div>
+                        </td>
+                {% endfor %}
+
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="2"></td>
+            {% for category in categories %}
+                <td id="categoryTotal{{ category.id }}"></td>
+            {% endfor %}
+        </tr>
+    </tfoot>
+</table>
+<style type="text/css">
+    {% for category in categories %}
+    td.categoryCell.category{{ category.id }}.checked {
+        background-color:{{category.color}} !important;
+        box-shadow: none;
+    }
+    {% endfor %}
+
+    .categoryCellContainer {
+        display:flex;
+        justify-content:center;
+    }
+    input[type=checkbox]{
+        height: 0;
+        width: 0;
+        visibility: hidden;
+        position:absolute;
+    }
+
+    label {
+        cursor: pointer;
+        text-indent: -9999px;
+        width: 50px;
+        height: 28px;
+        background: grey;
+        display: block;
+        border-radius: 20px;
+        position: relative;
+
+        border:1px solid #fff;
+    }
+
+    label:after {
+        content: '';
+        position: absolute;
+        top: 3px;
+        left: 4px;
+        width: 20px;
+        height: 20px;
+        background: #fff;
+        border-radius: 90px;
+        transition: 0.3s;
+    }
+
+    input:checked + label {
+        background: #12da00;
+    }
+
+    input:checked + label:after {
+        left: calc(100% - 5px);
+        transform: translateX(-100%);
+    }
+
+
+
+ 
+</style>
+{% endblock %}
