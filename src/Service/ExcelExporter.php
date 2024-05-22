@@ -82,6 +82,8 @@ class ExcelExporter
                 "index" => "category_" . $i,
                 "conditionalStyles" => $conditionalStyles,
                 "countnotempty" => true,
+                "wrap" => false,
+                "width" => 15
             ];
         }
 
@@ -209,14 +211,17 @@ class ExcelExporter
                 ->fromArray($headers, NULL, 'A1');
 
             foreach($data as $rowId => $rowData) {
+                $colIndex = 0;
                 foreach($headers as $colId => $_notused) {
-                    $colName = $this->num2column($colId + 1);
+                    $colName = $this->num2column($colIndex + 1);
 
-                    $activeWorksheet->setCellValueExplicit($colName . ($rowId + 2), $rowData[$colId], \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                    $activeWorksheet->setCellValueExplicit($colName . ($rowId + 2), $rowData[$colIndex], \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
 
                     if($columnData[$colId]["wrap"]) {
                         $activeWorksheet->getStyle($colName . ($rowId + 2))->getAlignment()->setWrapText(true);
                     }
+
+                    $colIndex++;
                 }
             }
 

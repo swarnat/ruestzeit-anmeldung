@@ -2,34 +2,34 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/build/runtime.js",
-        "/build/vendors-node_modules_core-js_modules_es_date_to-string_js-node_modules_imask_esm_index_js.js",
-        "/build/app.js"
+        "/build/runtime.0c7ff19b.js",
+        "/build/674.2229b993.js",
+        "/build/app.142c8120.js"
       ],
       "css": [
-        "/build/app.css"
+        "/build/app.bf8b26e1.css"
       ]
     },
     "admin": {
       "js": [
-        "/build/runtime.js",
-        "/build/vendors-node_modules_axios_lib_axios_js.js",
-        "/build/admin.js"
+        "/build/runtime.0c7ff19b.js",
+        "/build/83.13e17983.js",
+        "/build/admin.0c6dcbd4.js"
       ]
     },
     "quill-admin": {
       "js": [
-        "/build/runtime.js",
-        "/build/quill-admin.js"
+        "/build/runtime.0c7ff19b.js",
+        "/build/quill-admin.156073e1.js"
       ]
     },
     "Bulma": {
       "js": [
-        "/build/runtime.js"
+        "/build/runtime.0c7ff19b.js"
       ],
       "css": [
-        "/build/vendors-node_modules_fortawesome_fontawesome-free_css_all_css.css",
-        "/build/Bulma.css"
+        "/build/706.683a8493.css",
+        "/build/Bulma.4a1ef0a2.css"
       ]
     }
   }
