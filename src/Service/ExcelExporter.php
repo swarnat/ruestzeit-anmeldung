@@ -149,7 +149,10 @@ class ExcelExporter
 
                 $columnData[$index] = [
                     "index" => $property,
-                    "countnotempty" => false
+                    "countnotempty" => false,
+                    "name" => $property,
+                    "wrap" => $property == "notes",
+                    "width" => $property == "notes" ? 70 : 15
                 ];
 
                 $headers[$index] = ucfirst($property);
@@ -179,7 +182,7 @@ class ExcelExporter
         foreach($headers as $colIndex => $_notused) {
 
             $colId = $this->num2column($colCounter);
-
+            
             if(isset($columnData[$colIndex])) {
                 if(!empty($columnData[$colIndex]["countnotempty"]) || $colCounter == 1) {
                     $sumRow[] = '=COUNTIF('.$colId.'2:'.$colId.'' . (count($data) + 1) . ',"<>")';
@@ -198,29 +201,45 @@ class ExcelExporter
         // exit();
         
 
-        $response = new StreamedResponse(function () use ($headers, $data, $conditionalStyles, $sumRow) {
+        $response = new StreamedResponse(function () use ($headers, $data, $conditionalStyles, $sumRow, $columnData) {
             $spreadsheet = new Spreadsheet();
             $activeWorksheet = $spreadsheet->getActiveSheet();
             
             $activeWorksheet
-                ->fromArray($headers, NULL, 'A1')
-                ->fromArray($data, NULL, 'A2');
+                ->fromArray($headers, NULL, 'A1');
 
-                        
+            foreach($data as $rowId => $rowData) {
+                foreach($headers as $colId => $_notused) {
+                    $colName = $this->num2column($colId + 1);
+
+                    $activeWorksheet->setCellValueExplicit($colName . ($rowId + 2), $rowData[$colId], \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+
+                    if($columnData[$colId]["wrap"]) {
+                        $activeWorksheet->getStyle($colName . ($rowId + 2))->getAlignment()->setWrapText(true);
+                    }
+                }
+            }
+
             $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 
             $colIndex = 1;
             foreach($headers as $index => $_unused) {
+                $colId = $this->num2column($colIndex);                
 
                 if(isset($conditionalStyles[$index])) {
-                    $colId = $this->num2column($colIndex);
+
                     $cellStyle = $activeWorksheet->getStyle($colId . '2:' . $colId . "" . (count($data) + 100));
                     // $cellStyle = $activeWorksheet->getStyle("A2:A100");
 
                     $cellStyle->setConditionalStyles($conditionalStyles[$index]);
                 }
                 
+
+                if($columnData[$index]["width"]) {
+                    $activeWorksheet->getColumnDimension($colId)->setWidth($columnData[$index]["width"]);
+                }
+
                 $colIndex++;
             }
 
@@ -236,7 +255,7 @@ class ExcelExporter
             $table->setRange('A1:' . $maxColumn . count($data) + 2);
             
             foreach($sumRow as $colIndex => $col) {
-                $colId = $this->num2column($colIndex);
+                $colId = $this->num2column($colIndex + 1);
 
                 if(!empty($col)) {
                     $table->getColumn($colId)->setTotalsRowFunction('count');
