@@ -25,12 +25,15 @@ class AnmeldungEntityListener
     }
 
     private function setRegion($anmeldung) {
-        $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
+        $landkreis = $anmeldung->getLandkreis();
 
-        if(!empty($postalcodeData)) {
-            $anmeldung->setLandkreis($postalcodeData["region"]);
+        if(empty($landkreis)) {
+            $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
+
+            if(!empty($postalcodeData)) {
+                $anmeldung->setLandkreis($postalcodeData["region"]);
+            }
         }
-
 
     }
 
