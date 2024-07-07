@@ -63,7 +63,7 @@ class SignaturelistExporter
         $headers[] = "Unterschrift";
 
         foreach ($anmeldeListe as $groupTitle => $anmeldungen) {
-            $activeWorksheet = new Worksheet($spreadsheet, $groupTitle);
+            $activeWorksheet = new Worksheet($spreadsheet, substr($groupTitle, 0, 30));
             $activeWorksheet->getDefaultRowDimension()->setRowHeight(25);
             
             foreach($fields as $colId => $field) {
