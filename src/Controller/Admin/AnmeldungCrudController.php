@@ -124,7 +124,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setIcon('fa fa-download')
 
             ->createAsGlobalAction();
-
+/*
         $signaturelistAction = Action::new('signaturelist', "Unterschriftenliste")
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();
@@ -135,7 +135,7 @@ class AnmeldungCrudController extends AbstractCrudController
             // ... line 81
             ->setIcon('fa fa-download')
             ->createAsGlobalAction();
-
+*/
         $cancelAction = Action::new('cancel', "Stornieren")
             ->linkToCrudAction('cancel')
             ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])
@@ -169,7 +169,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
             ->add(Crud::PAGE_INDEX, $exportAction)
 
-            ->add(Crud::PAGE_INDEX, $signaturelistAction)
+            // ->add(Crud::PAGE_INDEX, $signaturelistAction)
             ->add(Crud::PAGE_INDEX, $cancelAction)
             ->reorder(Crud::PAGE_INDEX, ["edit", "cancel"]);
     }
