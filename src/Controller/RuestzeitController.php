@@ -46,11 +46,6 @@ class RuestzeitController extends AbstractController
             $allowRegistration = true;
         }
 
-        if ($ruestzeit->isRegistrationActive() === false) {
-            $error = true;
-        }
-
-
         $anmeldung = new Anmeldung();
         $form = $this->createForm(AnmeldungType::class, $anmeldung);
 
@@ -58,107 +53,122 @@ class RuestzeitController extends AbstractController
 
         $formView = $form->createView();
 
-        if ($form->isSubmitted() && $form->isValid() && empty($error)) {
-            $repeatProcess = !empty($request->get('repeat_process'));
-            $anmeldungData = $request->get('anmeldung');
-            $timingValue = (int)$request->get('timing');
+        $error = false;
 
-            if (!empty($anmeldungData['agefield'])) {
-                $captcha = false;
-            } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
-                $captcha = false;
-            } else {
-                $captcha = true;
+        if ($form->isSubmitted() && $form->isValid()) {
+            if (
+                $ruestzeit->isRegistrationActive() === false
+            ) {
+                $error = true;
             }
-            $captcha = true;
 
-            if ($captcha) {
-                $anmeldung->setRuestzeit($ruestzeit);
+            if (empty($error)) {
+                $repeatProcess = !empty($request->get('repeat_process'));
+                $anmeldungData = $request->get('anmeldung');
+                $timingValue = (int)$request->get('timing');
 
-                if ($ruestzeit->isFull()) {
-                    $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
+                if (!empty($anmeldungData['agefield'])) {
+                    $captcha = false;
+                } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
+                    $captcha = false;
                 } else {
-                    $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
+                    $captcha = true;
                 }
+                $captcha = true;
 
-                $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
-                if (!empty($postalcodeData)) {
-                    $anmeldung->setLandkreis($postalcodeData["region"]);
-                }
+                if ($captcha) {
+                    $anmeldung->setRuestzeit($ruestzeit);
 
-                $anmeldung->setPersonenTyp(PersonenTyp::TEILNEHMER);
+                    if ($ruestzeit->isFull()) {
+                        $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
+                    } else {
+                        $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
+                    }
 
-                $this->entityManager->persist($anmeldung);
-                $this->entityManager->flush();
+                    $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
+                    if (!empty($postalcodeData)) {
+                        $anmeldung->setLandkreis($postalcodeData["region"]);
+                    }
 
-                $email = (new TemplatedEmail())
-                    ->from('no-reply@kirche-hohndorf.de')
-                    ->to($ruestzeit->getAdmin()->getEmail())
-                    ->htmlTemplate('emails/anmeldung.html.twig')
-                    ->locale('de')
-                    ->subject('[' . $ruestzeit->getTitle() . '] Anmeldung ' . $anmeldung->getLastname() . ', ' . $anmeldung->getFirstname() . ' [' . $anmeldung->getStatus()->value . ']')
-                    ->context([
-                        'anmeldung' => $anmeldung,
-                    ]);
+                    $anmeldung->setPersonenTyp(PersonenTyp::TEILNEHMER);
 
-                try {
-                    $debug = $mailer->send($email);
-                } catch (TransportExceptionInterface $e) {
-                    // some error prevented the email sending; display an
-                    // error message or try to resend the message
-                }
+                    $this->entityManager->persist($anmeldung);
+                    $this->entityManager->flush();
 
-                $emailAddress = $anmeldung->getEmail();
+                    $email = (new TemplatedEmail())
+                        ->from('no-reply@kirche-hohndorf.de')
+                        ->to($ruestzeit->getAdmin()->getEmail())
+                        ->htmlTemplate('emails/anmeldung.html.twig')
+                        ->locale('de')
+                        ->subject('[' . $ruestzeit->getTitle() . '] Anmeldung ' . $anmeldung->getLastname() . ', ' . $anmeldung->getFirstname() . ' [' . $anmeldung->getStatus()->value . ']')
+                        ->context([
+                            'anmeldung' => $anmeldung,
+                        ]);
 
-                if (!empty($emailAddress)) {
                     try {
-                        $email = (new TemplatedEmail())
-                            ->from('no-reply@kirche-hohndorf.de')
-                            ->to($emailAddress)
-                            ->htmlTemplate('emails/confirmation.html.twig')
-                            ->locale('de')
-                            ->subject('[' . $ruestzeit->getTitle() . '] Bestätigung der Anmeldung')
-                            ->context([
-                                'anmeldung' => $anmeldung,
-                            ]);
-
                         $debug = $mailer->send($email);
-                    } catch (\Exception $e) {
+                    } catch (TransportExceptionInterface $e) {
                         // some error prevented the email sending; display an
                         // error message or try to resend the message
                     }
-                }
 
-                toastr()
-                    ->positionClass('toast-top-center toast-full-width')
-                    ->timeOut(10000)
-                    ->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', 'Erfolgreich');
+                    $emailAddress = $anmeldung->getEmail();
 
-                if ($repeatProcess) {
-                    $nextAnmeldung = new Anmeldung();
-                    $nextAnmeldung->setAddress($anmeldung->getAddress());
-                    $nextAnmeldung->setPostalcode($anmeldung->getPostalcode());
-                    $nextAnmeldung->setCity($anmeldung->getCity());
-                    $nextAnmeldung->setPhone($anmeldung->getPhone());
-                    $nextAnmeldung->setEmail($anmeldung->getEmail());
+                    if (!empty($emailAddress)) {
+                        try {
+                            $email = (new TemplatedEmail())
+                                ->from('no-reply@kirche-hohndorf.de')
+                                ->to($emailAddress)
+                                ->htmlTemplate('emails/confirmation.html.twig')
+                                ->locale('de')
+                                ->subject('[' . $ruestzeit->getTitle() . '] Bestätigung der Anmeldung')
+                                ->context([
+                                    'anmeldung' => $anmeldung,
+                                ]);
 
-                    $form = $this->createForm(AnmeldungType::class, $nextAnmeldung);
-                    // $request->request->set('firstname', '');
-                    // $request->request->set('lastname', '');
-                    // $form->handleRequest($request);            
-                    $formView = $form->createView();
+                            $debug = $mailer->send($email);
+                        } catch (\Exception $e) {
+                            // some error prevented the email sending; display an
+                            // error message or try to resend the message
+                        }
+                    }
 
-                    return new Response($twig->render('ruestzeit/index.html.twig', [
-                        'ruestzeit' => $ruestzeit,
-                        'allowRegistration' => $allowRegistration,
-                        'form' => !empty($formView) ? $formView : [],
-                    ]));
-                }
+                    toastr()
+                        ->positionClass('toast-top-center toast-full-width')
+                        ->timeOut(10000)
+                        ->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', 'Erfolgreich');
 
-                if ($allowRegistration) {
-                    return $this->redirectToRoute('homepage', ["pw" => $ruestzeit->getPassword()]);
+                    if ($repeatProcess) {
+                        $nextAnmeldung = new Anmeldung();
+                        $nextAnmeldung->setAddress($anmeldung->getAddress());
+                        $nextAnmeldung->setPostalcode($anmeldung->getPostalcode());
+                        $nextAnmeldung->setCity($anmeldung->getCity());
+                        $nextAnmeldung->setPhone($anmeldung->getPhone());
+                        $nextAnmeldung->setEmail($anmeldung->getEmail());
+
+                        $form = $this->createForm(AnmeldungType::class, $nextAnmeldung);
+                        // $request->request->set('firstname', '');
+                        // $request->request->set('lastname', '');
+                        // $form->handleRequest($request);            
+                        $formView = $form->createView();
+
+                        return new Response($twig->render('ruestzeit/index.html.twig', [
+                            'ruestzeit' => $ruestzeit,
+                            'allowRegistration' => $allowRegistration,
+                            'form' => !empty($formView) ? $formView : [],
+                        ]));
+                    }
+
+                    if ($allowRegistration) {
+                        return $this->redirectToRoute('homepage', ["pw" => $ruestzeit->getPassword()]);
+                    } else {
+                        return $this->redirectToRoute('homepage');
+                    }
                 } else {
-                    return $this->redirectToRoute('homepage');
+                    toastr()
+                        ->positionClass('toast-top-center toast-full-width')
+                        ->timeOut(10000)
+                        ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
                 }
             } else {
                 toastr()
@@ -166,11 +176,6 @@ class RuestzeitController extends AbstractController
                     ->timeOut(10000)
                     ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
             }
-        } else {
-            toastr()
-                ->positionClass('toast-top-center toast-full-width')
-                ->timeOut(10000)
-                ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
         }
 
         return new Response($twig->render('ruestzeit/index.html.twig', [
