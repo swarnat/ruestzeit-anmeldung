@@ -32,7 +32,7 @@ class RuestzeitController extends AbstractController
     {
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
-        if(empty($ruestzeit)) {
+        if (empty($ruestzeit)) {
             return new Response($twig->render('ruestzeit/not-found.html.twig', []));
         }
 
@@ -46,6 +46,11 @@ class RuestzeitController extends AbstractController
             $allowRegistration = true;
         }
 
+        if ($ruestzeit->isRegistrationActive() === false) {
+            $error = true;
+        }
+
+
         $anmeldung = new Anmeldung();
         $form = $this->createForm(AnmeldungType::class, $anmeldung);
 
@@ -53,7 +58,7 @@ class RuestzeitController extends AbstractController
 
         $formView = $form->createView();
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted() && $form->isValid() && empty($error)) {
             $repeatProcess = !empty($request->get('repeat_process'));
             $anmeldungData = $request->get('anmeldung');
             $timingValue = (int)$request->get('timing');
@@ -65,6 +70,7 @@ class RuestzeitController extends AbstractController
             } else {
                 $captcha = true;
             }
+            $captcha = true;
 
             if ($captcha) {
                 $anmeldung->setRuestzeit($ruestzeit);
@@ -116,7 +122,7 @@ class RuestzeitController extends AbstractController
                                 'anmeldung' => $anmeldung,
                             ]);
 
-                            $debug = $mailer->send($email);
+                        $debug = $mailer->send($email);
                     } catch (\Exception $e) {
                         // some error prevented the email sending; display an
                         // error message or try to resend the message
@@ -160,6 +166,11 @@ class RuestzeitController extends AbstractController
                     ->timeOut(10000)
                     ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
             }
+        } else {
+            toastr()
+                ->positionClass('toast-top-center toast-full-width')
+                ->timeOut(10000)
+                ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
         }
 
         return new Response($twig->render('ruestzeit/index.html.twig', [

@@ -69,6 +69,7 @@
 			</div>
 		</section>
 
+		{% if ruestzeit.isRegistrationActive() %}
 		<div class="notification is-primary">
 			Insgesamt
 			{{ ruestzeit.memberlimit }}
@@ -332,5 +333,7 @@
 				</div>
 			{% endif %}
 		</form>
+	{% endif %}
+
 	</div>
 {% endblock %}

@@ -86,6 +86,8 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToRoute("Import", 'fas fa-upload', 'app_anmeldung_import')
         ;
+
+        yield MenuItem::linkToRoute("Unterschriften", 'fas fa-upload', 'app_anmeldung_unterschriften');
         
         yield MenuItem::section('Verwaltung');
 

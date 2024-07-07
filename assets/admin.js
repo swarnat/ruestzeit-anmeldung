@@ -1,4 +1,6 @@
+// 
 import axios from 'axios';
+import TomSelect from "tom-select/dist/js/tom-select.complete.min";
 
 window.addEventListener("load", function () {
   var checkboxes = document.getElementsByClassName("categoryAssignment");
@@ -53,5 +55,11 @@ window.addEventListener("load", function () {
   }
 
   // document.getElementsByClassName("categoryAssignment")
+  document.querySelectorAll('.custom_select_dnd').forEach((autocompleteElement) => {
+    new TomSelect(autocompleteElement, {
+      plugins: ['drag_drop', 'remove_button'],
+    });
+  });
+
 });
 

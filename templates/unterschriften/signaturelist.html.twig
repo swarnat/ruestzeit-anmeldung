@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+	</head>
+	<style>
+		body {
+			font-family: Arial;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		table.memberlist td {
+			border: 1px solid #777;
+			font-size: 13px;
+		}
+		h4 {
+			font-size: 20px;
+		}
+	</style>
+	<body>
+		{% for groupTitle, anmeldungen in groups %}
+			{% if groupTitle is not empty %}
+			<h4>{{ anmeldungen | length }}x 
+				{{ groupTitle }}</h4>
+			{% endif %}
+			<table cellspacing="0" cellpadding="10" class="memberlist">
+				<thead>
+					<tr>
+						<th style="width:20pt; text-align:left;">Nr.</th>
+
+						{% for field in fields %}
+							<th style="text-align:left;width:{{ field.getCustomOption('pdf-width') }}pt;">{{ field.label }}</th>
+						{% endfor %}
+						{# <th style="width:50px; text-align:left;">M/T</th> #}
+
+						<th style="width:200px; text-align:right;padding:0;">Unterschrift</th>
+					</tr>
+				</thead>
+				{% for anmeldung in anmeldungen %}
+					<tr>
+						<td align="right">{{ loop.index }}</td>
+						{% for field in fields %}
+							{% set value = attribute(anmeldung, field.property) %}
+							{% if value.value is defined %}
+								{% set value = value.value %}
+							{% endif %}
+							<td style="text-align:left;">{{ value }}</td>
+
+						{% endfor %}
+
+						{# <td></td> #}
+						<td></td>
+					</tr>
+				{% endfor %}
+			</table>
+
+			{% if loop.last == false %}
+				<pagebreak>
+				{% endif %}
+			{% endfor %}
+		</body>
+	</body>
+</html></body></html>

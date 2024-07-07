@@ -2,9 +2,10 @@
   "entrypoints": {
     "app": {
       "js": [
-        "/build/runtime.0c7ff19b.js",
-        "/build/674.2229b993.js",
-        "/build/app.142c8120.js"
+        "/build/runtime.9cacfa0d.js",
+        "/build/840.8cf0f839.js",
+        "/build/674.8e8c68fe.js",
+        "/build/app.766f9284.js"
       ],
       "css": [
         "/build/app.bf8b26e1.css"
@@ -12,20 +13,15 @@
     },
     "admin": {
       "js": [
-        "/build/runtime.0c7ff19b.js",
-        "/build/83.13e17983.js",
-        "/build/admin.0c6dcbd4.js"
-      ]
-    },
-    "quill-admin": {
-      "js": [
-        "/build/runtime.0c7ff19b.js",
-        "/build/quill-admin.156073e1.js"
+        "/build/runtime.9cacfa0d.js",
+        "/build/840.8cf0f839.js",
+        "/build/472.8292cc04.js",
+        "/build/admin.27244b37.js"
       ]
     },
     "Bulma": {
       "js": [
-        "/build/runtime.0c7ff19b.js"
+        "/build/runtime.9cacfa0d.js"
       ],
       "css": [
         "/build/706.683a8493.css",

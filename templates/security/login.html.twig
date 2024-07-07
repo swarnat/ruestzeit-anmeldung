@@ -1,9 +1,10 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Log in!{% endblock %}
+{% block footer %}{% endblock %}
 
 {% block body %}
-<section class="hero is-fullheight">
+<section class="hero is-fullheight" style="background-image:url({{ asset('build/images/login_background.jpg') }});">
   <div class="hero-body">
     <div class="login container">
       <div class="columns is-centered">
@@ -59,3 +60,4 @@
   </div>
 </section>
 {% endblock %}
+

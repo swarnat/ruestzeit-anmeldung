@@ -79,8 +79,8 @@ class AnmeldungCrudController extends AbstractCrudController
         $queryBuilder
             ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::ACTIVE);
 
-        $queryBuilder->leftJoin('entity.categories','c')
-                ->addSelect("c");
+        $queryBuilder->leftJoin('entity.categories', 'c')
+            ->addSelect("c");
 
         return $queryBuilder;
     }
@@ -142,11 +142,11 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setIcon('fa fa-cancel')
             ->setCssClass('btn btn-danger')
             // ->setTemplatePath('CancelAction.html.twig')
-            ;
+        ;
 
-           
 
-            /** @var \EasyCorp\Bundle\EasyAdminBundle\Config\Actions $actions */
+
+        /** @var \EasyCorp\Bundle\EasyAdminBundle\Config\Actions $actions */
         return parent::configureActions($actions)
             // ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
             //     $action->displayIf(static function (Anmeldung $question) {
@@ -175,7 +175,8 @@ class AnmeldungCrudController extends AbstractCrudController
     }
 
 
-    public function createEntity(string $entityFqcn) {
+    public function createEntity(string $entityFqcn)
+    {
         $entity = parent::createEntity($entityFqcn);
 
         $entity->setAgbAgree(true);
@@ -198,8 +199,11 @@ class AnmeldungCrudController extends AbstractCrudController
         //     ->setChoices(AnmeldungStatus::cases())
         //     ->setFormType(EnumType::class);
 
-        yield TextField::new('firstname', 'Vorname')->setCustomOption('xls-width', 200);
-        yield TextField::new('lastname', 'Nachname')->setCustomOption('xls-width', 200);
+        yield TextField::new('lastname', 'Nachname')
+            ->setCustomOption('xls-width', 200);
+
+        yield TextField::new('firstname', 'Vorname')
+            ->setCustomOption('xls-width', 200);
 
         yield ChoiceField::new('personenTyp', 'Typ')
             ->setChoices(PersonenTyp::cases())
@@ -210,10 +214,12 @@ class AnmeldungCrudController extends AbstractCrudController
         if ($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')
                 ->setDisabled(true)
+                ->setCustomOption('pdf-width', 30)
                 ->setCustomOption('generated', true);
         }
 
-        yield IntegerField::new('schoolclass', 'Schulklasse');
+        yield IntegerField::new('schoolclass', 'Schulklasse')
+            ->setCustomOption('pdf-width', 20);
 
         if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Reg.Position');
 
@@ -221,14 +227,13 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setChoices(MealType::cases())
             ->setFormType(EnumType::class);
 
-        
+
         if ($pageName == Crud::PAGE_NEW || $pageName == Crud::PAGE_EDIT) {
             yield ChoiceField::new('status', 'Status')
                 ->setChoices(AnmeldungStatus::cases())
                 ->setFormType(EnumType::class);
-                
-                yield IntegerField::new('registrationPosition', 'Reg.Position')->setCustomOption('generated', true);
 
+            yield IntegerField::new('registrationPosition', 'Reg.Position')->setCustomOption('generated', true);
         }
 
         yield FormField::addFieldset('Zahlung');
@@ -309,8 +314,9 @@ class AnmeldungCrudController extends AbstractCrudController
             ->add(TextFilter::new('lastname'))
             ->add(TextFilter::new('postalcode'))
             ->add(TextFilter::new('city'))
-            ->add(LandkreisFilter::new('landkreis')
-                ->setChoicesCallback(new Landkreis($this->entityManager, 1))
+            ->add(
+                LandkreisFilter::new('landkreis')
+                    ->setChoicesCallback(new Landkreis($this->entityManager, 1))
             )
             ->add(
                 ChoiceFilter::new('mealtype')
@@ -337,11 +343,11 @@ class AnmeldungCrudController extends AbstractCrudController
 
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
     }
-    
+
     public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
-        
+
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
         return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf');

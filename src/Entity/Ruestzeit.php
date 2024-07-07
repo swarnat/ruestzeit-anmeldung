@@ -71,6 +71,9 @@ class Ruestzeit
     #[ORM\Column(length: 75, nullable: true)]
     private ?string $password = null;
 
+    #[ORM\Column]
+    private ?bool $registration_active = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -335,6 +338,18 @@ class Ruestzeit
     public function setPassword(?string $password): static
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function isRegistrationActive(): ?bool
+    {
+        return $this->registration_active;
+    }
+
+    public function setRegistrationActive(bool $registration_active): static
+    {
+        $this->registration_active = $registration_active;
 
         return $this;
     }  

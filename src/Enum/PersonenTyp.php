@@ -9,4 +9,5 @@ enum PersonenTyp: string {
     case MITARBEITER = 'MITARBEITER';
     case TEILNEHMER = 'TEILNEHMER';
     case REFERENT = 'REFERENT';
+
 }

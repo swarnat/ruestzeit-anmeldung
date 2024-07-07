@@ -91,6 +91,17 @@ class RuestzeitCrudController extends AbstractCrudController
         
     public function configureFields(string $pageName): iterable
     {
+
+        yield FormField::addColumn(12);
+
+        $field = BooleanField::new('registration_active', 'Anmeldung aktiv')
+            ->setCustomOption('xls-width', 60);
+            
+        if ($pageName == Crud::PAGE_INDEX) {
+            $field->setFormTypeOption('disabled', true);
+        }      
+        yield $field;      
+
         yield FormField::addColumn(6);
 
         yield TextField::new('title', 'Titel');

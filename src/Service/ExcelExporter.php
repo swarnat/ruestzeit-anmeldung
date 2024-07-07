@@ -138,8 +138,8 @@ class ExcelExporter
 
         }
 
-
         $conditionalStyles = [];
+        
         // Humanize headers based on column labels in EA
         if (isset($data[0])) {
             $headers = [];

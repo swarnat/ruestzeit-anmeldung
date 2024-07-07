@@ -17,6 +17,7 @@
 
 body {
   background-color: #eee;
+
 }
 .container {
   li {
@@ -129,7 +130,7 @@ form .invalid-feedback {
       display:none;
     }
 
-    img {
+    img { 
       width:calc(100% - 5px);
     }
   }

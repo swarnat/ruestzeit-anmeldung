@@ -1,0 +1,45 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+	Erstellen einer Unterschriftenliste
+{% endblock %}
+
+{% block page_content %}
+	<script src="{{ asset('admin') }}"></script>
+	<div>
+		<form method="POST" enctype="multipart/form-data" action="/admin?routeName=app_anmeldung_unterschriften_run">
+			<div class="form-group">
+				<label for="exampleFormControlFile1">Die folgenden Informationen auf der Liste ausgeben:</label><br/>
+				<select name="fields[]" multiple class="form-select custom_select_dnd">
+					{% for label, property  in fields %}
+						<option value="{{ property }}" {% if property in preselected_fields %} selected="selected" {% endif %}>{{ label }}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="exampleFormControlFile1">Datei mit Anmeldungen hier auswählen</label><br/>
+				<select name="format" class="form-select" data-ea-widget="ea-autocomplete">
+					<option value="pdf">PDF</option>
+					<option value="xls">Excel</option>
+				</select>
+			</div>
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">Optionen</h5>
+
+					<div class="form-group">
+						<label for="exampleFormControlFile1">Separierung der Einträge</label><br/>
+						<select name="options[split]" class="form-select" data-ea-widget="ea-autocomplete">
+							<option value="landkreis">nach Landkreis</option>
+							<option value="mealtype">Verpflegung</option>
+							<option value="personenTyp">Teilnehmer / Mitarbeiter</option>
+							<option value="none">Keine Separierung</option>
+						</select>
+					</div>
+
+				</div>
+			</div>
+			<button type="submit" class="btn btn-primary" name="submit">Export starten</button>
+		</form>
+	</div>
+{% endblock %}
