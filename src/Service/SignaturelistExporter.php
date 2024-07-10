@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Ruestzeit;
 use App\Enum\MealType;
 use App\Enum\AnmeldungStatus;
+use App\SignaturelistExporter\Base;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -45,6 +46,23 @@ class SignaturelistExporter
         return \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($n);
     }
 
+    /**
+     * Get exporter for SignatureList
+     *
+     * @param string $presetName
+     * @return Base
+     */
+    public function getSignaturelistExporter($presetName, Ruestzeit $ruestzeit) {
+        switch($presetName) {
+            case "preset1":
+                $className = '\App\SignaturelistExporter\Preset1';
+        }
+
+        if(empty($className)) {
+            throw new \Exception("Requested signaturelist not found");
+        }
+        return new $className($ruestzeit, $this->entityManager, $this->translator);
+    }
 
     public function generateXLS(Ruestzeit $ruestzeit, array $fields, string $filename, array $options)
     {
