@@ -25,6 +25,7 @@ class Preset1 extends Base
 
     public function generateExport(array $fields, string $filename, array $options)
     {
+       
         $query = $this->entityManager->createQuery(
             'SELECT a FROM App\Entity\Anmeldung a WHERE a.ruestzeit = ' . $this->ruestzeit->getId() .
                 " AND a.status = '" . AnmeldungStatus::ACTIVE->value .
@@ -44,78 +45,83 @@ class Preset1 extends Base
          */
         $anmeldungen = $query->getResult();
 
-        array_pop($anmeldungen);
-        $spreadsheet = new Spreadsheet();
-        $spreadsheet->removeSheetByIndex(0);
-
+        $anmeldeListe = $this->getGroups($anmeldungen, $options);
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader("Xlsx");
         $spreadsheet = $reader->load(__DIR__ . "/../../assets/signaturepresets/preset1.xlsx");
 
-        $activeWorksheet = $spreadsheet->getActiveSheet();
+        $baseSheet = clone $spreadsheet->getSheet(0);
+        $spreadsheet->removeSheetByIndex(0);
 
-        $nights = $this->ruestzeit->getDateTo()->diff($this->ruestzeit->getDateFrom())->format("%a");
-        $days = $this->ruestzeit->getDateTo()->diff($this->ruestzeit->getDateFrom())->format("%a") + 1;
+        foreach ($anmeldeListe as $groupTitle => $anmeldungen) {
+            $activeWorksheet = $spreadsheet->addSheet(clone $baseSheet);
+            $activeWorksheet->setTitle($groupTitle);
 
-        $activeWorksheet->setCellValue("D6", $this->ruestzeit->getDateFrom()->format("d.m.Y"));
-        $activeWorksheet->setCellValue("F6", $this->ruestzeit->getDateTo()->format("d.m.Y"));
+            $nights = $this->ruestzeit->getDateTo()->diff($this->ruestzeit->getDateFrom())->format("%a");
+            $days = $this->ruestzeit->getDateTo()->diff($this->ruestzeit->getDateFrom())->format("%a") + 1;
 
-        $rowIndex = 10;
-        // $activeWorksheet->removeRow($rowIndex, 100);        
-        foreach($anmeldungen as $index => $anmeldung) {
-            $activeWorksheet->setCellValue("A" . $rowIndex, $index + 1);
-            $activeWorksheet->setCellValue("B" . $rowIndex, $anmeldung->getLastname() . ", " . $anmeldung->getFirstname());
-            $activeWorksheet->setCellValue("C" . $rowIndex, $anmeldung->getPostalcode() . " " . $anmeldung->getCity());
-            $activeWorksheet->setCellValue("G" . $rowIndex, $anmeldung->getAge());
-            $activeWorksheet->setCellValue("H" . $rowIndex, ucfirst(strtolower($anmeldung->getPersonenTyp()->value)));
-            $activeWorksheet->setCellValue("I" . $rowIndex, $days);
-            $activeWorksheet->setCellValue("J" . $rowIndex, $nights);
+            $activeWorksheet->setCellValue("D6", $this->ruestzeit->getDateFrom()->format("d.m.Y"));
+            $activeWorksheet->setCellValue("F6", $this->ruestzeit->getDateTo()->format("d.m.Y"));
 
-            $spreadsheet->getActiveSheet()->mergeCells('C' . $rowIndex . ':F' . $rowIndex);
-            $spreadsheet->getActiveSheet()->mergeCells('K' . $rowIndex . ':L' . $rowIndex);
+            $rowIndex = 10;
+            // $activeWorksheet->removeRow($rowIndex, 100);        
+            foreach($anmeldungen as $index => $anmeldung) {
+                $activeWorksheet->setCellValue("A" . $rowIndex, $index + 1);
+                $activeWorksheet->setCellValue("B" . $rowIndex, $anmeldung->getLastname() . ", " . $anmeldung->getFirstname());
+                $activeWorksheet->setCellValue("C" . $rowIndex, $anmeldung->getPostalcode() . " " . $anmeldung->getCity());
+                $activeWorksheet->setCellValue("G" . $rowIndex, $anmeldung->getAge());
+                $activeWorksheet->setCellValue("H" . $rowIndex, ucfirst(strtolower($anmeldung->getPersonenTyp()->value)));
+                $activeWorksheet->setCellValue("I" . $rowIndex, $days);
+                $activeWorksheet->setCellValue("J" . $rowIndex, $nights);
 
-            $activeWorksheet
-                ->getStyle('A' . $rowIndex . ':L' . $rowIndex)
-                ->getAlignment()
-                ->setVertical(Alignment::VERTICAL_CENTER);
+                $activeWorksheet->mergeCells('C' . $rowIndex . ':F' . $rowIndex);
+                $activeWorksheet->mergeCells('K' . $rowIndex . ':L' . $rowIndex);
 
-            $activeWorksheet
-                ->getStyle('A' . $rowIndex . ':L' . $rowIndex)
-                ->getBorders()
-                ->getAllBorders()
-                // ->getOutline()
-                ->setBorderStyle(Border::BORDER_THIN)
-                ->setColor(new Color('FF000000'));
+                $activeWorksheet
+                    ->getStyle('A' . $rowIndex . ':L' . $rowIndex)
+                    ->getAlignment()
+                    ->setVertical(Alignment::VERTICAL_CENTER);
 
-            $activeWorksheet->getStyle('A' . $rowIndex . ':K' . $rowIndex)->applyFromArray($styleArray);
-            $activeWorksheet->getRowDimension($rowIndex)->setRowHeight(25.95);
+                $activeWorksheet
+                    ->getStyle('A' . $rowIndex . ':L' . $rowIndex)
+                    ->getBorders()
+                    ->getAllBorders()
+                    // ->getOutline()
+                    ->setBorderStyle(Border::BORDER_THIN)
+                    ->setColor(new Color('FF000000'));
 
-            $rowIndex+=1;
+                $activeWorksheet->getStyle('A' . $rowIndex . ':K' . $rowIndex)->applyFromArray($styleArray);
+                $activeWorksheet->getRowDimension($rowIndex)->setRowHeight(25.95);
 
-            if(
-                $rowIndex == 25 ||
-                $rowIndex == 46 ||
-                $rowIndex > 40 && ($rowIndex - 46) % 21 == 0
-                ) {
-                    // do not add on last page
-                    if($index < count($anmeldungen) - 1) {
-                        $activeWorksheet->getRowDimension($rowIndex)->setRowHeight(25.95);
-                        $activeWorksheet->getRowDimension($rowIndex + 1)->setRowHeight(25.95);
-                        $activeWorksheet->mergeCells('A' . $rowIndex . ':L' . $rowIndex);
-                        $activeWorksheet->mergeCells('A' . $rowIndex + 1 . ':L' . $rowIndex + 1);
-                        $activeWorksheet->setCellValue("A" . $rowIndex, "Fortsetzung auf der nächsten Seite");                    
+                $rowIndex+=1;
 
-                        $activeWorksheet
-                            ->getStyle("A" . $rowIndex)
-                            ->getAlignment()
-                            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
-                            ->setVertical(Alignment::VERTICAL_CENTER)
-                            ;
+                if(
+                    $rowIndex == 25 ||
+                    $rowIndex == 46 ||
+                    $rowIndex > 40 && ($rowIndex - 46) % 21 == 0
+                    ) {
+                        // do not add on last page
+                        if($index < count($anmeldungen) - 1) {
+                            $activeWorksheet->getRowDimension($rowIndex)->setRowHeight(25.95);
+                            $activeWorksheet->getRowDimension($rowIndex + 1)->setRowHeight(25.95);
+                            $activeWorksheet->mergeCells('A' . $rowIndex . ':L' . $rowIndex);
+                            $activeWorksheet->mergeCells('A' . $rowIndex + 1 . ':L' . $rowIndex + 1);
+                            $activeWorksheet->setCellValue("A" . $rowIndex, "Fortsetzung auf der nächsten Seite");                    
 
-                        $rowIndex+=1;
-                        $rowIndex+=1;
-                    }
+                            $activeWorksheet
+                                ->getStyle("A" . $rowIndex)
+                                ->getAlignment()
+                                ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+                                ->setVertical(Alignment::VERTICAL_CENTER)
+                                ;
+
+                            $rowIndex+=1;
+                            $rowIndex+=1;
+                        }
+                }
+
             }
 
+            
         }
 
         // $activeWorksheet->getHeaderFooter()
