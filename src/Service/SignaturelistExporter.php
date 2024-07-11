@@ -56,6 +56,8 @@ class SignaturelistExporter
         switch($presetName) {
             case "preset1":
                 $className = '\App\SignaturelistExporter\Preset1';
+            case "lkerz":
+                $className = '\App\SignaturelistExporter\LKErz';
         }
 
         if(empty($className)) {

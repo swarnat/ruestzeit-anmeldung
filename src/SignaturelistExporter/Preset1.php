@@ -26,11 +26,7 @@ class Preset1 extends Base
     public function generateExport(array $fields, string $filename, array $options)
     {
        
-        $query = $this->entityManager->createQuery(
-            'SELECT a FROM App\Entity\Anmeldung a WHERE a.ruestzeit = ' . $this->ruestzeit->getId() .
-                " AND a.status = '" . AnmeldungStatus::ACTIVE->value .
-                "' ORDER BY a.lastname, a.firstname"
-        );
+        $anmeldungen = $this->getAnmeldungen($options);
         
         $styleArray = array(
             'borders' => array(
@@ -40,10 +36,6 @@ class Preset1 extends Base
                 ),
             ),
         );        
-        /**
-         * @var Anmeldung[] $anmeldungen
-         */
-        $anmeldungen = $query->getResult();
 
         $anmeldeListe = $this->getGroups($anmeldungen, $options);
         $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReader("Xlsx");
