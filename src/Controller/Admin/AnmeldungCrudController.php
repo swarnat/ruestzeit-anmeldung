@@ -213,7 +213,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
         if ($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')
-                ->setDisabled(true)
+                // ->setDisabled(true)
                 ->setCustomOption('pdf-width', 30)
                 ->setCustomOption('generated', true);
         }
