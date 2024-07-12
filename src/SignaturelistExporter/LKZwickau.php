@@ -67,7 +67,8 @@ class LKZwickau extends Base
                 $activeWorksheet->setTitle(substr($groupTitle, 0, 30));
             }
 
-            $activeWorksheet->setCellValue("A5", $this->ruestzeit->getInternalTitle());
+            $activeWorksheet->getStyle('A5')->getAlignment()->setWrapText(true);
+            $activeWorksheet->setCellValue("A5", wordwrap($this->ruestzeit->getInternalTitle(), 60));
             $activeWorksheet->setCellValue("A7", $this->ruestzeit->getAktenzeichen());
             $activeWorksheet->setCellValue("G5", $this->ruestzeit->getDateFrom()->format("d.m.Y") . " - " . $this->ruestzeit->getDateTo()->format("d.m.Y"));
 
