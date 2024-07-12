@@ -297,9 +297,10 @@ class Anmeldung
 
         if(empty($this->getBirthdate())) return 0;
 
-        $tz  = new DateTimeZone('Europe/Brussels');
+        // $tz  = new DateTimeZone('Europe/Brussels');
+   
         return $this->getBirthdate()
-             ->diff(new DateTime('now', $tz))
+             ->diff($this->ruestzeit->getDateTo())
              ->y;        
     }
 
