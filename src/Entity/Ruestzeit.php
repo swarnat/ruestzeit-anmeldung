@@ -74,6 +74,9 @@ class Ruestzeit
     #[ORM\Column]
     private ?bool $registration_active = null;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $aktenzeichen = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -350,6 +353,18 @@ class Ruestzeit
     public function setRegistrationActive(bool $registration_active): static
     {
         $this->registration_active = $registration_active;
+
+        return $this;
+    }
+
+    public function getAktenzeichen(): ?string
+    {
+        return $this->aktenzeichen;
+    }
+
+    public function setAktenzeichen(?string $aktenzeichen): static
+    {
+        $this->aktenzeichen = $aktenzeichen;
 
         return $this;
     }  

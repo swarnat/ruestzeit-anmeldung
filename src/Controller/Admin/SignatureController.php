@@ -99,6 +99,9 @@ class SignatureController extends AbstractController
         } elseif ($format == "xls-lkerz") {
             $signatureExporter = $exporter->getSignaturelistExporter("lkerz", $ruestzeit); // ($ruestzeit, $reportFields, 'Unterschriften.pdf', $options);
             $signatureExporter->generateExport($reportFields, 'Unterschriften.xlsx', $options);
+        } elseif ($format == "xls-lkzwickau") {
+            $signatureExporter = $exporter->getSignaturelistExporter("lkzwickau", $ruestzeit); // ($ruestzeit, $reportFields, 'Unterschriften.pdf', $options);
+            $signatureExporter->generateExport($reportFields, 'Unterschriften.xlsx', $options);
         } elseif ($format == "pdf") {
             $exporter->generatePDF($ruestzeit, $reportFields, 'Unterschriften.pdf', $options);
         }

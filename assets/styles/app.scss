@@ -141,3 +141,15 @@ form .invalid-feedback {
   width:80%;
   opacity:0.9;
 }
+div.bottom_version {
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background-color:rgba(0,0,0,0.2);
+  color:#aaa;
+
+  text-align:center;
+  font-size:12px;
+  padding:5px 0;
+}
