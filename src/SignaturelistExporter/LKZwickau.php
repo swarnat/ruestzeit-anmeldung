@@ -62,8 +62,6 @@ class LKZwickau extends Base
         $spreadsheet->removeSheetByIndex(0);
 
         foreach ($anmeldeListe as $groupTitle => $anmeldungen) {
-            $anmeldungen = array_merge($anmeldungen, $anmeldungen);
-            $anmeldungen = array_merge($anmeldungen, $anmeldungen);
             $activeWorksheet = $spreadsheet->addSheet(clone $baseSheet);
             if (!empty($groupTitle)) {
                 $activeWorksheet->setTitle(substr($groupTitle, 0, 30));
