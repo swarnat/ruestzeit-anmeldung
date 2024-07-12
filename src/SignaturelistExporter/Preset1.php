@@ -46,7 +46,7 @@ class Preset1 extends Base
 
         foreach ($anmeldeListe as $groupTitle => $anmeldungen) {
             $activeWorksheet = $spreadsheet->addSheet(clone $baseSheet);
-            $activeWorksheet->setTitle(substr($groupTitle, 0, 30));
+            if(!empty($groupTitle)) $activeWorksheet->setTitle(substr($groupTitle, 0, 30));
 
             $nights = $this->ruestzeit->getDateTo()->diff($this->ruestzeit->getDateFrom())->format("%a");
             $days = $this->ruestzeit->getDateTo()->diff($this->ruestzeit->getDateFrom())->format("%a") + 1;
