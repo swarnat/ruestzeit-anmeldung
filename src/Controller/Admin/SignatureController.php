@@ -40,9 +40,11 @@ class SignatureController extends AbstractController
 {
 
     #[Route('/anmeldung/unterschriften', name: 'app_anmeldung_unterschriften')]
-    public function index( EntityManagerInterface $entityManager, AnmeldungCrudController $controller): Response
+    public function index( EntityManagerInterface $entityManager, AnmeldungCrudController $controller, RuestzeitRepository $ruestzeitRepository): Response
     {
         $fields = FieldCollection::new($controller->configureFields(Crud::PAGE_DETAIL));
+
+        $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
         foreach ($fields as $field) {
             /** @var FieldTrait $field */
@@ -53,7 +55,7 @@ class SignatureController extends AbstractController
             }
         }
 
-        $query = $entityManager->createQuery('SELECT a FROM App\Entity\Anmeldung a WHERE a.ruestzeit = ' . 1 . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' GROUP BY a.landkreis");
+        $query = $entityManager->createQuery('SELECT a FROM App\Entity\Anmeldung a WHERE a.ruestzeit = ' . $ruestzeit->getId() . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' GROUP BY a.landkreis");
         $anmeldungen = $query->getResult();
         $landkreise = array_map(function($value) { return $value->getLandkreis(); }, $anmeldungen);
 
