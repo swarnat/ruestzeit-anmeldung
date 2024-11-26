@@ -1,6 +1,11 @@
 twig:
     file_name_pattern: '*.twig'
 
+    globals:
+        # the value is the service's id
+        admin_extension: '@App\Generator\CurrentRuestzeitGenerator'
+
 when@test:
     twig:
         strict_variables: true
+

@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Validator\Constraints\Unique;
 
 #[ORM\Entity(repositoryClass: RuestzeitRepository::class)]
 #[UniqueEntity('slug')]
@@ -76,6 +77,12 @@ class Ruestzeit
 
     #[ORM\Column(length: 64, nullable: true)]
     private ?string $aktenzeichen = null;
+
+    #[ORM\Column(length: 12, unique: true)]
+    private ?string $forwarder = null;
+
+    #[ORM\Column]
+    private ?bool $ask_schoolclass = null;
 
     public function __construct()
     {
@@ -365,6 +372,30 @@ class Ruestzeit
     public function setAktenzeichen(?string $aktenzeichen): static
     {
         $this->aktenzeichen = $aktenzeichen;
+
+        return $this;
+    }
+
+    public function getForwarder(): ?string
+    {
+        return $this->forwarder;
+    }
+
+    public function setForwarder(string $forwarder): static
+    {
+        $this->forwarder = $forwarder;
+
+        return $this;
+    }
+
+    public function isAskSchoolclass(): ?bool
+    {
+        return $this->ask_schoolclass;
+    }
+
+    public function setAskSchoolclass(bool $ask_schoolclass): static
+    {
+        $this->ask_schoolclass = $ask_schoolclass;
 
         return $this;
     }  

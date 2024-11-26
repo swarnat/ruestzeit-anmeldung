@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Anmeldung;
 use App\Enum\AnmeldungStatus;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use App\Service\SignaturelistExporter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,13 +39,19 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class SignatureController extends AbstractController
 {
-
+    public function __construct(
+        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
+    )
+    {
+        
+    }
+    
     #[Route('/anmeldung/unterschriften', name: 'app_anmeldung_unterschriften')]
     public function index( EntityManagerInterface $entityManager, AnmeldungCrudController $controller, RuestzeitRepository $ruestzeitRepository): Response
     {
         $fields = FieldCollection::new($controller->configureFields(Crud::PAGE_DETAIL));
 
-        $ruestzeit = $ruestzeitRepository->findOneBy([]);
+        $ruestzeit = $this->currentRuestzeitGenerator->get();
 
         foreach ($fields as $field) {
             /** @var FieldTrait $field */

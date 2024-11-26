@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Anmeldung;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
 use Doctrine\ORM\EntityManager;
@@ -43,13 +44,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class WaitinglistCrudController extends AnmeldungCrudController
 {
-
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, CollectionFilterCollection $filters): QueryBuilder
     {
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
         $queryBuilder
             ->orderBy('entity.registrationPosition', 'ASC')
+            ->andWhere('entity.ruestzeit = :ruestzeit_id')->setParameter(':ruestzeit_id', $this->currentRuestzeitGenerator->get()->getId())
             ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::WAITLIST);
 
         return $queryBuilder;

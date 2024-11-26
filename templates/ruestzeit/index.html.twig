@@ -152,18 +152,6 @@
 				<div class="columns">
 					<div class="column">
 
-						<div class="field">
-							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
-							</label>
-							<div class="control has-icons-left">
-								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required {{ autocomplete |raw }}>
-								<span class="icon is-small is-left">
-									<i class="fas fa-calendar"></i>
-								</span>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.birthdate) }}
-						</div>
 						<div class="field emailfield">
 							<label class="label">Alter<sup>*</sup>
 							</label>
@@ -245,6 +233,20 @@
 					</div>
 					<div class="column">
 						<div class="field">
+							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
+							</label>
+							<div class="control has-icons-left">
+								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required {{ autocomplete |raw }}>
+								<span class="icon is-small is-left">
+									<i class="fas fa-calendar"></i>
+								</span>
+							</div>
+							<p class="help">Pflichtfeld</p>
+							{{ form_errors(form.birthdate) }}
+						</div>
+
+						{% if ruestzeit.isAskSchoolclass() %}
+						<div class="field">
 							<label class="label">Schulklasse<sup>*</sup>
 							</label>
 							<div class="control">
@@ -253,6 +255,7 @@
 							<p class="help">Pflichtfeld</p>
 							{{ form_errors(form.schoolclass) }}
 						</div>
+						{% endif %}
 
 						<div class="card">
 							<header class="card-header">

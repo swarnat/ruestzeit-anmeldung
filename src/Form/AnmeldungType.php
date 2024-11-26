@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Anmeldung;
 use App\Entity\Ruestzeit;
 use App\Enum\MealType;
+use App\Generator\CurrentRuestzeitGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -19,8 +20,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnmeldungType extends AbstractType
 {
+    public function __construct(private CurrentRuestzeitGenerator $currentRuestzeitGenerator)
+    {
+        
+    }
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $currentRuestzeit = $this->currentRuestzeitGenerator->get();
+
         $builder
             ->add('ruestzeit', EntityType::class, [
                 // looks for choices from this entity
@@ -45,9 +52,13 @@ class AnmeldungType extends AbstractType
             ->add('city')
             ->add('address')
             ->add('phone')
-            ->add('email')
-            ->add('schoolclass')
-            ->add('mealtype', EnumType::class, [
+            ->add('email');
+
+        if($currentRuestzeit->isAskSchoolclass()) {
+            $builder->add('schoolclass');
+        }
+
+        $builder->add('mealtype', EnumType::class, [
                 'class' => MealType::class
             ])
             ->add('notes', TextareaType::class, [

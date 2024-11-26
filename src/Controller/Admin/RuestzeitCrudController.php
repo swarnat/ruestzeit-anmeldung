@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Admin;
 use App\Entity\Ruestzeit;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -11,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
@@ -24,14 +26,24 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Ehyiah\QuillJsBundle\DTO\Fields\BlockField\HeaderField;
 use Ehyiah\QuillJsBundle\DTO\QuillGroup;
 use Ehyiah\QuillJsBundle\Form\QuillAdminField;
 use Ehyiah\QuillJsBundle\Form\QuillType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class RuestzeitCrudController extends AbstractCrudController
 {
+    public function __construct(
+        protected AdminUrlGenerator $adminUrlGenerator,
+        protected RequestStack $requestStack,
+        protected EntityManagerInterface $entityManager
+    ) {
+    }
+        
     public static function getEntityFqcn(): string
     {
         return Ruestzeit::class;
@@ -56,7 +68,8 @@ class RuestzeitCrudController extends AbstractCrudController
 
             ->setDefaultSort(['registration_start' => 'DESC'])
 
-
+            ->overrideTemplate("crud/edit", "admin/ruestzeit_edit.html.twig")
+            
             // ->setFormThemes(['my_theme.html.twig', 'admin.html.twig'])
             // ->addFormTheme('foo.html.twig')
             //  ->renderSidebarMinimized()
@@ -65,7 +78,7 @@ class RuestzeitCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
-        $passwordLink = Action::new('passwordlink', "Link inkl. Passwort")
+        $passwordLink = Action::new('link_password', "Link inkl. Passwort")
             ->linkToUrl(function (Ruestzeit $ruestzeit) {
                 return '/?pw=' . $ruestzeit->getPassword();
             })
@@ -73,15 +86,53 @@ class RuestzeitCrudController extends AbstractCrudController
             ->displayIf(function (Ruestzeit $ruestzeit) {
                 return $ruestzeit->getPassword() != '';
             })
-
-            // ... line 81
             ->setIcon('fa fa-link');
+
+        
+            $shortLink = Action::new('link_registration_short', "Kurzlink")
+            ->linkToUrl(function (Ruestzeit $ruestzeit) {
+                return '/' . $ruestzeit->getForwarder();
+            })
+            ->setHtmlAttributes(["target" => "_blank"])
+            ->setIcon('fa fa-link');
+
+
+            $longLink = Action::new('link_registration_long', "Komplette URL")
+            ->linkToUrl(function (Ruestzeit $ruestzeit) {
+                return '/r/' . $ruestzeit->getSlug();
+            })
+            ->setHtmlAttributes(["target" => "_blank"])
+            ->setIcon('fa fa-link');
+
+
+            $longLink = Action::new('ruestzeit_activate', "Ruestzeit wechseln")
+                ->linkToCrudAction('activate_ruestzeit')
+                ->setIcon('fa fa-download');
+
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, "delete")
-            ->add(Crud::PAGE_INDEX, $passwordLink);
+            ->add(Crud::PAGE_INDEX, $passwordLink)
+            ->add(Crud::PAGE_INDEX, $shortLink)
+            ->add(Crud::PAGE_INDEX, $longLink)
+            ;
     }
     
+    public function activate_ruestzeit(AdminContext $context)
+    {
+        $ruestzeit = $context->getEntity()->getInstance();
+
+        $this->requestStack->getSession()->set("current_ruestzeit", $ruestzeit->getId());
+
+        $url = $this->container->get(AdminUrlGenerator::class)
+            ->setController(RuestzeitCrudController::class)
+            ->setAction(Action::INDEX)
+            ->generateUrl();
+        
+        return new RedirectResponse($url);
+
+    }
+
     public function configureAssets(Assets $assets): Assets
     {
         $assets->addAssetMapperEntry('quill-admin');
@@ -104,7 +155,10 @@ class RuestzeitCrudController extends AbstractCrudController
 
 
         yield FormField::addColumn(6);
-        yield TextField::new('aktenzeichen', 'Aktenzeichen Zwickau');
+        
+        yield TextField::new('forwarder', 'Weiterleitungs Kennung')
+            ->setHelp(" (max. 12 Zeichen) Diese Kennung kann in Anmeldungen verwendet werden https://" . $_SERVER["HTTP_HOST"]."/(weiterleitungs-kennung)")
+            ->setMaxLength(12);
 
         yield FormField::addColumn(6);
 
@@ -162,8 +216,14 @@ class RuestzeitCrudController extends AbstractCrudController
             yield BooleanField::new('show_dates', 'Rüstzeitdatum anzeigen');
 
             yield FormField::addColumn(4);
+            yield BooleanField::new('ask_schoolclass', 'Schulklasse erfragen');
 
             yield FormField::addColumn(6);
+
+            yield TextField::new('aktenzeichen', 'Aktenzeichen Zwickau');            
+
+            yield FormField::addColumn(6);
+
             yield TextField::new('password', 'Passwort')
                 ->setHelp('Mit diesem Passwort, kann die Anmeldesperre umgangen werden. a-z, A-Z, 0-9 und Sonderzeichen - _');
         }

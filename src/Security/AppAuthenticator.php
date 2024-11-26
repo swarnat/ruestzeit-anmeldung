@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Repository\RuestzeitRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,7 +23,10 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator, 
+        private RuestzeitRepository $ruestzeitRepository 
+        )
     {
     }
 
@@ -44,6 +48,11 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        $session = $request->getSession();
+
+        $current_ruestzeit = $this->ruestzeitRepository->findOneBy([]);
+        $session->set("current_ruestzeit", $current_ruestzeit->getId());
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }

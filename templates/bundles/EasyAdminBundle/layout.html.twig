@@ -1,0 +1,40 @@
+{# templates/bundles/EasyAdminBundle/layout.html.twig #}
+
+{# DO THIS: the '!' symbol tells Symfony to extend from the original template #}
+{% extends '@!EasyAdmin/layout.html.twig' %}
+{% set current_ruestzeit = admin_extension.get %}
+
+	{% block header_navbar %}
+		<div class="sidebar_ruestzeit_container"> <div class="sidebar_ruestzeit_top">
+			<span>Aktuelle Rüstzeit</span>
+			{# <a href="/admin" class="btn btn-sm btn-primary">Wechseln</a> #}
+		</div>
+		<div class="sidebar_ruestzeit_current">{{ current_ruestzeit }}</div>
+	</div>
+	<style>
+		.sidebar_ruestzeit_container {
+			text-align: center;
+			font-size: 11px;
+			padding: 5px;
+			border: 1px solid #ccc;
+			margin-top: 5px;
+
+            margin-bottom:10px;
+		}
+		.sidebar_ruestzeit_top span {
+			font-weight: bold;
+			flex-grow: 1;
+		}
+		.sidebar_ruestzeit_top {
+			display: flex;
+			flex-direction: row;
+
+			align-items: center;
+
+		}
+        .sidebar_ruestzeit_current {
+            padding-top:5px;
+            font-size:9px;
+        }
+	</style>
+{% endblock %}

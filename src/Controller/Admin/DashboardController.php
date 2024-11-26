@@ -5,11 +5,14 @@ namespace App\Controller\Admin;
 use App\Entity\Admin;
 use App\Entity\Anmeldung;
 use App\Entity\Category;
+use App\Entity\Landkreis;
 use App\Entity\Location;
 use App\Entity\Ruestzeit;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -20,16 +23,28 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class DashboardController extends AbstractDashboardController
 {
-    public function __construct(private RuestzeitRepository $ruestzeitRepository)
+    public function __construct(
+        private RuestzeitRepository $ruestzeitRepository,
+        private CurrentRuestzeitGenerator $currentRuestzeitGenerator
+        )
     {
     }    
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
+        // $ruestzeit = $this->ruestzeitRepository->findOneBy([
+        //     // "slug" => $ruestzeit_id
+        // ]);
+
+        return $this->render('bundles/EasyAdminBundle/layout.html.twig', [
+            // 'current_ruestzeit' => $ruestzeit, // Beispielwert
+        ]);        
+        
         $routeBuilder = $this->container->get(AdminUrlGenerator::class);
         $url = $routeBuilder->setController(RuestzeitCrudController::class)->generateUrl();
     
         return $this->redirect($url);
+        
 
         // Option 1. You can make your dashboard redirect to some common page of your backend
         //
@@ -59,12 +74,13 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        $ruestzeit = $this->ruestzeitRepository->findOneBy([]);
+        $ruestzeit = $this->currentRuestzeitGenerator->get();
 
         // yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
 
-        yield MenuItem::linktoRoute('Homepage', 'fas fa-home', 'homepage');
+        yield MenuItem::linkToUrl('Homepage', 'fas fa-home', '/' . $ruestzeit->getSlug());
+        // yield MenuItem::linktoRoute('Homepage', 'fas fa-home', 'homepage');
 
         yield MenuItem::section('Rüstzeiten');
         yield MenuItem::linkToCrud('Orte', 'fas fa-map-marker-alt', Location::class);
@@ -91,6 +107,8 @@ class DashboardController extends AbstractDashboardController
         
         yield MenuItem::section('Verwaltung');
 
+        yield MenuItem::linkToCrud('Landkreise', 'fas fa-flag', Landkreis::class);
+        
         yield MenuItem::linkToCrud('Kategorie', 'fas fa-flag', Category::class);
         
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
@@ -99,6 +117,12 @@ class DashboardController extends AbstractDashboardController
                 ;
     }
 
+    public function configureResponseParameters(KeyValueStore $responseParameters): KeyValueStore
+    {
+        $parentValue =  parent::configureResponseParameters($responseParameters);
+
+        return $parentValue;
+    }
     public function configureAssets(): Assets
     {
         return parent::configureAssets()

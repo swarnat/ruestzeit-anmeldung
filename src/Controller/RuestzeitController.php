@@ -6,11 +6,13 @@ use App\Entity\Anmeldung;
 use App\Enum\AnmeldungStatus;
 use App\Enum\PersonenTyp;
 use App\Form\AnmeldungType;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use App\Service\PostalcodeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
@@ -23,7 +25,8 @@ class RuestzeitController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private PostalcodeService $postalcodeService
+        private PostalcodeService $postalcodeService,
+        private CurrentRuestzeitGenerator $currentRuestzeitGenerator
     ) {
     }
 
@@ -32,9 +35,28 @@ class RuestzeitController extends AbstractController
     {
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
+        return new RedirectResponse("/NTPW");
+    }
+
+    public function show(Request $request, Environment $twig, RuestzeitRepository $ruestzeitRepository, MailerInterface $mailer, String $ruestzeit_id): Response
+    {
+        $ruestzeit = $ruestzeitRepository->findOneBy([
+            "forwarder" => $ruestzeit_id
+        ]);
+
+        if (!empty($ruestzeit)) {
+            return new RedirectResponse("/" . $ruestzeit->getSlug());
+        }
+
+        $ruestzeit = $ruestzeitRepository->findOneBy([
+            "slug" => $ruestzeit_id
+        ]);
+
         if (empty($ruestzeit)) {
             return new Response($twig->render('ruestzeit/not-found.html.twig', []));
         }
+
+        $this->currentRuestzeitGenerator->set($ruestzeit);
 
         $allowRegistration = false;
 
@@ -160,9 +182,9 @@ class RuestzeitController extends AbstractController
                     }
 
                     if ($allowRegistration) {
-                        return $this->redirectToRoute('homepage', ["pw" => $ruestzeit->getPassword()]);
+                        return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), "pw" => $ruestzeit->getPassword()]);
                     } else {
-                        return $this->redirectToRoute('homepage');
+                        return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), ]);
                     }
                 } else {
                     toastr()

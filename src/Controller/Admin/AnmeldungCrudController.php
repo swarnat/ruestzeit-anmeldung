@@ -14,6 +14,7 @@ use App\FieldTypes\CategorySelectionField;
 use App\FieldTypes\CategorySelectionType;
 use App\FieldTypes\TagType;
 use App\Filter\LandkreisFilter;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
@@ -29,6 +30,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -52,8 +54,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -63,8 +68,23 @@ class AnmeldungCrudController extends AbstractCrudController
     public function __construct(
         protected AdminUrlGenerator $adminUrlGenerator,
         protected RequestStack $requestStack,
-        protected EntityManagerInterface $entityManager
+        protected EntityManagerInterface $entityManager,
+        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
     ) {
+    }
+
+    public function createEditForm(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormInterface
+    {
+        $result = parent::createEditForm($entityDto, $formOptions, $context);
+
+        $currentRuestzeit = $this->currentRuestzeitGenerator->get();
+        $relatedRuestzeit = $entityDto->getInstance()->getRuestzeit();
+
+        if ($relatedRuestzeit->getId() !== $currentRuestzeit->getId()) {
+            throw new Exception("Diese Anmeldung gehört zur Rüstzeit '" . $relatedRuestzeit->getTitle()."'.".PHP_EOL."Du bearbeitest gerade '".$currentRuestzeit->getTitle()."'");
+        }
+        
+        return $result;
     }
 
     public static function getEntityFqcn(): string
@@ -77,7 +97,9 @@ class AnmeldungCrudController extends AbstractCrudController
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
         $queryBuilder
-            ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::ACTIVE);
+            ->andWhere('entity.status = :status')->setParameter(':status', AnmeldungStatus::ACTIVE)
+            ->andWhere('entity.ruestzeit = :ruestzeit_id')->setParameter(':ruestzeit_id', $this->currentRuestzeitGenerator->get()->getId())
+        ;
 
         $queryBuilder->leftJoin('entity.categories', 'c')
             ->addSelect("c");
@@ -112,7 +134,7 @@ class AnmeldungCrudController extends AbstractCrudController
     }
 
     public function configureActions(Actions $actions): Actions
-    {;
+    {
         $exportAction = Action::new('export')
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();

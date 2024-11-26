@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Anmeldung;
 use App\Enum\AnmeldungStatus;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -36,6 +37,12 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class AnmeldungImportController extends AbstractController
 {
+    public function __construct(
+        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
+    )
+    {
+        
+    }
     #[Route('/anmeldung/import', name: 'app_anmeldung_import')]
     public function index(): Response
     {
@@ -49,7 +56,7 @@ class AnmeldungImportController extends AbstractController
     {
         // $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);
 
-        $ruestzeit = $ruestzeitRepository->findOneBy([]);
+        $ruestzeit = $this->currentRuestzeitGenerator->get();
 
         /** @var UploadedFile $file */
         $file = $request->files->get('import');
