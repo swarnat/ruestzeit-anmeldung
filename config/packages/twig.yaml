@@ -3,7 +3,7 @@ twig:
 
     globals:
         # the value is the service's id
-        admin_extension: '@App\Generator\CurrentRuestzeitGenerator'
+        current_ruestzeit_service: '@App\Generator\CurrentRuestzeitGenerator'
 
 when@test:
     twig:

@@ -1,4 +1,5 @@
 // 
+import './styles/admin.scss';
 import axios from 'axios';
 import TomSelect from "tom-select/dist/js/tom-select.complete.min";
 

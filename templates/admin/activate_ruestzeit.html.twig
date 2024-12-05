@@ -1,0 +1,9 @@
+{# templates/admin/custom_button_field.html.twig #}
+{% set current_ruestzeit = current_ruestzeit_service.get %}
+
+{% if current_ruestzeit.id != entity.instance.id %}
+<a href="https://localhost:8000/admin?crudAction=activate_ruestzeit&crudControllerFqcn=App%5CController%5CAdmin%5CRuestzeitCrudController&entityId={{ entity.instance.id }}"
+   class="btn btn-sm btn-primary">
+    {{ 'Wechseln' }}
+</a>
+{% endif %}

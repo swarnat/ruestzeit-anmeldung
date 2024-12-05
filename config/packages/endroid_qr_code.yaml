@@ -1,0 +1,13 @@
+endroid_qr_code:
+    custom:
+        writer: Endroid\QrCode\Writer\PngWriter
+        size: 200
+        margin: 5
+        encoding: 'UTF-8'
+        error_correction_level: 'low'
+        round_block_size_mode: 'margin'
+        validate_result: false
+        label_text: 'Anmeldung'
+        label_font_path: '%kernel.project_dir%/vendor/endroid/qr-code/assets/noto_sans.otf'
+        label_font_size: 15
+        label_alignment: 'center'

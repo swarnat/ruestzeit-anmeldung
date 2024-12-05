@@ -2,7 +2,8 @@
 
 {# DO THIS: the '!' symbol tells Symfony to extend from the original template #}
 {% extends '@!EasyAdmin/layout.html.twig' %}
-{% set current_ruestzeit = admin_extension.get %}
+{% set current_ruestzeit = current_ruestzeit_service.get %}
+{% set admin_color = current_ruestzeit.getAdminColor %}
 
 	{% block header_navbar %}
 		<div class="sidebar_ruestzeit_container"> <div class="sidebar_ruestzeit_top">
@@ -11,30 +12,15 @@
 		</div>
 		<div class="sidebar_ruestzeit_current">{{ current_ruestzeit }}</div>
 	</div>
+	{% if admin_color != "" %}
 	<style>
+		.sidebar {
+			border-right:2px solid {{ admin_color }};
+			background-color: {{ admin_color }}10;
+		}
 		.sidebar_ruestzeit_container {
-			text-align: center;
-			font-size: 11px;
-			padding: 5px;
-			border: 1px solid #ccc;
-			margin-top: 5px;
-
-            margin-bottom:10px;
+			background-color: {{ admin_color }};
 		}
-		.sidebar_ruestzeit_top span {
-			font-weight: bold;
-			flex-grow: 1;
-		}
-		.sidebar_ruestzeit_top {
-			display: flex;
-			flex-direction: row;
-
-			align-items: center;
-
-		}
-        .sidebar_ruestzeit_current {
-            padding-top:5px;
-            font-size:9px;
-        }
 	</style>
+	{% endif %}	
 {% endblock %}

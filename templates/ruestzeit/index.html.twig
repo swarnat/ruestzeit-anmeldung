@@ -11,7 +11,7 @@
 {% block body %}
 
 	<div class="container">
-		<h1 class="title">{{ ruestzeit.title }}</h1>
+		<h1 class="title" tabindex="-1">{{ ruestzeit.title }}</h1>
 
 		<section class="mb-5 entry_description_outer">
 			<div class="entry_child_container">
@@ -39,9 +39,9 @@
 									<p class="card-header-title">
 										{{ ruestzeit.location.title}}
 									</p>
-									<button class="card-header-icon" aria-label="more options">
-										<span class="icon">
-											<i class="fas fa-angle-down" aria-hidden="true"></i>
+									<button class="card-header-icon" aria-label="more options" tabindex="-1">
+										<span class="icon" tabindex="-1">
+											<i class="fas fa-angle-down" aria-hidden="true" tabindex="-1"></i>
 										</span>
 									</button>
 								</header>
@@ -50,12 +50,12 @@
 									{{ ruestzeit.location.postalcode}}
 									{{ ruestzeit.location.city}}<br/>
 									<br/>
-									<a class="button is-primary" target="_blank" href="https://www.google.com/maps/search/{{ ruestzeit.location.title ~ " " ~ ruestzeit.location.street ~ " " ~ ruestzeit.location.postalcode ~ " " ~ ruestzeit.location.city }}">Karte anzeigen</a>
+									<a class="button is-primary" tabindex="-1" target="_blank" href="https://www.google.com/maps/search/{{ ruestzeit.location.title ~ " " ~ ruestzeit.location.street ~ " " ~ ruestzeit.location.postalcode ~ " " ~ ruestzeit.location.city }}">Karte anzeigen</a>
 								</div>
 							</div>
 						{% endif %}
 						{% if ruestzeit.imageUrl != "" %}
-							<a href="{{ ruestzeit.flyerUrl }}" target="_blank">
+							<a href="{{ ruestzeit.flyerUrl }}" target="_blank"tabindex="-1">
 								<img src="{{ ruestzeit.imageUrl }}" alt="Flyer zur {{ ruestzeit.title }}"/>
 							</a>
 						{% endif %}
@@ -70,273 +70,308 @@
 		</section>
 
 		{% if ruestzeit.isRegistrationActive() %}
-		<div class="notification is-primary is-hidden">
-			Insgesamt
-			{{ ruestzeit.memberlimit }}
-			Plätze verfügbar<br/>
-			{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
-				Anmeldungen möglich ab
-				{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
-				Uhr
-			{% endif %}
-		</div>
-		{% if allowRegistration %}
-			<div class="notification is-success">
-				Anmeldung per Registrierungscode aktiviert
-			</div>
-		{% endif %}
-
-		{% set autocomplete = 'autocomplete="off" aria-autocomplete="none"' %}
-		<form class="box" method="POST" action="#" enctype="multipart/form-data" {{ autocomplete |raw }}>
-			<h2 class="title">Anmeldung</h2>
-
-			{% if ruestzeit.isFull() == true %}
-				<div class="notification is-info">
-					Die möglichen Anmeldungen sind bereits voll. Deine Anmeldung wird auf einer Warteliste berücksichtigt.<br/>
-					Wir informieren dich rechtzeitig, ob du teilnehmen kannst.
-				</div>
-			{% endif %}
-
-			<div class="alert alert-danger text-center" role="alert">
-
-				{% set formErrors = form.vars.errors.form.getErrors(true) %}
-
-				{% if formErrors|length %}
-					<div class="notification  is-danger" role="alert">
-						Es wurden Fehler im Formular festgestellt. Bitte prüfen Sie Ihre Eingaben.
-					</div>
+			<div class="notification is-primary is-hidden">
+				Insgesamt
+				{{ ruestzeit.memberlimit }}
+				Plätze verfügbar<br/>
+				{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
+					Anmeldungen möglich ab
+					{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
+					Uhr
 				{% endif %}
 			</div>
-
-			{% if allowRegistration or ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
-				<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}" {{ autocomplete |raw }}>
-				<input type="hidden" name="timing" value="{{ 'now'|date('U') }}" {{ autocomplete |raw }}>
-
-				{{ form_errors(form.ruestzeit) }}
-
-				<div class="field" style='display:none;'>
-					<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
-					</label>
-					<div class="control">
-						{{ form_widget(form.ruestzeit) }}
-					</div>
-					<p class="help">Pflichtfeld</p>
-				</div>
-
-				<div class="columns">
-					<div class="column">
-						<div class="field">
-							<label class="label">Vorname des Teilnehmers<sup>*</sup>
-							</label>
-							<div class="control">
-								<input class="input" type="text" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" required {{ autocomplete |raw }}>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.firstname) }}
-						</div>
-					</div>
-
-					<div class="column">
-						<div class="field">
-							<label class="label">Nachname des Teilnehmers<sup>*</sup>
-							</label>
-							<div class="control">
-								<input class="input" type="text" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" required {{ autocomplete |raw }}>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.lastname) }}
-
-						</div>
-					</div>
-				</div>
-				<div class="columns">
-					<div class="column">
-
-						<div class="field emailfield">
-							<label class="label">Alter<sup>*</sup>
-							</label>
-							<div class="control has-icons-left">
-								<input class="input" type="number" name="anmeldung[agefield]" tabindex="20" {{ autocomplete |raw }}>
-								<span class="icon is-small is-left">
-									<i class="fas fa-envelope"></i>
-								</span>
-							</div>
-							<p class="help">Pflichtfeld</p>
-						</div>
-
-						<div class="field">
-							<label class="label">Telefon<sup>*</sup>
-							</label>
-							<div class="control has-icons-left">
-								<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" tabindex="7" required {{ autocomplete |raw }}>
-								<span class="icon is-small is-left">
-									<i class="fas fa-phone"></i>
-								</span>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.phone) }}
-						</div>
-						<div class="field">
-							<label class="label">E-Mail<sup>*</sup>
-							</label>
-							<div class="control has-icons-left">
-								<input class="input" type="email" name="{{ field_name(form.email) }}" value="{{ field_value(form.email) }}" placeholder="email@adresse.de" tabindex="8" required {{ autocomplete |raw }}>
-								<span class="icon is-small is-left">
-									<i class="fas fa-envelope"></i>
-								</span>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.phone) }}
-						</div>
-						<div class="field emailfield">
-							<label class="label">E-Mail Wdh.<sup>*</sup>
-							</label>
-							<div class="control has-icons-left">
-								<input class="input" type="email" name="anmeldung[email_repeat]" rel="email" tabindex="20" autocomplete="off" {{ autocomplete |raw }}>
-								<span class="icon is-small is-left">
-									<i class="fas fa-envelope"></i>
-								</span>
-							</div>
-							<p class="help">Pflichtfeld</p>
-						</div>
-						<div class="field">
-							<label class="label">Anmerkungen</label>
-							<div class="control">
-								<textarea class="textarea" type="text" name="{{ field_name(form.notes) }}" rows="4" tabindex="8" {{ autocomplete |raw }}>{{ field_value(form.notes) }}</textarea>
-							</div>
-							<p class="help">Besonderheiten / Allergien</p>
-							{{ form_errors(form.notes) }}
-						</div>
-
-						<div class="field">
-							<label class="label">Verpflegung<sup>*</sup>
-							</label>
-							<div class="control">
-								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="9" {{ autocomplete |raw }}>
-									Alles
-								</label>
-								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="9" {{ autocomplete |raw }}>
-									Vegetarisch
-								</label>
-								<label class="radio">
-									<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="9" {{ autocomplete |raw }}>
-									Vegan
-								</label>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.mealtype) }}
-						</div>
-
-
-					</div>
-					<div class="column">
-						<div class="field">
-							<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
-							</label>
-							<div class="control has-icons-left">
-								<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="6" required {{ autocomplete |raw }}>
-								<span class="icon is-small is-left">
-									<i class="fas fa-calendar"></i>
-								</span>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.birthdate) }}
-						</div>
-
-						{% if ruestzeit.isAskSchoolclass() %}
-						<div class="field">
-							<label class="label">Schulklasse<sup>*</sup>
-							</label>
-							<div class="control">
-								<input class="input" type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="3" required {{ autocomplete |raw }}>
-							</div>
-							<p class="help">Pflichtfeld</p>
-							{{ form_errors(form.schoolclass) }}
-						</div>
-						{% endif %}
-
-						<div class="card">
-							<header class="card-header">
-								<p class="card-header-title">
-									Adresse
-								</p>
-							</header>
-							<div class="card-content">
-								<div class="field">
-									<label class="label">Strasse<sup>*</sup>
-									</label>
-									<div class="control">
-										<input class="input" tabindex="3" name="{{ field_name(form.address) }}" value="{{ field_value(form.address) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
-									</div>
-									<p class="help">Pflichtfeld</p>
-									{{ form_errors(form.address) }}
-								</div>
-
-								<div class="columns">
-									<div class="column">
-										<div class="field">
-											<label class="label">Postleitzahl<sup>*</sup>
-											</label>
-											<div class="control">
-												<input class="input" tabindex="5" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
-											</div>
-											<p class="help">Pflichtfeld</p>
-											{{ form_errors(form.postalcode) }}
-										</div>
-
-									</div>
-									<div class="column">
-										<div class="field">
-											<label class="label">Ort<sup>*</sup>
-											</label>
-											<div class="control">
-												<input class="input" tabindex="5" name="{{ field_name(form.city) }}" value="{{ field_value(form.city) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
-											</div>
-											<p class="help">Pflichtfeld</p>
-											{{ form_errors(form.city) }}
-										</div>
-
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="mb-5">
-					<label class="checkbox">
-						<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required tabindex="10" {{ autocomplete |raw }}>
-						Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
-					</label>
-					{{ form_errors(form.agb_agree) }}
-
-					<label class="checkbox">
-						<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1" required tabindex="10">
-						Ich akzeptiere, dass die Daten des Teilnehmers für Planung und Auswertung gespeichert werden.<sup>*</sup>
-					</label>
-					{{ form_errors(form.dsgvo_agree) }}
-
-				</div>
-
-				{{ form_rest(form) }}
-
-				<button class="button is-success">Anmeldung absenden</button>
-				<div style="width:calc(100% - 200px); display:inline-block; padding-left:25px;">
-					<label>
-						<input type="checkbox" name="repeat_process" value="1">
-						Ich möchte im Anschluss einen weiteren Teilnehmer mit ähnlichen Angaben anmelden.<br/>
-						<em>In diesem Fall übernehmen wir einige Angaben.</em>
-					</label>
-				</div>
-			{% else %}
-				<div class="notification">
-					Aktuell ist die Anmeldung noch nicht möglich.
+			{% if allowRegistration %}
+				<div class="notification is-success">
+					Anmeldung per Registrierungscode aktiviert
 				</div>
 			{% endif %}
-		</form>
-	{% endif %}
+
+			{% set autocomplete = 'autocomplete="off" aria-autocomplete="none"' %}
+			<form class="box" method="POST" action="#" enctype="multipart/form-data" {{ autocomplete |raw }}>
+				<h2 class="title">Anmeldung</h2>
+
+				{% if ruestzeit.isFull() == true %}
+					<div class="notification is-info">
+						Die möglichen Anmeldungen sind bereits voll. Deine Anmeldung wird auf einer Warteliste berücksichtigt.<br/>
+						Wir informieren dich rechtzeitig, ob du teilnehmen kannst.
+					</div>
+				{% endif %}
+
+				<div class="alert alert-danger text-center" role="alert">
+
+					{% set formErrors = form.vars.errors.form.getErrors(true) %}
+
+					{% if formErrors|length %}
+						<div class="notification  is-danger" role="alert">
+							Es wurden Fehler im Formular festgestellt. Bitte prüfen Sie Ihre Eingaben.
+						</div>
+					{% endif %}
+				</div>
+
+				{% if allowRegistration or ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
+					<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}" {{ autocomplete |raw }}>
+					<input type="hidden" name="timing" value="{{ 'now'|date('U') }}" {{ autocomplete |raw }}>
+					<input type="hidden" name="ctoken" value="{{ initial_ctoken }}" {{ autocomplete |raw }}>
+
+					{{ form_errors(form.ruestzeit) }}
+
+					<div class="field" style='display:none;'>
+						<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
+						</label>
+						<div class="control">
+							{{ form_widget(form.ruestzeit) }}
+						</div>
+						<p class="help">Pflichtfeld</p>
+					</div>
+
+					<div class="columns">
+						<div class="column">
+							<div class="field">
+								<label class="label">Vorname des Teilnehmers<sup>*</sup>
+								</label>
+								<div class="control">
+									<input class="input" type="text" data-checkname="firstname" name="{{ field_name(form.firstname) }}" value="{{ field_value(form.firstname) }}" tabindex="1" placeholder="Vorname" required {{ autocomplete |raw }}>
+								</div>
+								<p class="help">Pflichtfeld</p>
+								{{ form_errors(form.firstname) }}
+							</div>
+						</div>
+
+						<div class="column">
+							<div class="field">
+								<label class="label">Nachname des Teilnehmers<sup>*</sup>
+								</label>
+								<div class="control">
+									<input class="input" type="text" data-checkname="lastname" name="{{ field_name(form.lastname) }}" value="{{ field_value(form.lastname) }}" tabindex="2" placeholder="Nachname" required {{ autocomplete |raw }}>
+								</div>
+								<p class="help">Pflichtfeld</p>
+								{{ form_errors(form.lastname) }}
+
+							</div>
+						</div>
+					</div>
+					<div class="columns">
+						<div class="column">
+
+							<div class="field emailfield">
+								<label class="label" tabindex="120">Alter<sup>*</sup>
+								</label>
+								<div class="control has-icons-left">
+									<input class="input" type="number" name="anmeldung[agefield]" tabindex="120" {{ autocomplete |raw }}>
+									<span class="icon is-small is-left">
+										<i class="fas fa-envelope"></i>
+									</span>
+								</div>
+								<p class="help">Pflichtfeld</p>
+							</div>
+
+							<div class="field">
+								<label class="label">Telefon<sup>*</sup>
+								</label>
+								<div class="control has-icons-left">
+									<input class="input" type="text" name="{{ field_name(form.phone) }}" value="{{ field_value(form.phone) }}" placeholder="0123/123456789" tabindex="10" required {{ autocomplete |raw }}>
+									<span class="icon is-small is-left">
+										<i class="fas fa-phone"></i>
+									</span>
+								</div>
+								<p class="help">Pflichtfeld</p>
+								{{ form_errors(form.phone) }}
+							</div>
+							<div class="field">
+								<label class="label">E-Mail<sup>*</sup>
+								</label>
+								<div class="control has-icons-left">
+									<input class="input" type="email" name="{{ field_name(form.email) }}" value="{{ field_value(form.email) }}" placeholder="email@adresse.de" tabindex="15" required {{ autocomplete |raw }}>
+									<span class="icon is-small is-left">
+										<i class="fas fa-envelope"></i>
+									</span>
+								</div>
+								<p class="help">Pflichtfeld</p>
+								{{ form_errors(form.phone) }}
+							</div>
+							<div class="field emailfield">
+								<label class="label">E-Mail Wdh.<sup>*</sup>
+								</label>
+								<div class="control has-icons-left">
+									<input class="input" type="email" name="anmeldung[email_repeat]" rel="email" tabindex="100" autocomplete="off" {{ autocomplete |raw }}>
+									<span class="icon is-small is-left">
+										<i class="fas fa-envelope"></i>
+									</span>
+								</div>
+								<p class="help">Pflichtfeld</p>
+							</div>
+							<div class="field">
+								<label class="label">Anmerkungen</label>
+								<div class="control">
+									<textarea class="textarea" type="text" name="{{ field_name(form.notes) }}" rows="4" tabindex="45" {{ autocomplete |raw }}>{{ field_value(form.notes) }}</textarea>
+								</div>
+								<p class="help">Besonderheiten / Allergien</p>
+								{{ form_errors(form.notes) }}
+							</div>
+
+							<div class="field">
+								<label class="label">Verpflegung<sup>*</sup>
+								</label>
+								<div class="control">
+									<label class="radio">
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }}>
+										Alles
+									</label>
+									<label class="radio">
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="51" {{ autocomplete |raw }}>
+										Vegetarisch
+									</label>
+									<label class="radio">
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="52" {{ autocomplete |raw }}>
+										Vegan
+									</label>
+								</div>
+								<p class="help">Pflichtfeld</p>
+								{{ form_errors(form.mealtype) }}
+							</div>
+
+							{% if ruestzeit.isShowRoomRequest() %}
+								<div class="field">
+									<label class="label">Wunsch der Unterbringung<sup>*</sup>
+									</label>
+									<div class="control">
+										<label class="radio">
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="SINGLE" required tabindex="55" {{ autocomplete |raw }}>
+											Einzelzimmer
+										</label>
+										<label class="radio">
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="DOUBLE" required tabindex="56" {{ autocomplete |raw }}>
+											Doppelzimmer
+										</label>
+										<label class="radio">
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }}>
+											Familienzimmer
+										</label>
+									</div>
+									<p class="help">Pflichtfeld</p>
+									{{ form_errors(form.roomRequest) }}
+								</div>
+							{% endif %}
+
+						</div>
+						<div class="column">
+							<div class="field">
+								<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
+								</label>
+								<div class="control has-icons-left">
+									<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" 
+												type="text" placeholder="TT.MM.JJJJ" tabindex="20" required {{ autocomplete |raw }}>
+									<span class="icon is-small is-left">
+										<i class="fas fa-calendar"></i>
+									</span>
+								</div>
+								<p class="help">Pflichtfeld</p>
+								{{ form_errors(form.birthdate) }}
+							</div>
+
+							{% if ruestzeit.isAskSchoolclass() %}
+								<div class="field">
+									<label class="label">Schulklasse<sup>*</sup>
+									</label>
+									<div class="control">
+										<input class="input"  type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="25" required {{ autocomplete |raw }}>
+									</div>
+									<p class="help">Pflichtfeld</p>
+									{{ form_errors(form.schoolclass) }}
+								</div>
+							{% endif %}
+
+							{% if ruestzeit.isShowReferer() %}
+								<div class="field">
+									<label class="label">Eingeladen von
+									</label>
+									<div class="control">
+										<input class="input" type="text" name="{{ field_name(form.referer) }}" value="{{ field_value(form.referer) }}" tabindex="28" required {{ autocomplete |raw }}>
+									</div>
+									{{ form_errors(form.referer) }}
+								</div>
+							{% endif %}
+
+							<div class="card">
+								<header class="card-header">
+									<p class="card-header-title">
+										Adresse
+									</p>
+								</header>
+								<div class="card-content">
+									<div class="field">
+										<label class="label">Strasse<sup>*</sup>
+										</label>
+										<div class="control">
+											<input class="input" tabindex="30" name="{{ field_name(form.address) }}" value="{{ field_value(form.address) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
+										</div>
+										<p class="help">Pflichtfeld</p>
+										{{ form_errors(form.address) }}
+									</div>
+
+									<div class="columns">
+										<div class="column">
+											<div class="field">
+												<label class="label">Postleitzahl<sup>*</sup>
+												</label>
+												<div class="control">
+													<input class="input" data-checkname="postalcode" tabindex="35" name="{{ field_name(form.postalcode) }}" value="{{ field_value(form.postalcode) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
+												</div>
+												<p class="help">Pflichtfeld</p>
+												{{ form_errors(form.postalcode) }}
+											</div>
+
+										</div>
+										<div class="column">
+											<div class="field">
+												<label class="label">Ort<sup>*</sup>
+												</label>
+												<div class="control">
+													<input class="input" tabindex="40" name="{{ field_name(form.city) }}" value="{{ field_value(form.city) }}" type="text" placeholder="" required {{ autocomplete |raw }}>
+												</div>
+												<p class="help">Pflichtfeld</p>
+												{{ form_errors(form.city) }}
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="mb-5">
+						<label class="checkbox">
+							<input type="checkbox" name="{{ field_name(form.agb_agree) }}" value="1" required tabindex="70" {{ autocomplete |raw }}>
+							Ich akzeptiere, dass die Anmeldung verbindlich ist.<sup>*</sup>
+						</label>
+						{{ form_errors(form.agb_agree) }}
+
+						<label class="checkbox">
+							<input type="checkbox" name="{{ field_name(form.dsgvo_agree) }}" value="1" required tabindex="75">
+							Ich akzeptiere, dass die Daten des Teilnehmers für Planung und Auswertung gespeichert werden.<sup>*</sup>
+						</label>
+						{{ form_errors(form.dsgvo_agree) }}
+
+					</div>
+
+					{{ form_rest(form) }}
+
+					<button class="button is-success">Anmeldung absenden</button>
+					<div style="width:calc(100% - 200px); display:inline-block; padding-left:25px;">
+						<label>
+							<input type="checkbox" name="repeat_process" value="1">
+							Ich möchte im Anschluss einen weiteren Teilnehmer mit ähnlichen Angaben anmelden.<br/>
+							<em>In diesem Fall übernehmen wir einige Angaben.</em>
+						</label>
+					</div>
+				{% else %}
+					<div class="notification">
+						Aktuell ist die Anmeldung noch nicht möglich.
+					</div>
+				{% endif %}
+			</form>
+		{% endif %}
 
 	</div>
 {% endblock %}

@@ -36,10 +36,7 @@ class DashboardController extends AbstractDashboardController
         //     // "slug" => $ruestzeit_id
         // ]);
 
-        return $this->render('bundles/EasyAdminBundle/layout.html.twig', [
-            // 'current_ruestzeit' => $ruestzeit, // Beispielwert
-        ]);        
-        
+       
         $routeBuilder = $this->container->get(AdminUrlGenerator::class);
         $url = $routeBuilder->setController(RuestzeitCrudController::class)->generateUrl();
     

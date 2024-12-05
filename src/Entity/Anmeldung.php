@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
 use App\Enum\PersonenTyp;
+use App\Enum\RoomType;
 use App\Form\AnmeldungType;
 use App\Repository\AnmeldungRepository;
 use DateTime;
@@ -103,6 +104,15 @@ class Anmeldung
      */
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'anmeldungen', cascade: ["persist"])]
     private Collection $categories;
+
+    #[ORM\Column(length: 18, enumType: RoomType::class)]
+    private ?RoomType $roomRequest = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $referer = "";
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $roomnumber = null;
 
     public function __construct()
     {
@@ -415,5 +425,41 @@ class Anmeldung
     public function haveCategory(Category $category): bool
     {
         return $this->getCategories()->indexOf($category) !== false;
+    }
+
+    public function getRoomRequest(): ?RoomType
+    {
+        return $this->roomRequest;
+    }
+
+    public function setRoomRequest(RoomType $roomRequest): static
+    {
+        $this->roomRequest = $roomRequest;
+
+        return $this;
+    }
+
+    public function getReferer(): ?string
+    {
+        return $this->referer;
+    }
+
+    public function setReferer(string $referer): static
+    {
+        $this->referer = $referer;
+
+        return $this;
+    }
+
+    public function getRoomnumber(): ?string
+    {
+        return $this->roomnumber;
+    }
+
+    public function setRoomnumber(?string $roomnumber): static
+    {
+        $this->roomnumber = $roomnumber;
+
+        return $this;
     }
 }

@@ -3,9 +3,9 @@
     "app": {
       "js": [
         "/build/runtime.9cacfa0d.js",
-        "/build/840.8cf0f839.js",
-        "/build/674.8e8c68fe.js",
-        "/build/app.766f9284.js"
+        "/build/454.5a7ae09f.js",
+        "/build/368.3af5e60e.js",
+        "/build/app.c9504cbd.js"
       ],
       "css": [
         "/build/app.56a5e3b7.css"
@@ -14,9 +14,12 @@
     "admin": {
       "js": [
         "/build/runtime.9cacfa0d.js",
-        "/build/840.8cf0f839.js",
-        "/build/472.8292cc04.js",
-        "/build/admin.27244b37.js"
+        "/build/454.5a7ae09f.js",
+        "/build/719.794189ad.js",
+        "/build/admin.22b7ee7c.js"
+      ],
+      "css": [
+        "/build/admin.338718a2.css"
       ]
     },
     "Bulma": {

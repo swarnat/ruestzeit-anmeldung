@@ -84,6 +84,15 @@ class Ruestzeit
     #[ORM\Column]
     private ?bool $ask_schoolclass = null;
 
+    #[ORM\Column]
+    private ?bool $showRoomRequest = null;
+
+    #[ORM\Column]
+    private ?bool $showReferer = null;
+
+    #[ORM\Column(length: 10)]
+    private ?string $admincolor = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -396,6 +405,42 @@ class Ruestzeit
     public function setAskSchoolclass(bool $ask_schoolclass): static
     {
         $this->ask_schoolclass = $ask_schoolclass;
+
+        return $this;
+    }
+
+    public function isShowRoomRequest(): ?bool
+    {
+        return $this->showRoomRequest;
+    }
+
+    public function setShowRoomRequest(bool $showRoomRequest): static
+    {
+        $this->showRoomRequest = $showRoomRequest;
+
+        return $this;
+    }
+
+    public function isShowReferer(): ?bool
+    {
+        return $this->showReferer;
+    }
+
+    public function setShowReferer(bool $showReferer): static
+    {
+        $this->showReferer = $showReferer;
+
+        return $this;
+    }
+
+    public function getAdmincolor(): ?string
+    {
+        return $this->admincolor;
+    }
+
+    public function setAdmincolor(string $admincolor): static
+    {
+        $this->admincolor = $admincolor;
 
         return $this;
     }  

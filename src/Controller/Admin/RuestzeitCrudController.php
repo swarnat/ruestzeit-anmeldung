@@ -18,8 +18,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ColorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -31,6 +33,8 @@ use Ehyiah\QuillJsBundle\DTO\Fields\BlockField\HeaderField;
 use Ehyiah\QuillJsBundle\DTO\QuillGroup;
 use Ehyiah\QuillJsBundle\Form\QuillAdminField;
 use Ehyiah\QuillJsBundle\Form\QuillType;
+use Endroid\QrCode\Builder\BuilderInterface;
+use Endroid\QrCodeBundle\Response\QrCodeResponse;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -109,12 +113,16 @@ class RuestzeitCrudController extends AbstractCrudController
                 ->linkToCrudAction('activate_ruestzeit')
                 ->setIcon('fa fa-download');
 
+            $qrCode = Action::new('show_qrcode', "QR Code")
+                ->linkToCrudAction('show_qrcode')
+                ->setIcon('fa fa-download');
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, "delete")
             ->add(Crud::PAGE_INDEX, $passwordLink)
             ->add(Crud::PAGE_INDEX, $shortLink)
             ->add(Crud::PAGE_INDEX, $longLink)
+            ->add(Crud::PAGE_INDEX, $qrCode)
             ;
     }
     
@@ -133,6 +141,23 @@ class RuestzeitCrudController extends AbstractCrudController
 
     }
 
+    public function show_qrcode(AdminContext $context, BuilderInterface $customQrCodeBuilder)
+    {
+        $ruestzeit = $context->getEntity()->getInstance();
+
+        $result = $customQrCodeBuilder->build(
+            data: "https://" . $_SERVER["HTTP_HOST"] . "/" . $ruestzeit->getForwarder(),
+            labelText: "Anmeldung",
+            size: 200,
+            margin: 5
+        );        
+        
+        $response = new QrCodeResponse($result);
+        
+        return $response;
+
+    }
+
     public function configureAssets(Assets $assets): Assets
     {
         $assets->addAssetMapperEntry('quill-admin');
@@ -143,6 +168,12 @@ class RuestzeitCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
 
+        if($pageName == Crud::PAGE_INDEX) {
+            yield Field::new('customAction', '')
+                ->setTemplatePath('admin/activate_ruestzeit.html.twig');         
+            yield Field::new('linkAction', '')
+                ->setTemplatePath('admin/link_ruestzeit.html.twig');         
+        }
         yield FormField::addColumn(6);
 
         $field = BooleanField::new('registration_active', 'Anmeldung aktiv')
@@ -209,14 +240,20 @@ class RuestzeitCrudController extends AbstractCrudController
         yield DateField::new('date_to', 'Rüstzeit bis');
 
         if ($pageName != Crud::PAGE_INDEX) {
-            yield FormField::addColumn(4);
+            yield FormField::addColumn(2);
             yield BooleanField::new('show_location', 'Rüstzeitort anzeigen');
 
-            yield FormField::addColumn(4);
+            yield FormField::addColumn(2);
             yield BooleanField::new('show_dates', 'Rüstzeitdatum anzeigen');
 
-            yield FormField::addColumn(4);
+            yield FormField::addColumn(2);
             yield BooleanField::new('ask_schoolclass', 'Schulklasse erfragen');
+
+            yield FormField::addColumn(2);
+            yield BooleanField::new('show_room_request', 'Raumwunsch angeben');
+
+            yield FormField::addColumn(2);
+            yield BooleanField::new('show_referer', '"Eingeladen von" erfragen');
 
             yield FormField::addColumn(6);
 
@@ -226,6 +263,9 @@ class RuestzeitCrudController extends AbstractCrudController
 
             yield TextField::new('password', 'Passwort')
                 ->setHelp('Mit diesem Passwort, kann die Anmeldesperre umgangen werden. a-z, A-Z, 0-9 und Sonderzeichen - _');
+
+            yield ColorField::new('admincolor', 'Admin Farbe')
+                ->setHelp('Diese Farbe hilft dabei, in der Verwaltungsoberfläche zu erkennen, welche Rüstzeit aktuell geöffnet ist');
         }
     }
 

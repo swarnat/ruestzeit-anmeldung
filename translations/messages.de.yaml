@@ -4,3 +4,7 @@ VEGETARIAN: 'Vegetarisch'
 OPEN: 'Offen'
 ACTIVE: 'Aktiv'
 WAITLIST: 'Warteliste'
+
+ROOM_SINGLE: "Einzelzimmer"
+ROOM_DOUBLE: "Doppelzimmer"
+ROOM_FAMILY: "Familienzimmer"

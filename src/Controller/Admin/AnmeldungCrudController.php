@@ -10,6 +10,7 @@ use App\Entity\Ruestzeit;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
 use App\Enum\PersonenTyp;
+use App\Enum\RoomType;
 use App\FieldTypes\CategorySelectionField;
 use App\FieldTypes\CategorySelectionType;
 use App\FieldTypes\TagType;
@@ -209,64 +210,104 @@ class AnmeldungCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
 
+        if ($pageName == Crud::PAGE_INDEX) {
+            yield TextField::new('lastname', 'Nachname');
+            yield TextField::new('firstname', 'Vorname');
+            yield IntegerField::new('registrationPosition', 'Reg.Position');
+            yield ChoiceField::new('personenTyp', 'Typ');
+            yield TextField::new('roomnumber', 'Raumnummer');
+            yield IntegerField::new('age', 'Alter');
+            
+            yield ChoiceField::new('mealtype', 'Verpflegung');
+
+            yield ChoiceField::new('roomRequest', 'Raumwunsch');
+
+            yield BooleanField::new('prepayment_done', 'Anzahlung');
+            yield BooleanField::new('payment_done', 'Zahlung ok');
+
+            $createdAt = DateTimeField::new('createdAt', 'Anmeldung am')->setFormTypeOptions([
+                'years' => range(date('Y'), date('Y') + 5),
+                'widget' => 'single_text',
+            ]);
+            $createdAt->setTimezone("Europe/Berlin");
+            $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
+            yield $createdAt;
+    
+            return;
+        }
+
+        $currentRuestzeit = $this->currentRuestzeitGenerator->get();
+
         yield FormField::addColumn(12);
 
-        if ($pageName == Crud::PAGE_NEW) {
-            yield AssociationField::new('ruestzeit', 'Rüstzeit');
+        yield FormField::addPanel('Kopfdaten')->setColumns(6);
+
+        if ($pageName != Crud::PAGE_INDEX) {
+            yield AssociationField::new('ruestzeit', 'Rüstzeit')
+                ->setColumns(5)
+                ->setDisabled($pageName == Crud::PAGE_EDIT);
+
+            yield ChoiceField::new('status', 'Status')
+                ->setColumns(2)
+                ->setChoices(AnmeldungStatus::cases())
+                ->setFormType(EnumType::class);
+
+            yield ChoiceField::new('personenTyp', 'Typ')
+                ->setColumns(2)
+                ->setChoices(PersonenTyp::cases())
+                ->setFormType(EnumType::class);
+
+            yield TextField::new('roomnumber', 'Raumnummer')
+                ->setColumns(2);
+    
+
+            yield IntegerField::new('registrationPosition', 'Reg.Position')
+                ->setColumns(1)
+                ->setCustomOption('generated', true);
         }
 
         yield FormField::addColumn(6);
 
+        yield FormField::addPanel('Persönliche Informationen')->setColumns(6);
+
+        yield TextField::new('lastname', 'Nachname')->setColumns(6)
+        ->setCustomOption('xls-width', 200);
+
+        yield TextField::new('firstname', 'Vorname')->setColumns(6)
+            ->setCustomOption('xls-width', 200);
+
+
+        // yield FormField::addPanel('Kopfdaten')->setColumns(6);
         // yield ChoiceField::new('status', 'Status der Anmeldung')
         //     ->setChoices(AnmeldungStatus::cases())
         //     ->setFormType(EnumType::class);
 
-        yield TextField::new('lastname', 'Nachname')
-            ->setCustomOption('xls-width', 200);
-
-        yield TextField::new('firstname', 'Vorname')
-            ->setCustomOption('xls-width', 200);
-
-        yield ChoiceField::new('personenTyp', 'Typ')
-            ->setChoices(PersonenTyp::cases())
-            ->setFormType(EnumType::class);
-
-        yield DateField::new('birthdate', 'Geburtstag');
+        yield DateField::new('birthdate', 'Geburtstag')->setColumns(8);
 
         if ($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')
+                ->setColumns(2)
                 ->setDisabled(true)
                 ->setCustomOption('pdf-width', 30)
                 ->setCustomOption('generated', true);
         }
 
         yield IntegerField::new('schoolclass', 'Schulklasse')
+            ->setColumns(2)
             ->setCustomOption('pdf-width', 20);
 
         if ($pageName == Crud::PAGE_INDEX) yield IntegerField::new('registrationPosition', 'Reg.Position');
 
-        yield ChoiceField::new('mealtype', 'Verpflegung')
-            ->setChoices(MealType::cases())
-            ->setFormType(EnumType::class);
-
-
-        if ($pageName == Crud::PAGE_NEW || $pageName == Crud::PAGE_EDIT) {
-            yield ChoiceField::new('status', 'Status')
-                ->setChoices(AnmeldungStatus::cases())
-                ->setFormType(EnumType::class);
-
-            yield IntegerField::new('registrationPosition', 'Reg.Position')->setCustomOption('generated', true);
-        }
 
         yield FormField::addFieldset('Zahlung');
 
-        $field = BooleanField::new('prepayment_done', 'Anzahlung');
+        $field = BooleanField::new('prepayment_done', 'Anzahlung')->setColumns(6);
         if ($pageName == Crud::PAGE_INDEX) {
             yield $field->setFormTypeOption('disabled', true);
         }
         yield $field;
 
-        $field = BooleanField::new('payment_done', 'Zahlung ok');
+        $field = BooleanField::new('payment_done', 'Zahlung ok')->setColumns(6);
         if ($pageName == Crud::PAGE_INDEX) {
             yield $field->setFormTypeOption('disabled', true);
         }
@@ -283,45 +324,64 @@ class AnmeldungCrudController extends AbstractCrudController
         if (Crud::PAGE_EDIT === $pageName) {
             yield $createdAt->setFormTypeOption('disabled', true);
         }
+        $createdAt->setColumns(4);
         $createdAt->setTimezone("Europe/Berlin");
         $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
 
         // yield AssociationField::new("categories", "Kategorien");
-        yield CategorySelectionField::new("categories", "Kategorien");
+        
 
         if (Crud::PAGE_INDEX != $pageName) {
             $agb = BooleanField::new('agb_agree', 'AGB akzeptiert');
             if (Crud::PAGE_NEW != $pageName) {
                 $agb->setFormTypeOption('disabled', true);
             }
+            $agb->setColumns(4);
             yield $agb;
 
             $dsgvo = BooleanField::new('dsgvo_agree', 'Datenschutz Zustimmung');
             if (Crud::PAGE_NEW != $pageName) {
                 $dsgvo->setFormTypeOption('disabled', true);
             }
+            $dsgvo->setColumns(4);
             yield $dsgvo;
         }
 
-
-
         yield FormField::addColumn(6);
 
-        yield FormField::addFieldset('Adresse');
+        yield FormField::addPanel('Optionen')->setColumns(6);
+
+        yield ChoiceField::new('mealtype', 'Verpflegung')
+            ->setColumns(6)
+            ->setChoices(MealType::cases())
+            ->setFormType(EnumType::class);
+
+        yield ChoiceField::new('roomRequest', 'Raumwunsch')
+            ->setColumns(6)
+            ->setChoices(RoomType::cases())
+            ->setFormType(EnumType::class);
+        
+        yield CategorySelectionField::new("categories", "Kategorien");
+
+        yield FormField::addPanel('Adresse');
 
         yield TextField::new('address', 'Strasse')->setRequired(false);
 
         if ($pageName != Crud::PAGE_INDEX) {
-            yield TextField::new('postalcode', 'Postleitzahl')->setRequired(false);
+            yield TextField::new('postalcode', 'Postleitzahl')
+                ->setColumns(5)
+                ->setRequired(false);
         }
 
-        yield TextField::new('city', 'Ort')->setRequired(false);
+        yield TextField::new('city', 'Ort')
+            ->setColumns(7)
+            ->setRequired(false);
         yield TextField::new('landkreis', 'Landkreis')->setRequired(false);
 
         yield FormField::addFieldset('Kontakt');
 
-        yield TextField::new('phone', 'Telefon');
-        yield TextField::new('email', 'E-Mail');
+        yield TextField::new('phone', 'Telefon')->setColumns(6);
+        yield TextField::new('email', 'E-Mail')->setColumns(6);
     }
 
     public function configureFilters(Filters $filters): Filters

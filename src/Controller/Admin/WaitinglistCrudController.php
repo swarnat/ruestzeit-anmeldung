@@ -74,6 +74,8 @@ class WaitinglistCrudController extends AnmeldungCrudController
 
         yield DateField::new('birthdate', 'Geburtstag');
 
+        yield ChoiceField::new('roomRequest', 'Raumwunsch');
+        
         yield ChoiceField::new('mealtype', 'Verpflegung')
             ->setChoices(MealType::cases())
             ->setFormType(EnumType::class);

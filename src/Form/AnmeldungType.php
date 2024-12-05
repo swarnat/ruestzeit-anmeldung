@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Anmeldung;
 use App\Entity\Ruestzeit;
 use App\Enum\MealType;
+use App\Enum\RoomType;
 use App\Generator\CurrentRuestzeitGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -56,6 +57,14 @@ class AnmeldungType extends AbstractType
 
         if($currentRuestzeit->isAskSchoolclass()) {
             $builder->add('schoolclass');
+        }
+        if($currentRuestzeit->isShowRoomRequest()) {
+            $builder->add('roomRequest', EnumType::class, [
+                'class' => RoomType::class
+            ]);
+        }
+        if($currentRuestzeit->isShowReferer()) {
+            $builder->add('referer');
         }
 
         $builder->add('mealtype', EnumType::class, [

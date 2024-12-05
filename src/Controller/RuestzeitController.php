@@ -43,6 +43,7 @@ class RuestzeitController extends AbstractController
         $ruestzeit = $ruestzeitRepository->findOneBy([
             "forwarder" => $ruestzeit_id
         ]);
+        $initialcToken = "000";
 
         if (!empty($ruestzeit)) {
             return new RedirectResponse("/" . $ruestzeit->getSlug());
@@ -86,6 +87,7 @@ class RuestzeitController extends AbstractController
 
             if (empty($error)) {
                 $repeatProcess = !empty($request->get('repeat_process'));
+                $ctoken = $request->get('ctoken');
                 $anmeldungData = $request->get('anmeldung');
                 $timingValue = (int)$request->get('timing');
 
@@ -93,10 +95,11 @@ class RuestzeitController extends AbstractController
                     $captcha = false;
                 } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
                     $captcha = false;
+                } elseif(strpos($ctoken, "0") !== false) {
+                    $captcha = false;
                 } else {
                     $captcha = true;
                 }
-                $captcha = true;
 
                 if ($captcha) {
                     $anmeldung->setRuestzeit($ruestzeit);
@@ -187,12 +190,14 @@ class RuestzeitController extends AbstractController
                         return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), ]);
                     }
                 } else {
+                    $initialcToken = "222";
                     toastr()
                         ->positionClass('toast-top-center toast-full-width')
                         ->timeOut(10000)
                         ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
                 }
             } else {
+                $initialcToken = "222";
                 toastr()
                     ->positionClass('toast-top-center toast-full-width')
                     ->timeOut(10000)
@@ -203,6 +208,7 @@ class RuestzeitController extends AbstractController
         return new Response($twig->render('ruestzeit/index.html.twig', [
             'ruestzeit' => $ruestzeit,
             'allowRegistration' => $allowRegistration,
+            'initial_ctoken' => $initialcToken,
             'form' => !empty($formView) ? $formView : [],
         ]));
     }
