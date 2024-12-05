@@ -50,7 +50,12 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
     {
         $session = $request->getSession();
 
-        $current_ruestzeit = $this->ruestzeitRepository->findOneBy([]);
+        $current_ruestzeit = $this->ruestzeitRepository->findOneWithFutureDateFrom();
+
+        if(empty($current_ruestzeit)) {
+            $current_ruestzeit = $this->ruestzeitRepository->findOneBy([]);
+        }
+        
         $session->set("current_ruestzeit", $current_ruestzeit->getId());
 
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {

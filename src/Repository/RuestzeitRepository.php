@@ -21,6 +21,16 @@ class RuestzeitRepository extends ServiceEntityRepository
         parent::__construct($registry, Ruestzeit::class);
     }
 
+    public function findOneWithFutureDateFrom(): ?Ruestzeit
+    {
+        $qb = $this->createQueryBuilder('e');
+        return $qb->where('e.date_from > :now')
+            ->setParameter('now', new \DateTime())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Ruestzeit[] Returns an array of Ruestzeit objects
     //     */
