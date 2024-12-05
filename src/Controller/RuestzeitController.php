@@ -35,7 +35,7 @@ class RuestzeitController extends AbstractController
     {
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
-        return new RedirectResponse("/NTPW");
+        return new RedirectResponse("/not-found");
     }
 
     public function show(Request $request, Environment $twig, RuestzeitRepository $ruestzeitRepository, MailerInterface $mailer, String $ruestzeit_id): Response
