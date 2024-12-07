@@ -76,16 +76,15 @@
 		</section>
 
 		{% if ruestzeit.isRegistrationActive() %}
-			<div class="notification is-primary">
-				{# Insgesamt
-				{{ ruestzeit.memberlimit }}
-				Plätze verfügbar<br/> #}
+			
 				{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
-					Die Anmeldung wird am
-					{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
-					Uhr freigeschalten.
+					<div class="notification is-primary">
+						Die Anmeldung wird am
+						{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
+						Uhr freigeschalten.
+					</div>
 				{% endif %}
-			</div>
+
 			{% if allowRegistration %}
 				<div class="notification is-success">
 					Anmeldung per Registrierungscode aktiviert
