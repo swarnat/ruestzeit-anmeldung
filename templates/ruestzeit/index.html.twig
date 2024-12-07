@@ -23,6 +23,12 @@
 									<p class="card-header-title">
 										Zusammenfassung
 									</p>
+									<button class="card-header-icon" aria-label="more options" tabindex="-1">
+										<span class="icon" tabindex="-1">
+											<i class="fa-regular fa-calendar" aria-hidden="true" tabindex="-1"></i>
+										</span>
+									</button>
+
 								</header>
 								<div class="card-content">
 
@@ -41,7 +47,7 @@
 									</p>
 									<button class="card-header-icon" aria-label="more options" tabindex="-1">
 										<span class="icon" tabindex="-1">
-											<i class="fas fa-angle-down" aria-hidden="true" tabindex="-1"></i>
+											<i class="fas fa-house" aria-hidden="true" tabindex="-1"></i>
 										</span>
 									</button>
 								</header>
@@ -70,14 +76,14 @@
 		</section>
 
 		{% if ruestzeit.isRegistrationActive() %}
-			<div class="notification is-primary is-hidden">
-				Insgesamt
+			<div class="notification is-primary">
+				{# Insgesamt
 				{{ ruestzeit.memberlimit }}
-				Plätze verfügbar<br/>
+				Plätze verfügbar<br/> #}
 				{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
-					Anmeldungen möglich ab
+					Die Anmeldung wird am
 					{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
-					Uhr
+					Uhr freigeschalten.
 				{% endif %}
 			</div>
 			{% if allowRegistration %}
@@ -374,4 +380,5 @@
 		{% endif %}
 
 	</div>
+	<br />
 {% endblock %}
