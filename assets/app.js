@@ -38,7 +38,7 @@ window.addEventListener("load", function () {
       focusObj[name] = "2";
 
       const ctokenElement = document.querySelector('[name="ctoken"]');
-      if (ctokenElement) {
+      if (ctokenElement && ctokenElement.value.indexOf("0") != -1) {
         ctokenElement.value = Object.values(focusObj).join("");
       }
     });
