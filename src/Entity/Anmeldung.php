@@ -105,7 +105,7 @@ class Anmeldung
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'anmeldungen', cascade: ["persist"])]
     private Collection $categories;
 
-    #[ORM\Column(length: 18, enumType: RoomType::class)]
+    #[ORM\Column(length: 18, enumType: RoomType::class, nullable: true)]
     private ?RoomType $roomRequest = null;
 
     #[ORM\Column(length: 255)]

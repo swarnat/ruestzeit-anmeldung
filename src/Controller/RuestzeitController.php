@@ -161,7 +161,7 @@ class RuestzeitController extends AbstractController
                     toastr()
                         ->positionClass('toast-top-center toast-full-width')
                         ->timeOut(10000)
-                        ->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', 'Erfolgreich');
+                        ->addSuccess('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', "Erfolgreich");
 
                     if ($repeatProcess) {
                         $nextAnmeldung = new Anmeldung();
@@ -194,14 +194,14 @@ class RuestzeitController extends AbstractController
                     toastr()
                         ->positionClass('toast-top-center toast-full-width')
                         ->timeOut(10000)
-                        ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
+                        ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', "Fehler");
                 }
             } else {
                 $initialcToken = "222";
                 toastr()
                     ->positionClass('toast-top-center toast-full-width')
                     ->timeOut(10000)
-                    ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', 'Fehler');
+                    ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', "Fehler");
             }
         }
 
