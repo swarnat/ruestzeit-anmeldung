@@ -43,7 +43,8 @@ class AnmeldungImportController extends AbstractController
     {
         
     }
-    #[Route('/anmeldung/import', name: 'app_anmeldung_import')]
+    
+    #[Route('/admin/anmeldungen/import', name: 'app_anmeldung_import')]
     public function index(): Response
     {
         return $this->render('anmeldung_import/index.html.twig', [
@@ -51,7 +52,7 @@ class AnmeldungImportController extends AbstractController
         ]);
     }
 
-    #[Route('/anmeldung/import/run', name: 'app_anmeldung_import_run')]
+    #[Route('/admin/anmeldungen/import/run', name: 'app_anmeldung_import_run')]
     public function run(Request $request, AnmeldungCrudController $controller, EntityManagerInterface $entityManager, RuestzeitRepository $ruestzeitRepository, AdminUrlGenerator $adminUrlGenerator)
     {
         // $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);
@@ -177,7 +178,7 @@ class AnmeldungImportController extends AbstractController
             ->generateUrl();
         return new RedirectResponse($url);    }
 
-    #[Route('/anmeldung/import/preset', name: 'app_anmeldung_import_preset')]
+    #[Route('/admin/anmeldungen/import/preset', name: 'app_anmeldung_import_preset')]
     public function preset(AnmeldungCrudController $controller): Response
     {
 

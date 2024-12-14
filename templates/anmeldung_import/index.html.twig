@@ -5,13 +5,13 @@
 {% endblock %}
 {% block page_content %}
 	<p>1. Exportiere eine Vorlage für Anmeldungen über folgenden Button:</p>
-	<a class="btn btn-primary" href="/admin?routeName=app_anmeldung_import_preset">Vorlage herunterladen</a>
+	<a class="btn btn-primary" href="{{ path("app_anmeldung_import_preset") }}">Vorlage herunterladen</a>
 
 	<hr/>
 	<p>2. Importiere Anmeldungen der Vorlage, indem du die befüllte Datei hier auswähltst</p>
 	<div class="card">
 		<div class="card-body">
-			<form method="POST" enctype="multipart/form-data" action="/admin?routeName=app_anmeldung_import_run">
+			<form method="POST" enctype="multipart/form-data" action="{{ path("app_anmeldung_import_run") }}">
 				<div class="form-group">
 					<label for="exampleFormControlFile1">Datei mit Anmeldungen hier auswählen</label><br/>
 					<input type="file" name="import" class="form-control-file" id="exampleFormControlFile1">

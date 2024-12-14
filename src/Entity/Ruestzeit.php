@@ -93,9 +93,16 @@ class Ruestzeit
     #[ORM\Column(length: 10)]
     private ?string $admincolor = null;
 
+    /**
+     * @var Collection<int, LanguageOverwrite>
+     */
+    #[ORM\OneToMany(targetEntity: LanguageOverwrite::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
+    private Collection $languageOverwrites;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
+        $this->languageOverwrites = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -441,6 +448,36 @@ class Ruestzeit
     public function setAdmincolor(string $admincolor): static
     {
         $this->admincolor = $admincolor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LanguageOverwrite>
+     */
+    public function getLanguageOverwrites(): Collection
+    {
+        return $this->languageOverwrites;
+    }
+
+    public function addLanguageOverwrite(LanguageOverwrite $languageOverwrite): static
+    {
+        if (!$this->languageOverwrites->contains($languageOverwrite)) {
+            $this->languageOverwrites->add($languageOverwrite);
+            $languageOverwrite->setRuestzeit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLanguageOverwrite(LanguageOverwrite $languageOverwrite): static
+    {
+        if ($this->languageOverwrites->removeElement($languageOverwrite)) {
+            // set the owning side to null (unless already changed)
+            if ($languageOverwrite->getRuestzeit() === $this) {
+                $languageOverwrite->setRuestzeit(null);
+            }
+        }
 
         return $this;
     }  

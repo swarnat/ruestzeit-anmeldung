@@ -6,6 +6,7 @@ use App\Entity\Admin;
 use App\Entity\Ruestzeit;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -126,6 +127,7 @@ class RuestzeitCrudController extends AbstractCrudController
             ;
     }
     
+    #[AdminAction(routePath: '/{entityId}/activate_ruestzeit', routeName: 'activate_ruestzeit', methods: ['GET'])]
     public function activate_ruestzeit(AdminContext $context)
     {
         $ruestzeit = $context->getEntity()->getInstance();
@@ -141,6 +143,7 @@ class RuestzeitCrudController extends AbstractCrudController
 
     }
 
+    #[AdminAction(routePath: '/{entityId}/qrcode', routeName: 'ruestzeit_qrcode', methods: ['GET'])]
     public function show_qrcode(AdminContext $context, BuilderInterface $customQrCodeBuilder)
     {
         $ruestzeit = $context->getEntity()->getInstance();

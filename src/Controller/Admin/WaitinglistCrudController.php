@@ -11,6 +11,7 @@ use App\Service\ExcelExporter;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\FilterCollection;
 use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection as CollectionFilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -124,7 +125,7 @@ class WaitinglistCrudController extends AnmeldungCrudController
         $actions = parent::configureActions($actions);
 
         $activateAction = Action::new('activate')
-            ->linkToCrudAction('activate')
+            ->linkToCrudAction('anmeldungen_activate')
             // ... line 81
             ->setIcon('fa fa-check')
             // ->createAsGlobalAction()
@@ -136,7 +137,8 @@ class WaitinglistCrudController extends AnmeldungCrudController
         return $actions;
     }
 
-    public function activate(AdminContext $context, UrlGeneratorInterface $urlGenerator) {
+    #[AdminAction(routePath: '/{entityId}/activate', routeName: 'anmeldungen_activate', methods: ['GET'])]
+    public function anmeldungen_activate(AdminContext $context, UrlGeneratorInterface $urlGenerator) {
         $anmeldung = $context->getEntity()->getInstance();
         
         $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);

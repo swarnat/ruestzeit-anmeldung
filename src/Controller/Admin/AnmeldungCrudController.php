@@ -25,6 +25,7 @@ use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder as ORMQueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -160,7 +161,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->createAsGlobalAction();
 */
         $cancelAction = Action::new('cancel', "Stornieren")
-            ->linkToCrudAction('cancel')
+            ->linkToCrudAction('anmeldungen_cancel')
             ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])
             ->setIcon('fa fa-cancel')
             ->setCssClass('btn btn-danger')
@@ -415,7 +416,7 @@ class AnmeldungCrudController extends AbstractCrudController
     }
 
 
-
+    #[AdminAction(routePath: '/export', routeName: 'anmeldungen_export', methods: ['GET'])]
     public function export(AdminContext $context, ExcelExporter $csvExporter)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
@@ -426,6 +427,7 @@ class AnmeldungCrudController extends AbstractCrudController
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
     }
 
+    #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
     public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
@@ -435,7 +437,8 @@ class AnmeldungCrudController extends AbstractCrudController
         return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf');
     }
 
-    public function cancel(AdminContext $context, UrlGeneratorInterface $urlGenerator)
+    #[AdminAction(routePath: '/{entityId}/cancel', routeName: 'anmeldungen_cancel', methods: ['GET'])]
+    public function anmeldungen_cancel(AdminContext $context, UrlGeneratorInterface $urlGenerator)
     {
         $anmeldung = $context->getEntity()->getInstance();
 

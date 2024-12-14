@@ -18,7 +18,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+// use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class DashboardController extends AbstractDashboardController
@@ -28,7 +29,8 @@ class DashboardController extends AbstractDashboardController
         private CurrentRuestzeitGenerator $currentRuestzeitGenerator
         )
     {
-    }    
+    }
+
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
@@ -64,7 +66,7 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setLocales(['de'])
+            ->setLocales([ ])
 
             ->setTitle('Rüstzeit Anmeldungen');
     }
@@ -97,12 +99,17 @@ class DashboardController extends AbstractDashboardController
             ->setBadge(!empty($ruestzeit) ? count($ruestzeit->getWaitlistAnmeldungen()) : 0);
         ;
 
-        yield MenuItem::linkToRoute("Import", 'fas fa-upload', 'app_anmeldung_import')
-        ;
+        yield MenuItem::linkToRoute(
+            label: "Import", 
+            icon: 'fas fa-upload',
+            routeName: 'app_anmeldung_import'
+        );
 
         yield MenuItem::linkToRoute("Unterschriften", 'fas fa-upload', 'app_anmeldung_unterschriften');
         
         yield MenuItem::section('Verwaltung');
+
+        yield MenuItem::linkToRoute("Bezeichnungen", 'fas fa-upload', 'ruestzeit_label_overwrite');
 
         yield MenuItem::linkToCrud('Landkreise', 'fas fa-flag', Landkreis::class);
         
