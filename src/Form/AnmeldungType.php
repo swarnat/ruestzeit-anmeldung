@@ -71,7 +71,12 @@ class AnmeldungType extends AbstractType
             ]);
         }
         if ($currentRuestzeit->isShowRoommate()) {
-            $builder->add('roommate', TextType::class);
+            $builder->add('roommate', TextType::class,
+            [
+                'label' => $this->translationService->translate("Doppelzimmer mit"),
+                'help' => $this->translationService->translate("Doppelzimmer mit Hilfe", default: ""),
+            ]        
+        );
         }
 
         if ($currentRuestzeit->isShowReferer()) {
