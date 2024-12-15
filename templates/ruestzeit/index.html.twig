@@ -219,15 +219,15 @@
 								</label>
 								<div class="control">
 									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }}>
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "ALL" or field_value(form.roomRequest) == "" %}checked{% endif %}>
 										Alles
 									</label>
 									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="51" {{ autocomplete |raw }}>
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="51" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "VEGETARIAN" %}checked{% endif %}>
 										Vegetarisch
 									</label>
 									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="52" {{ autocomplete |raw }}>
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="52" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "VEGAN" %}checked{% endif %}>
 										Vegan
 									</label>
 								</div>
@@ -241,22 +241,36 @@
 									</label>
 									<div class="control">
 										<label class="radio">
-											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="SINGLE" required tabindex="55" {{ autocomplete |raw }}>
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="SINGLE" required tabindex="55" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "SINGLE" %}checked{% endif %}>
 											Einzelzimmer
 										</label>
 										<label class="radio">
-											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="DOUBLE" required tabindex="56" {{ autocomplete |raw }}>
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="DOUBLE" required tabindex="56" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "DOUBLE" or field_value(form.roomRequest) == "" %}checked{% endif %}>
 											Doppelzimmer
 										</label>
 										<label class="radio">
-											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }}>
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "FAMILY" %}checked{% endif %}>
 											Familienzimmer
 										</label>
 									</div>
 									<p class="help">Pflichtfeld</p>
+									{{ form_help(form.roomRequest) }}
 									{{ form_errors(form.roomRequest) }}
 								</div>
 							{% endif %}
+
+							{% if ruestzeit.isShowRoommate() %}
+								<div class="field" id="cont_roommate">
+									<label class="label">{{ form_label(form.roommate) }}
+									</label>
+									<div class="control">
+										<input class="input" type="text" name="{{ field_name(form.roommate) }}" value="{{ field_value(form.roommate) }}" tabindex="59" required {{ autocomplete |raw }}>
+									</div>
+									{{ form_help(form.roommate) }}
+									{{ form_errors(form.roommate) }}
+								</div>
+							{% endif %}
+
 
 						</div>
 						<div class="column">
@@ -276,23 +290,24 @@
 
 							{% if ruestzeit.isAskSchoolclass() %}
 								<div class="field">
-									<label class="label">Schulklasse<sup>*</sup>
+									<label class="label">{{ form_label(form.schoolclass) }}<sup>*</sup>
 									</label>
 									<div class="control">
 										<input class="input"  type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="25" required {{ autocomplete |raw }}>
 									</div>
-									<p class="help">Pflichtfeld</p>
+									{{ form_help(form.schoolclass) }}
 									{{ form_errors(form.schoolclass) }}
 								</div>
 							{% endif %}
 
 							{% if ruestzeit.isShowReferer() %}
 								<div class="field">
-									<label class="label">Eingeladen von
+									<label class="label">{{ form_label(form.referer) }}
 									</label>
 									<div class="control">
 										<input class="input" type="text" name="{{ field_name(form.referer) }}" value="{{ field_value(form.referer) }}" tabindex="28" required {{ autocomplete |raw }}>
 									</div>
+									{{ form_help(form.referer) }}
 									{{ form_errors(form.referer) }}
 								</div>
 							{% endif %}

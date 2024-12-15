@@ -5,6 +5,14 @@
 {% set current_ruestzeit = current_ruestzeit_service.get %}
 {% set admin_color = current_ruestzeit.getAdminColor %}
 
+	{% block sidebar %}
+		{{ parent() }}
+		<div class="copyright">
+		Reservation Tool 2.0<br>
+		<span class="author">Developed by<br/><a href="https://datentechnik-warnat.de/" target="_blank">Datentechnik Warnat</a></span>
+		</div>
+	{% endblock %}
+
 	{% block header_navbar %}
 		<div class="sidebar_ruestzeit_container"> <div class="sidebar_ruestzeit_top">
 			<span>Aktuelle Rüstzeit</span>

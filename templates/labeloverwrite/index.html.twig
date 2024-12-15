@@ -1,0 +1,27 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+
+{% block content_title %}
+	Anzeigetexte bearbeiten
+{% endblock %}
+
+{% block page_actions %}
+	<button class="action-saveAndReturn btn btn-primary action-save" type="submit" name="ea[newForm][btn]" value="saveAndReturn" data-action-name="saveAndReturn" form="edit-language-form">
+		<span class="btn-label">
+			<span class="action-label">Speichern</span>
+		</span>
+	</button>
+{% endblock %}
+
+{% block page_content %}
+	<form method="POST" action="#" id="edit-language-form">
+		{% for term in availableStrings %}
+			<div class="mb-3 row">
+				<label for="staticEmail" class="col-sm-2 col-form-label">{{ term }}</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" placeholder="Text überschreiben, wenn Wert eingetragen" name="term[{{ term }}]" value="{{ fieldLabels[term] | default("") }}">
+				</div>
+			</div>
+		{% endfor %}
+	</form>
+{% endblock %}
