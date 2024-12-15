@@ -248,10 +248,10 @@
 											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="DOUBLE" required tabindex="56" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "DOUBLE" or field_value(form.roomRequest) == "" %}checked{% endif %}>
 											Doppelzimmer
 										</label>
-										<label class="radio">
+										{# <label class="radio">
 											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "FAMILY" %}checked{% endif %}>
 											Familienzimmer
-										</label>
+										</label> #}
 									</div>
 									<p class="help">Pflichtfeld</p>
 									{{ form_help(form.roomRequest) }}
