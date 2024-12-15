@@ -5,10 +5,10 @@
         "/build/runtime.9cacfa0d.js",
         "/build/454.5a7ae09f.js",
         "/build/373.6a8bb8cc.js",
-        "/build/app.bf224a33.js"
+        "/build/app.99dbba93.js"
       ],
       "css": [
-        "/build/app.56a5e3b7.css"
+        "/build/app.b6d09a6a.css"
       ]
     },
     "admin": {
@@ -19,7 +19,7 @@
         "/build/admin.22b7ee7c.js"
       ],
       "css": [
-        "/build/admin.338718a2.css"
+        "/build/admin.ccb97325.css"
       ]
     },
     "Bulma": {

@@ -258,6 +258,9 @@ class RuestzeitCrudController extends AbstractCrudController
             yield FormField::addColumn(2);
             yield BooleanField::new('show_referer', '"Eingeladen von" erfragen');
 
+            yield FormField::addColumn(2);
+            yield BooleanField::new('show_roommate', 'Zimmernachbar erfragen');
+
             yield FormField::addColumn(6);
 
             yield TextField::new('aktenzeichen', 'Aktenzeichen Zwickau');            

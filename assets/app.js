@@ -32,6 +32,35 @@ window.addEventListener("load", function () {
     postalcode: "0",
   };
 
+  const roomRequestRadios = document.querySelectorAll(
+    'input[name="anmeldung[roomRequest]"]'
+  );
+  var roomMateElement = document.getElementById('cont_roommate');
+
+  if (roomRequestRadios && roomMateElement) {
+    function updateRoomMateVisibility() {
+
+      const selectedValue = document.querySelector(
+        'input[name="anmeldung[roomRequest]"]:checked'
+      ).value;
+      if (selectedValue === "SINGLE") {
+        roomMateElement.style.display = "none";
+      } else {
+        roomMateElement.style.display = "block";
+      }
+    }
+
+    updateRoomMateVisibility();
+
+    // if(roomRequest == "SINGLE") {
+
+    // }
+
+    roomRequestRadios.forEach((radio) => {
+      radio.addEventListener("change", updateRoomMateVisibility);
+    });
+  }
+
   document.querySelectorAll("[data-checkname]").forEach((element) => {
     element.addEventListener("focus", function (e) {
       const name = e.currentTarget.getAttribute("data-checkname");

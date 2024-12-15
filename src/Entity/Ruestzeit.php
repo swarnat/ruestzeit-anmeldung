@@ -99,6 +99,9 @@ class Ruestzeit
     #[ORM\OneToMany(targetEntity: LanguageOverwrite::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
     private Collection $languageOverwrites;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $showRoommate = null;
+
     public function __construct()
     {
         $this->anmeldungen = new ArrayCollection();
@@ -478,6 +481,18 @@ class Ruestzeit
                 $languageOverwrite->setRuestzeit(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isShowRoommate(): ?bool
+    {
+        return $this->showRoommate;
+    }
+
+    public function setShowRoommate(?bool $showRoommate): static
+    {
+        $this->showRoommate = $showRoommate;
 
         return $this;
     }  

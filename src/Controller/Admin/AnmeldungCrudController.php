@@ -72,8 +72,7 @@ class AnmeldungCrudController extends AbstractCrudController
         protected RequestStack $requestStack,
         protected EntityManagerInterface $entityManager,
         protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
-    ) {
-    }
+    ) {}
 
     public function createEditForm(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormInterface
     {
@@ -83,9 +82,9 @@ class AnmeldungCrudController extends AbstractCrudController
         $relatedRuestzeit = $entityDto->getInstance()->getRuestzeit();
 
         if ($relatedRuestzeit->getId() !== $currentRuestzeit->getId()) {
-            throw new Exception("Diese Anmeldung gehört zur Rüstzeit '" . $relatedRuestzeit->getTitle()."'.".PHP_EOL."Du bearbeitest gerade '".$currentRuestzeit->getTitle()."'");
+            throw new Exception("Diese Anmeldung gehört zur Rüstzeit '" . $relatedRuestzeit->getTitle() . "'." . PHP_EOL . "Du bearbeitest gerade '" . $currentRuestzeit->getTitle() . "'");
         }
-        
+
         return $result;
     }
 
@@ -148,7 +147,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setIcon('fa fa-download')
 
             ->createAsGlobalAction();
-/*
+        /*
         $signaturelistAction = Action::new('signaturelist', "Unterschriftenliste")
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();
@@ -218,7 +217,7 @@ class AnmeldungCrudController extends AbstractCrudController
             yield ChoiceField::new('personenTyp', 'Typ');
             yield TextField::new('roomnumber', 'Raumnummer');
             yield IntegerField::new('age', 'Alter');
-            
+
             yield ChoiceField::new('mealtype', 'Verpflegung');
 
             yield ChoiceField::new('roomRequest', 'Raumwunsch');
@@ -233,7 +232,7 @@ class AnmeldungCrudController extends AbstractCrudController
             $createdAt->setTimezone("Europe/Berlin");
             $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
             yield $createdAt;
-    
+
             return;
         }
 
@@ -260,7 +259,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
             yield TextField::new('roomnumber', 'Raumnummer')
                 ->setColumns(2);
-    
+
 
             yield IntegerField::new('registrationPosition', 'Reg.Position')
                 ->setColumns(1)
@@ -272,7 +271,7 @@ class AnmeldungCrudController extends AbstractCrudController
         yield FormField::addPanel('Persönliche Informationen')->setColumns(6);
 
         yield TextField::new('lastname', 'Nachname')->setColumns(6)
-        ->setCustomOption('xls-width', 200);
+            ->setCustomOption('xls-width', 200);
 
         yield TextField::new('firstname', 'Vorname')->setColumns(6)
             ->setCustomOption('xls-width', 200);
@@ -330,7 +329,7 @@ class AnmeldungCrudController extends AbstractCrudController
         $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
 
         // yield AssociationField::new("categories", "Kategorien");
-        
+
 
         if (Crud::PAGE_INDEX != $pageName) {
             $agb = BooleanField::new('agb_agree', 'AGB akzeptiert');
@@ -353,15 +352,18 @@ class AnmeldungCrudController extends AbstractCrudController
         yield FormField::addPanel('Optionen')->setColumns(6);
 
         yield ChoiceField::new('mealtype', 'Verpflegung')
-            ->setColumns(6)
+            ->setColumns(4)
             ->setChoices(MealType::cases())
             ->setFormType(EnumType::class);
 
         yield ChoiceField::new('roomRequest', 'Raumwunsch')
-            ->setColumns(6)
+            ->setColumns(4)
             ->setChoices(RoomType::cases())
             ->setFormType(EnumType::class);
-        
+
+        yield TextField::new('roommate', 'Zimmerpartner')
+            ->setColumns(4);
+
         yield CategorySelectionField::new("categories", "Kategorien");
 
         yield FormField::addPanel('Adresse');

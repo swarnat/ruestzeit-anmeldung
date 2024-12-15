@@ -67,7 +67,7 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setLocales([ ])
-
+            ->renderContentMaximized()
             ->setTitle('Rüstzeit Anmeldungen');
     }
 

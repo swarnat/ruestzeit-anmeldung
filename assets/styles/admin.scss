@@ -50,3 +50,16 @@
     contrast(9);  /* make it black/white */
 
 }
+
+.copyright {
+  font-weight:bold;
+}
+.copyright .author {
+  font-weight:normal;
+}
+.copyright, .copyright a {
+  color:#ccc;
+  text-align:center;
+
+  font-size:12px;
+}

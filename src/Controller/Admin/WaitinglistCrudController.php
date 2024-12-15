@@ -75,7 +75,13 @@ class WaitinglistCrudController extends AnmeldungCrudController
 
         yield DateField::new('birthdate', 'Geburtstag');
 
-        yield ChoiceField::new('roomRequest', 'Raumwunsch');
+        if($this->currentRuestzeitGenerator->get()->isShowRoomRequest()) {
+            yield ChoiceField::new('roomRequest', 'Raumwunsch');
+        }
+
+        if($this->currentRuestzeitGenerator->get()->isShowRoommate()) {
+            yield TextField::new('roommate', 'Zimmerpartner');
+        }
         
         yield ChoiceField::new('mealtype', 'Verpflegung')
             ->setChoices(MealType::cases())

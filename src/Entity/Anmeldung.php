@@ -114,6 +114,9 @@ class Anmeldung
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $roomnumber = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $roommate = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -459,6 +462,18 @@ class Anmeldung
     public function setRoomnumber(?string $roomnumber): static
     {
         $this->roomnumber = $roomnumber;
+
+        return $this;
+    }
+
+    public function getRoommate(): ?string
+    {
+        return $this->roommate;
+    }
+
+    public function setRoommate(?string $roommate): static
+    {
+        $this->roommate = $roommate;
 
         return $this;
     }
