@@ -105,20 +105,22 @@
 				<div class="alert alert-danger text-center" role="alert">
 
 					{% set formErrors = form.vars.errors.form.getErrors(true) %}
-
+					
 					{% if formErrors|length %}
 						<div class="notification  is-danger" role="alert">
 							Es wurden Fehler im Formular festgestellt. Bitte prüfen Sie Ihre Eingaben.
 						</div>
 					{% endif %}
+
 				</div>
 
 				{% if allowRegistration or ruestzeit.registrationstart|date('U') <= 'now'|date('U') %}
 					<input type="hidden" name="ruestzeitid" value="{{ ruestzeit.id }}" {{ autocomplete |raw }}>
+					<input type="hidden" name="anmeldung[ruestzeit]" value="{{ ruestzeit.id }}" {{ autocomplete |raw }}>
 					<input type="hidden" name="timing" value="{{ 'now'|date('U') }}" {{ autocomplete |raw }}>
 					<input type="hidden" name="ctoken" value="{{ initial_ctoken }}" {{ autocomplete |raw }}>
 
-					{{ form_errors(form.ruestzeit) }}
+					{# {{ form_errors(form.ruestzeit) }}
 
 					<div class="field" style='display:none;'>
 						<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
@@ -127,7 +129,7 @@
 							{{ form_widget(form.ruestzeit) }}
 						</div>
 						<p class="help">Pflichtfeld</p>
-					</div>
+					</div>  #}
 
 					<div class="columns">
 						<div class="column">
@@ -374,8 +376,7 @@
 						{{ form_errors(form.dsgvo_agree) }}
 
 					</div>
-
-					{{ form_rest(form) }}
+					{{ form_widget(form._token) }}
 
 					<button class="button is-success">Anmeldung absenden</button>
 					<div style="width:calc(100% - 200px); display:inline-block; padding-left:25px;">
