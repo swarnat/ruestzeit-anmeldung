@@ -120,7 +120,8 @@
 					<input type="hidden" name="timing" value="{{ 'now'|date('U') }}" {{ autocomplete |raw }}>
 					<input type="hidden" name="ctoken" value="{{ initial_ctoken }}" {{ autocomplete |raw }}>
 
-					{# {{ form_errors(form.ruestzeit) }}
+					{{ form_errors(form.ruestzeit) }}
+					{# 
 
 					<div class="field" style='display:none;'>
 						<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
