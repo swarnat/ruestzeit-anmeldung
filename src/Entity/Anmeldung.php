@@ -312,9 +312,14 @@ class Anmeldung
 
         // $tz  = new DateTimeZone('Europe/Brussels');
    
-        return $this->getBirthdate()
-             ->diff($this->ruestzeit->getDateTo())
-             ->y;        
+        $ruestzeitToDate = $this->ruestzeit->getDateTo();
+        if(!empty($ruestzeitToDate)) {
+            return $this->getBirthdate()
+                ->diff($this->ruestzeit->getDateTo())
+                ->y;        
+        } else {
+            return 0;
+        }
     }
 
     public function isDsgvoAgree(): ?bool
