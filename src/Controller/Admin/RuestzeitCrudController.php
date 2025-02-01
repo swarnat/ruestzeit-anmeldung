@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Admin;
 use App\Entity\Ruestzeit;
+use App\Service\CodeGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminAction;
@@ -45,7 +46,8 @@ class RuestzeitCrudController extends AbstractCrudController
     public function __construct(
         protected AdminUrlGenerator $adminUrlGenerator,
         protected RequestStack $requestStack,
-        protected EntityManagerInterface $entityManager
+        protected EntityManagerInterface $entityManager,
+        protected CodeGenerator $codeGenerator
     ) {
     }
         
@@ -203,6 +205,15 @@ class RuestzeitCrudController extends AbstractCrudController
         yield AssociationField::new('location', 'Ort')
             ->setCrudController(LocationCrudController::class);
 
+        yield FormField::addColumn(3);
+        yield DateField::new('date_from', 'Rüstzeit ab');
+
+        yield FormField::addColumn(3);
+        yield DateField::new('date_to', 'Rüstzeit bis');
+
+        yield FormField::addColumn(6);
+        yield IntegerField::new('memberlimit', 'Teilnehmerlimit');
+
         if ($pageName != Crud::PAGE_INDEX) {
             yield FormField::addColumn(12);
 
@@ -214,11 +225,8 @@ class RuestzeitCrudController extends AbstractCrudController
         }
 
         if ($pageName == 'index') {
-            yield IntegerField::new('memberCount');
+            yield IntegerField::new('memberCount', "Anmeldungen");
         }
-
-        yield FormField::addColumn(6);
-        yield IntegerField::new('memberlimit', 'Teilnehmerlimit');
 
         if ($pageName != Crud::PAGE_INDEX) {
             yield FormField::addColumn(6);
@@ -235,12 +243,6 @@ class RuestzeitCrudController extends AbstractCrudController
 
         yield FormField::addColumn(6);
         yield UrlField::new('image_url', 'Flyer Image URL');
-
-        yield FormField::addColumn(6);
-        yield DateField::new('date_from', 'Rüstzeit ab');
-
-        yield FormField::addColumn(6);
-        yield DateField::new('date_to', 'Rüstzeit bis');
 
         if ($pageName != Crud::PAGE_INDEX) {
             yield FormField::addColumn(2);
@@ -277,6 +279,16 @@ class RuestzeitCrudController extends AbstractCrudController
 
     public function createEntity(string $entityFqcn) {
         $entity = new Ruestzeit();
+        // var_dump($entity->getDescription());
+        // exit();
+        $entity->setDescription("Hier die Beschreibung der Rüstzeit einfügen.");
+
+        do {
+            $code = strtoupper($this->codeGenerator->generate(4)) . date("Y");
+            $existing = $this->entityManager->getRepository(Ruestzeit::class)->findOneBy(['forwarder' => $code]);
+        } while ($existing);
+
+        $entity->setForwarder($code);
         $entity->setAdmin($this->getUser());
 
         return $entity;
