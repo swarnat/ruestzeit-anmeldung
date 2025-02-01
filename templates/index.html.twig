@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+	{{ parent() }}
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f4f4f9;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+
+			background-image: url({{ asset('build/images/login_background.jpg') }})
+		}
+		.container .head {
+			text-align: center;
+		}
+		.container {
+			text-align: center;
+			background-color: #fff;
+			padding: 40px;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+			max-width: 70%;
+
+			text-align: left;
+		}
+		h1 {
+			color: #333;
+			font-size: 30px;
+		}
+		p {
+			color: #555;
+		}
+		a {
+			color: #007bff;
+			text-decoration: none;
+		}
+		a:hover {
+			text-decoration: underline;
+		}
+		.footer {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			padding: 5px 0;
+
+
+		}
+		.footer a {
+			color: #51789c;
+			text-decoration: none;
+		}
+
+		@media(max-width: 600px) {
+			.container {
+				padding: 20px 20px 60px;
+				border-radius: 0;
+				box-shadow: none;
+				max-width: 100%;
+				text-align: justify;
+			}
+			.footer {
+
+				border-top: 2px solid #ccc;
+
+			}
+
+		body {
+            display:block;
+            background-image: none;
+		}            
+		}
+	</style>
+{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<div class="head">
+			<h1>PlanFreizeit</h1>
+			<p>Eine Anwendung der
+				<strong>
+					<a href="https://datentechnik-warnat.de/">Datentechnik Warnat</a>
+				</strong>
+				entwickelt für die
+				<strong>
+					<a href="https://www.kirche-hohndorf.de">Kirchgemeinde Hohndorf</a>
+				</strong>.</p>
+		</br>
+	</div>
+	<div>
+		<p>Unsere Software unterstützt dich bei der Organisation und Verwaltung von Anmeldungen, damit du mehr Zeit für das Wesentliche hast: 
+											        unvergessliche Erlebnisse für die Teilnehmenden zu schaffen.
+			<br/><br/>
+			Schluss mit umständlichen Excel-Tabellen oder unübersichtlichen Zetteln – hier hast du alle wichtigen Informationen auf einen Blick.</p>
+		<br/>
+		<h2>Was bietet dir unsere Software?</h2>
+		<ul>
+			<li>
+				<strong>Einfache Anmeldung</strong>: Teilnehmer:innen können sich bequem online registrieren, und du behältst jederzeit den Überblick.</li>
+			<li>
+				<strong>Übersichtliche Verwaltung</strong>: Teilnehmerlisten, Zahlungen, Allergien oder besondere Anforderungen – alles an einem zentralen Ort.</li>
+			<li>
+				<strong>Automatische Auswertungen</strong>: Erhalte sofort Statistiken und Analysen, die dir helfen, die Freizeit optimal zu planen.</li>
+			<li>
+				<strong>Effiziente Kommunikation</strong>: Versende mit wenigen Klicks E-Mails oder Nachrichten an Gruppen oder Einzelpersonen.</li>
+			<li>
+				<strong>Sicherheit und Datenschutz</strong>: Deine Daten sind sicher gespeichert und DSGVO-konform verarbeitet.</li>
+		</ul>
+		<br/>
+		<p>Unsere Software macht die Verwaltung nicht nur einfacher, sondern auch effizienter. Weniger Papierkram – mehr Fokus auf das, was wirklich zählt: eine gelungene Jugendfreizeit!</p>
+		<p>
+			<strong>Die Nutzung wird ausschließlich sozialen Einrichtungen ermöglicht</strong>
+		</p>
+	</div>
+
+</div>
+<div class="footer">
+	<div class="content has-text-centered">
+		<a href="/impressum">Impressum</a>
+		-
+		<a href="https://kirche-hohndorf.de/datenschutzerklaerung/" target="_blank">Datenschutz</a>
+	</div>
+</div>{% endblock %}{% block footer %}{% endblock %}
