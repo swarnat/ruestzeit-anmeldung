@@ -66,7 +66,7 @@ return [
         'version' => '2.1.0',
     ],
     'quill' => [
-        'version' => '2.0.2',
+        'version' => '2.0.3',
     ],
     'lodash-es' => [
         'version' => '4.17.21',
@@ -90,11 +90,11 @@ return [
         'version' => '4.5.0',
     ],
     'quill/dist/quill.snow.css' => [
-        'version' => '2.0.2',
+        'version' => '2.0.3',
         'type' => 'css',
     ],
     'quill/dist/quill.bubble.css' => [
-        'version' => '2.0.2',
+        'version' => '2.0.3',
         'type' => 'css',
     ],
     'axios' => [

@@ -30,6 +30,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
+use App\Service\S3FileUploader;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Ehyiah\QuillJsBundle\DTO\Fields\BlockField\HeaderField;
 use Ehyiah\QuillJsBundle\DTO\QuillGroup;
@@ -47,7 +50,8 @@ class RuestzeitCrudController extends AbstractCrudController
         protected AdminUrlGenerator $adminUrlGenerator,
         protected RequestStack $requestStack,
         protected EntityManagerInterface $entityManager,
-        protected CodeGenerator $codeGenerator
+        protected CodeGenerator $codeGenerator,
+        protected S3FileUploader $s3FileUploader
     ) {
     }
         
@@ -239,10 +243,29 @@ class RuestzeitCrudController extends AbstractCrudController
             ->setFormTypeOption('view_timezone', "Europe/Berlin");
 
         yield FormField::addColumn(6);
-        yield UrlField::new('flyer_url', 'Flyer URL');
+        if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_NEW) {
+            yield Field::new('flyerFile', 'Flyer')
+                ->setFormType(FileType::class)
+                ->setFormTypeOption('required', false);
+        }
+
+        if ($pageName !== Crud::PAGE_NEW) {
+            yield TextField::new('flyerUrl', 'Aktueller Flyer')
+                ->setTemplatePath('admin/field/s3_file.html.twig');
+        }
 
         yield FormField::addColumn(6);
-        yield UrlField::new('image_url', 'Flyer Image URL');
+
+        if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_NEW) {
+            yield Field::new('imageFile', 'Flyer Vorschaubild')
+                ->setFormType(FileType::class)
+                ->setFormTypeOption('required', false);
+        }
+
+        if ($pageName !== Crud::PAGE_NEW) {
+            yield TextField::new('imageUrl', 'Aktuelles Vorschaubild')
+                ->setTemplatePath('admin/field/s3_file.html.twig');
+        }
 
         if ($pageName != Crud::PAGE_INDEX) {
             yield FormField::addColumn(2);
@@ -277,6 +300,37 @@ class RuestzeitCrudController extends AbstractCrudController
         }
     }
 
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->uploadFiles($entityInstance);
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->uploadFiles($entityInstance);
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    private function uploadFiles($entity): void
+    {
+        if ($entity->getFlyerFile()) {
+            $key = $this->s3FileUploader->upload(
+                $entity->getFlyerFile(),
+                'flyers'
+            );
+            $entity->setFlyerUrl($this->s3FileUploader->getPublicUrl($key));
+        }
+
+        if ($entity->getImageFile()) {
+            $key = $this->s3FileUploader->upload(
+                $entity->getImageFile(),
+                'images'
+            );
+            $entity->setImageUrl($this->s3FileUploader->getPublicUrl($key));
+        }
+    }
+
     public function createEntity(string $entityFqcn) {
         $entity = new Ruestzeit();
         // var_dump($entity->getDescription());
@@ -298,7 +352,7 @@ class RuestzeitCrudController extends AbstractCrudController
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
         $queryBuilder
-            ->andWhere('entity.admin = :user')->setParameter(':user', $this->getUser()->getId());
+            ->andWhere('entity.admin = :user')->setParameter(':user', $this->getUser());
 
         return $queryBuilder;
     }

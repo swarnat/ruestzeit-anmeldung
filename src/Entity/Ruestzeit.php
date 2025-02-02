@@ -12,6 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Validator\Constraints\Unique;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[ORM\Entity(repositoryClass: RuestzeitRepository::class)]
 #[UniqueEntity('slug')]
@@ -101,6 +102,32 @@ class Ruestzeit
 
     #[ORM\Column(nullable: true)]
     private ?bool $showRoommate = null;
+
+    private ?UploadedFile $flyerFile = null;
+
+    private ?UploadedFile $imageFile = null;
+
+    public function getFlyerFile(): ?UploadedFile
+    {
+        return $this->flyerFile;
+    }
+
+    public function setFlyerFile(?UploadedFile $flyerFile): static
+    {
+        $this->flyerFile = $flyerFile;
+        return $this;
+    }
+
+    public function getImageFile(): ?UploadedFile
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?UploadedFile $imageFile): static
+    {
+        $this->imageFile = $imageFile;
+        return $this;
+    }
 
     public function __construct()
     {

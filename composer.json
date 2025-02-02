@@ -16,6 +16,7 @@
         "endroid/qr-code-bundle": "^6.0",
         "handcraftedinthealps/goodby-csv": "^1.4",
         "mpdf/mpdf": "^8.2",
+        "aws/aws-sdk-php-symfony": "^2.7",
         "php-flasher/flasher-symfony": "^1.15",
         "php-flasher/flasher-toastr-symfony": "^1.15",
         "phpdocumentor/reflection-docblock": "^5.3",
