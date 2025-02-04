@@ -121,7 +121,6 @@ class RuestzeitController extends AbstractController
                     $this->entityManager->flush();
 
                     $email = (new TemplatedEmail())
-                        ->from('no-reply@kirche-hohndorf.de')
                         ->to($ruestzeit->getAdmin()->getEmail())
                         ->htmlTemplate('emails/anmeldung.html.twig')
                         ->locale('de')
@@ -142,7 +141,6 @@ class RuestzeitController extends AbstractController
                     if (!empty($emailAddress)) {
                         try {
                             $email = (new TemplatedEmail())
-                                ->from('no-reply@kirche-hohndorf.de')
                                 ->to($emailAddress)
                                 ->htmlTemplate('emails/confirmation.html.twig')
                                 ->locale('de')
