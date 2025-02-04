@@ -79,6 +79,38 @@ class RuestzeitShareController extends AbstractController
         ]);
     }
 
+    #[Route('/admin/share-invitation/{token}/revoke', name: 'admin_ruestzeit_revoke_invitation', methods: ['POST'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function revokeInvitation(string $token): Response
+    {
+        $invitation = $this->entityManager->getRepository(RuestzeitShareInvitation::class)
+            ->findByToken($token);
+
+        if (!$invitation) {
+            $this->addFlash('error', 'Einladung nicht gefunden.');
+            return $this->redirect($this->adminUrlGenerator
+                ->setController(RuestzeitCrudController::class)
+                ->setAction('index')
+                ->generateUrl());
+        }
+
+        // Check if the current user is the owner of the Ruestzeit
+        if ($invitation->getRuestzeit()->getAdmin() !== $this->getUser()) {
+            return $this->render('admin/share_invitation_error.html.twig', [
+                'message' => 'Sie können nur Einladungen für Ihre eigenen Rüstzeiten zurückziehen.'
+            ]);
+        }
+
+        $this->entityManager->remove($invitation);
+        $this->entityManager->flush();
+
+        $this->addFlash('success', 'Die Einladung wurde zurückgezogen.');
+
+        return $this->redirect($this->adminUrlGenerator
+            ->setRoute('admin_ruestzeit_share', ['id' => $invitation->getRuestzeit()->getId()])
+            ->generateUrl());
+    }
+
     #[Route('/admin/share-invitation/{token}', name: 'admin_share_invitation_accept')]
     #[IsGranted('ROLE_ADMIN')]
     public function acceptInvitation(string $token): Response
