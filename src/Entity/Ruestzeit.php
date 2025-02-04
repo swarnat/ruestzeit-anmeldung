@@ -45,6 +45,13 @@ class Ruestzeit
     #[ORM\JoinColumn(nullable: false)]
     private ?Admin $admin = null;
 
+    #[ORM\ManyToMany(targetEntity: Admin::class)]
+    #[ORM\JoinTable(name: 'ruestzeit_shared_admins')]
+    private Collection $sharedAdmins;
+
+    #[ORM\OneToMany(targetEntity: RuestzeitShareInvitation::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
+    private Collection $shareInvitations;
+
     #[ORM\ManyToOne(inversedBy: 'ruestzeiten')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Location $location = null;
@@ -133,6 +140,8 @@ class Ruestzeit
     {
         $this->anmeldungen = new ArrayCollection();
         $this->languageOverwrites = new ArrayCollection();
+        $this->sharedAdmins = new ArrayCollection();
+        $this->shareInvitations = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -286,6 +295,60 @@ class Ruestzeit
     public function setAdmin(?Admin $admin): static
     {
         $this->admin = $admin;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Admin>
+     */
+    public function getSharedAdmins(): Collection
+    {
+        return $this->sharedAdmins;
+    }
+
+    public function addSharedAdmin(Admin $admin): static
+    {
+        if (!$this->sharedAdmins->contains($admin)) {
+            $this->sharedAdmins->add($admin);
+        }
+
+        return $this;
+    }
+
+    public function removeSharedAdmin(Admin $admin): static
+    {
+        $this->sharedAdmins->removeElement($admin);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, RuestzeitShareInvitation>
+     */
+    public function getShareInvitations(): Collection
+    {
+        return $this->shareInvitations;
+    }
+
+    public function addShareInvitation(RuestzeitShareInvitation $invitation): static
+    {
+        if (!$this->shareInvitations->contains($invitation)) {
+            $this->shareInvitations->add($invitation);
+            $invitation->setRuestzeit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShareInvitation(RuestzeitShareInvitation $invitation): static
+    {
+        if ($this->shareInvitations->removeElement($invitation)) {
+            // set the owning side to null (unless already changed)
+            if ($invitation->getRuestzeit() === $this) {
+                $invitation->setRuestzeit(null);
+            }
+        }
 
         return $this;
     }
@@ -522,6 +585,10 @@ class Ruestzeit
         $this->showRoommate = $showRoommate;
 
         return $this;
-    }  
+    }
 
+    public function hasAccessForAdmin(Admin $admin): bool
+    {
+        return $this->admin === $admin || $this->sharedAdmins->contains($admin);
+    }
 }

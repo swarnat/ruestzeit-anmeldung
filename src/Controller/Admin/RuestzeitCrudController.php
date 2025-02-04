@@ -99,37 +99,47 @@ class RuestzeitCrudController extends AbstractCrudController
             })
             ->setIcon('fa fa-link');
 
-        
-            $shortLink = Action::new('link_registration_short', "Kurzlink")
+        $shortLink = Action::new('link_registration_short', "Kurzlink")
             ->linkToUrl(function (Ruestzeit $ruestzeit) {
                 return '/' . $ruestzeit->getForwarder();
             })
             ->setHtmlAttributes(["target" => "_blank"])
             ->setIcon('fa fa-link');
 
-
-            $longLink = Action::new('link_registration_long', "Komplette URL")
+        $longLink = Action::new('link_registration_long', "Komplette URL")
             ->linkToUrl(function (Ruestzeit $ruestzeit) {
                 return '/r/' . $ruestzeit->getSlug();
             })
             ->setHtmlAttributes(["target" => "_blank"])
             ->setIcon('fa fa-link');
 
+        $activateAction = Action::new('ruestzeit_activate', "Ruestzeit wechseln")
+            ->linkToCrudAction('activate_ruestzeit')
+            ->setIcon('fa fa-download');
 
-            $longLink = Action::new('ruestzeit_activate', "Ruestzeit wechseln")
-                ->linkToCrudAction('activate_ruestzeit')
-                ->setIcon('fa fa-download');
+        $qrCode = Action::new('show_qrcode', "QR Code")
+            ->linkToCrudAction('show_qrcode')
+            ->setIcon('fa fa-download');
 
-            $qrCode = Action::new('show_qrcode', "QR Code")
-                ->linkToCrudAction('show_qrcode')
-                ->setIcon('fa fa-download');
+        $shareAction = Action::new('share', 'Freigeben')
+            ->linkToUrl(function (Ruestzeit $ruestzeit) {
+                return $this->container->get(AdminUrlGenerator::class)
+                    ->setRoute('admin_ruestzeit_share', ['id' => $ruestzeit->getId()])
+                    ->generateUrl();
+            })
+            ->setIcon('fa fa-share-alt')
+            ->displayIf(function (Ruestzeit $ruestzeit) {
+                return $ruestzeit->getAdmin() === $this->getUser();
+            });
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, "delete")
             ->add(Crud::PAGE_INDEX, $passwordLink)
             ->add(Crud::PAGE_INDEX, $shortLink)
             ->add(Crud::PAGE_INDEX, $longLink)
+            ->add(Crud::PAGE_INDEX, $activateAction)
             ->add(Crud::PAGE_INDEX, $qrCode)
+            ->add(Crud::PAGE_INDEX, $shareAction)
             ;
     }
     
@@ -352,7 +362,9 @@ class RuestzeitCrudController extends AbstractCrudController
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
         $queryBuilder
-            ->andWhere('entity.admin = :user')->setParameter(':user', $this->getUser());
+            ->leftJoin('entity.sharedAdmins', 'sa')
+            ->andWhere('entity.admin = :user OR sa = :user')
+            ->setParameter(':user', $this->getUser());
 
         return $queryBuilder;
     }
