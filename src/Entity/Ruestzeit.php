@@ -114,6 +114,15 @@ class Ruestzeit
 
     private ?UploadedFile $imageFile = null;
 
+    #[ORM\Column(length: 48)]
+    private ?string $domain = null;
+
+    #[ORM\Column]
+    private ?bool $showMealtype = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $additional_question1 = null;
+
     public function getFlyerFile(): ?UploadedFile
     {
         return $this->flyerFile;
@@ -147,6 +156,11 @@ class Ruestzeit
     public function __toString(): string
     {
         return $this->title;
+    }
+
+    public function getUrl(): string
+    {
+        return "https://" . $this->getDomain() . "/" . $this->getSlug();
     }
 
     public function getId(): ?int
@@ -590,5 +604,48 @@ class Ruestzeit
     public function hasAccessForAdmin(Admin $admin): bool
     {
         return $this->admin === $admin || $this->sharedAdmins->contains($admin);
+    }
+
+    public function getDomain(): ?string
+    {
+        return $this->domain;
+    }
+
+    public function setDomain(string $domain): static
+    {
+        $this->domain = $domain;
+
+        return $this;
+    }
+
+    public function isShowMealtype(): ?bool
+    {
+        return $this->showMealtype;
+    }
+
+    public function setShowMealtype(bool $showMealtype): static
+    {
+        $this->showMealtype = $showMealtype;
+
+        return $this;
+    }
+
+    public function haveAdditionalQuestion1(): bool
+    {
+        return !empty($this->additional_question1);
+    }
+
+    public function getAdditionalQuestion1(): ?string
+    {
+        return $this->additional_question1;
+    }
+
+    public function setAdditionalQuestion1(?string $additional_question1): static
+    {
+        if(empty($additional_question1)) $additional_question1 = "";
+        
+        $this->additional_question1 = $additional_question1;
+
+        return $this;
     }
 }

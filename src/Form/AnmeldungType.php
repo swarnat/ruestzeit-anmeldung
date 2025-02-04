@@ -71,12 +71,14 @@ class AnmeldungType extends AbstractType
             ]);
         }
         if ($currentRuestzeit->isShowRoommate()) {
-            $builder->add('roommate', TextType::class,
-            [
-                'label' => $this->translationService->translate("Doppelzimmer mit"),
-                'help' => $this->translationService->translate("Doppelzimmer mit Hilfe", default: ""),
-            ]        
-        );
+            $builder->add(
+                'roommate',
+                TextType::class,
+                [
+                    'label' => $this->translationService->translate("Doppelzimmer mit"),
+                    'help' => $this->translationService->translate("Doppelzimmer mit Hilfe", default: ""),
+                ]
+            );
         }
 
         if ($currentRuestzeit->isShowReferer()) {
@@ -86,9 +88,18 @@ class AnmeldungType extends AbstractType
             ]);
         }
 
-        $builder->add('mealtype', EnumType::class, [
-            'class' => MealType::class
-        ])
+        if ($currentRuestzeit->isShowMealtype()) {
+            $builder->add('mealtype', EnumType::class, [
+                'class' => MealType::class
+            ]);
+        }
+        if ($currentRuestzeit->haveAdditionalQuestion1()) {
+            $builder->add('additional_data1', TextType::class, [
+                'label' => $currentRuestzeit->getAdditionalQuestion1()
+            ]);
+        }
+
+        $builder
             ->add('notes', TextareaType::class, [
                 "empty_data" => "",
             ])

@@ -50,6 +50,12 @@
               </button>
             </div>
 
+            <div class="has-text-centered">
+              <a href="{{ path('app_password_reset_request') }}" class="is-size-7">
+                Passwort vergessen?
+              </a>
+            </div>
+
             <input type="hidden" name="_csrf_token"
            value="{{ csrf_token('authenticate') }}" />
 
@@ -61,4 +67,3 @@
   <div class="bottom_version">Freizeit Management Script v{{ app.request.server.get('VERSION') }}</div>
 </section>
 {% endblock %}
-

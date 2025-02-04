@@ -5,6 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     aws_bucket_name: '%env(AWS_BUCKET_NAME)%'
+    domain_list: '%env(DOMAINLIST)%'
+
 
 services:
     # default configuration for services in *this* file
@@ -35,6 +37,10 @@ services:
     App\Service\S3FileUploader:
         arguments:
             $bucketName: '%aws_bucket_name%'
+
+    App\Controller\Admin\RuestzeitCrudController:
+        arguments:
+            $domainList: '%domain_list%'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

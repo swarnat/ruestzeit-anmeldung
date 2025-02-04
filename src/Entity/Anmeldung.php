@@ -79,7 +79,7 @@ class Anmeldung
     private ?bool $agb_agree = null;
 
     #[ORM\Column(type: "string", enumType: MealType::class)]
-    private MealType $mealtype;
+    private MealType $mealtype = MealType::ALL;
 
     #[ORM\Column(type: "string", enumType: AnmeldungStatus::class)]
     private AnmeldungStatus $status = AnmeldungStatus::OPEN;
@@ -116,6 +116,9 @@ class Anmeldung
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $roommate = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $additional_data1 = null;
 
     public function __construct()
     {
@@ -479,6 +482,18 @@ class Anmeldung
     public function setRoommate(?string $roommate): static
     {
         $this->roommate = $roommate;
+
+        return $this;
+    }
+
+    public function getAdditionalData1(): ?string
+    {
+        return $this->additional_data1;
+    }
+
+    public function setAdditionalData1(string $additional_data1): static
+    {
+        $this->additional_data1 = $additional_data1;
 
         return $this;
     }

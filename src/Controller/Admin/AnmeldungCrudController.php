@@ -351,18 +351,24 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield FormField::addPanel('Optionen')->setColumns(6);
 
-        yield ChoiceField::new('mealtype', 'Verpflegung')
-            ->setColumns(4)
-            ->setChoices(MealType::cases())
-            ->setFormType(EnumType::class);
+        if ($currentRuestzeit->isShowMealtype()) {
+            yield ChoiceField::new('mealtype', 'Verpflegung')
+                ->setColumns(4)
+                ->setChoices(MealType::cases())
+                ->setFormType(EnumType::class);
+        }
 
-        yield ChoiceField::new('roomRequest', 'Raumwunsch')
-            ->setColumns(4)
-            ->setChoices(RoomType::cases())
-            ->setFormType(EnumType::class);
+        if ($currentRuestzeit->isShowRoomRequest()) {
+            yield ChoiceField::new('roomRequest', 'Raumwunsch')
+                ->setColumns(4)
+                ->setChoices(RoomType::cases())
+                ->setFormType(EnumType::class);
+        }
 
-        yield TextField::new('roommate', 'Zimmerpartner')
-            ->setColumns(4);
+        if ($currentRuestzeit->isShowRoommate()) {
+            yield TextField::new('roommate', 'Zimmerpartner')
+                ->setColumns(4);
+        }
 
         yield CategorySelectionField::new("categories", "Kategorien");
 

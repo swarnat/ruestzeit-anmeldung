@@ -217,12 +217,13 @@
 								{{ form_errors(form.notes) }}
 							</div>
 
+							{% if ruestzeit.isShowMealtype() %}
 							<div class="field">
 								<label class="label">Verpflegung<sup>*</sup>
 								</label>
 								<div class="control">
 									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "ALL" or field_value(form.roomRequest) == "" %}checked{% endif %}>
+										<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "ALL" or field_value(form.mealtype) == "" %}checked{% endif %}>
 										Alles
 									</label>
 									<label class="radio">
@@ -237,6 +238,7 @@
 								<p class="help">Pflichtfeld</p>
 								{{ form_errors(form.mealtype) }}
 							</div>
+							{% endif %}
 
 							{% if ruestzeit.isShowRoomRequest() %}
 								<div class="field">
@@ -271,6 +273,18 @@
 									</div>
 									{{ form_help(form.roommate) }}
 									{{ form_errors(form.roommate) }}
+								</div>
+							{% endif %}
+
+							{% if ruestzeit.haveAdditionalQuestion1() %}
+								<div class="field" id="additional_question1">
+									<label class="label">{{ form_label(form.additional_data1) }}
+									</label>
+									<div class="control">
+										<input class="input" type="text" name="{{ field_name(form.additional_data1) }}" value="{{ field_value(form.additional_data1) }}" tabindex="60" required {{ autocomplete |raw }}>
+									</div>
+									{{ form_help(form.additional_data1) }}
+									{{ form_errors(form.additional_data1) }}
 								</div>
 							{% endif %}
 

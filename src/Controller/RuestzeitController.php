@@ -46,7 +46,7 @@ class RuestzeitController extends AbstractController
         $initialcToken = "000";
 
         if (!empty($ruestzeit)) {
-            return new RedirectResponse("/" . $ruestzeit->getSlug());
+            return new RedirectResponse("https://" . $ruestzeit->getDomain() . "/" . $ruestzeit->getSlug());
         }
 
         $ruestzeit = $ruestzeitRepository->findOneBy([
@@ -207,6 +207,7 @@ class RuestzeitController extends AbstractController
             'ruestzeit' => $ruestzeit,
             'allowRegistration' => $allowRegistration,
             'initial_ctoken' => $initialcToken,
+            'canonical' => $ruestzeit->getUrl(),
             'form' => !empty($formView) ? $formView : [],
         ]));
     }
