@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Admin;
 use App\Entity\Anmeldung;
 use App\Entity\Category;
+use App\Entity\CustomField;
 use App\Entity\Landkreis;
 use App\Entity\Location;
 use App\Entity\Ruestzeit;
@@ -114,19 +115,15 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Landkreise', 'fas fa-flag', Landkreis::class);
         
         yield MenuItem::linkToCrud('Kategorie', 'fas fa-flag', Category::class);
+
+        yield MenuItem::linkToCrud('Zusatzfelder', 'fas fa-list-check', CustomField::class)
+            ->setController(CustomFieldCrudController::class);
         
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
-                ->setAction('edit')
                 ->setEntityId($this->getUser()->getId())
-                ;
+                ->setAction('edit');
     }
 
-    public function configureResponseParameters(KeyValueStore $responseParameters): KeyValueStore
-    {
-        $parentValue =  parent::configureResponseParameters($responseParameters);
-
-        return $parentValue;
-    }
     public function configureAssets(): Assets
     {
         return parent::configureAssets()

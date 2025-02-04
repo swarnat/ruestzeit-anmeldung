@@ -120,9 +120,13 @@ class Anmeldung
     #[ORM\Column(length: 255)]
     private ?string $additional_data1 = null;
 
+    #[ORM\OneToMany(targetEntity: CustomFieldAnswer::class, mappedBy: 'anmeldung', orphanRemoval: true)]
+    private Collection $customFieldAnswers;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->customFieldAnswers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -494,6 +498,36 @@ class Anmeldung
     public function setAdditionalData1(string $additional_data1): static
     {
         $this->additional_data1 = $additional_data1;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CustomFieldAnswer>
+     */
+    public function getCustomFieldAnswers(): Collection
+    {
+        return $this->customFieldAnswers;
+    }
+
+    public function addCustomFieldAnswer(CustomFieldAnswer $answer): static
+    {
+        if (!$this->customFieldAnswers->contains($answer)) {
+            $this->customFieldAnswers->add($answer);
+            $answer->setAnmeldung($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCustomFieldAnswer(CustomFieldAnswer $answer): static
+    {
+        if ($this->customFieldAnswers->removeElement($answer)) {
+            // set the owning side to null (unless already changed)
+            if ($answer->getAnmeldung() === $this) {
+                $answer->setAnmeldung(null);
+            }
+        }
 
         return $this;
     }

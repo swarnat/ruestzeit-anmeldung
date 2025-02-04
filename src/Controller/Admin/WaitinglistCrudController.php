@@ -57,7 +57,7 @@ class WaitinglistCrudController extends AnmeldungCrudController
         return $queryBuilder;
     }
 
-    public function configureFields(string $pageName): iterable
+    public function configureFields(string $pageName, ?AdminContext $context = null): iterable
     {
         if ($pageName != "index") {
             yield from parent::configureFields($pageName);

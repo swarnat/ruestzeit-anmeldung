@@ -123,6 +123,9 @@ class Ruestzeit
     #[ORM\Column(length: 255)]
     private ?string $additional_question1 = null;
 
+    #[ORM\OneToMany(targetEntity: CustomField::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
+    private Collection $customFields;
+
     public function getFlyerFile(): ?UploadedFile
     {
         return $this->flyerFile;
@@ -151,6 +154,7 @@ class Ruestzeit
         $this->languageOverwrites = new ArrayCollection();
         $this->sharedAdmins = new ArrayCollection();
         $this->shareInvitations = new ArrayCollection();
+        $this->customFields = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -645,6 +649,36 @@ class Ruestzeit
         if(empty($additional_question1)) $additional_question1 = "";
         
         $this->additional_question1 = $additional_question1;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CustomField>
+     */
+    public function getCustomFields(): Collection
+    {
+        return $this->customFields;
+    }
+
+    public function addCustomField(CustomField $customField): static
+    {
+        if (!$this->customFields->contains($customField)) {
+            $this->customFields->add($customField);
+            $customField->setRuestzeit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCustomField(CustomField $customField): static
+    {
+        if ($this->customFields->removeElement($customField)) {
+            // set the owning side to null (unless already changed)
+            if ($customField->getRuestzeit() === $this) {
+                $customField->setRuestzeit(null);
+            }
+        }
 
         return $this;
     }

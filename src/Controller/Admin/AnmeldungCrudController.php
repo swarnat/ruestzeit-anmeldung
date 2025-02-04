@@ -6,6 +6,8 @@ use App\AdminActions\Separator;
 use App\ChoicesLoader\Landkreis;
 use App\Entity\Anmeldung;
 use App\Entity\Category;
+use App\Entity\CustomField;
+use App\Entity\CustomFieldAnswer;
 use App\Entity\Ruestzeit;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
@@ -207,7 +209,7 @@ class AnmeldungCrudController extends AbstractCrudController
         return $entity;
     }
 
-    public function configureFields(string $pageName): iterable
+    public function configureFields(string $pageName, ?AdminContext $context = null): iterable
     {
 
         if ($pageName == Crud::PAGE_INDEX) {
@@ -391,6 +393,32 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield TextField::new('phone', 'Telefon')->setColumns(6);
         yield TextField::new('email', 'E-Mail')->setColumns(6);
+
+        if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_DETAIL) {
+            $customFields = $this->entityManager->getRepository(CustomField::class)->findBy([
+                'ruestzeit' => $this->currentRuestzeitGenerator->get(),
+                'owner' => $this->getUser()
+            ]);
+
+            if (count($customFields) > 0) {
+                yield FormField::addPanel('Zusatzfelder')->setColumns(12);
+
+                foreach ($customFields as $field) {
+                    $answers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
+                        'customField' => $field,
+                        'anmeldung' => $context?->getEntity()?->getInstance()
+                    ]);
+                    
+                    $value = count($answers) > 0 ? $answers[0]->getValue() : '-';
+                    
+                    yield TextField::new('customFieldAnswers', $field->getTitle())
+                        ->setColumns(6)
+                        ->setDisabled()
+                        ->setValue($value)
+                        ->setFormTypeOption('data', $value);
+                }
+            }
+        }
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -427,9 +455,21 @@ class AnmeldungCrudController extends AbstractCrudController
     #[AdminAction(routePath: '/export', routeName: 'anmeldungen_export', methods: ['GET'])]
     public function export(AdminContext $context, ExcelExporter $csvExporter)
     {
-        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
-        $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
+        $fields = FieldCollection::new([
+            TextField::new('lastname', 'Nachname'),
+            TextField::new('firstname', 'Vorname'),
+            IntegerField::new('registrationPosition', 'Reg.Position'),
+            ChoiceField::new('personenTyp', 'Typ'),
+            TextField::new('roomnumber', 'Raumnummer'),
+            IntegerField::new('age', 'Alter'),
+            ChoiceField::new('mealtype', 'Verpflegung'),
+            ChoiceField::new('roomRequest', 'Raumwunsch'),
+            BooleanField::new('prepayment_done', 'Anzahlung'),
+            BooleanField::new('payment_done', 'Zahlung ok'),
+            DateTimeField::new('createdAt', 'Anmeldung am')
+        ]);
 
+        $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
 
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
@@ -438,7 +478,7 @@ class AnmeldungCrudController extends AbstractCrudController
     #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
     public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
     {
-        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT));
+        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context));
 
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
 
