@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        /* Reset für konsistente Darstellung */
+        body, h1, p {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Container */
+        .email-container {
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+
+        /* Header */
+        .email-header {
+            background-color: #004896;
+            color: #ffffff;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Inhalt */
+        .email-body {
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+
+        /* Button */
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color:  #004896;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Footer */
+        .email-footer {
+            padding: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* Responsive Anpassung */
+        @media screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                border-radius: 0;
+            }
+            .email-body, .email-footer {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            {{ title }}
+        </div>
+        <div class="email-body">
+            {% block content %}{% endblock %}
+        </div>
+        <div class="email-footer">
+            {% block footer %}&copy; {{ 'now' | date('Y') }} PlanFreizeit. Alle Rechte vorbehalten.{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

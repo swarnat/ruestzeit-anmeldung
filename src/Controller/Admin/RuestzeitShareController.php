@@ -56,6 +56,7 @@ class RuestzeitShareController extends AbstractController
                     ->subject('Rüstzeit Freigabe Einladung')
                     ->htmlTemplate('emails/ruestzeit_share_invitation.html.twig')
                     ->context([
+                        'title' => "Freigabe einer Rüstzeit für Zugriff",
                         'invitation' => $invitation,
                         'ruestzeit' => $ruestzeit,
                     ]);

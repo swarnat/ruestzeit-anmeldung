@@ -1,3 +1,6 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block content %}
 <div>
     <h2>Rüstzeit Freigabe Einladung</h2>
     
@@ -6,13 +9,14 @@
     <h3>{{ ruestzeit.title }}</h3>
     
     <p>
-        Um die Freigabe zu akzeptieren, klicken Sie bitte auf den folgenden Link:<br>
-        <a href="{{ url('admin_share_invitation_accept', {token: invitation.token}) }}">Freigabe akzeptieren</a>
+        Um die Freigabe zu akzeptieren, klicken Sie bitte auf den folgenden Link:<br/><br/>
+        <a class="button" href="{{ url('admin_share_invitation_accept', {token: invitation.token}) }}">Freigabe akzeptieren</a>
     </p>
-    
+    <br />
     <p>
         <small>
             Hinweis: Sie müssen mit dem Account angemeldet sein, welcher die E-Mail-Adresse {{ invitation.email }} verwendet.
         </small>
     </p>
 </div>
+{% endblock %}
