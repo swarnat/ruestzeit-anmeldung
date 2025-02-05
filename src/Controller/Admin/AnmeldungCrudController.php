@@ -23,6 +23,7 @@ use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
 use App\Service\SignaturelistExporter;
 use App\Service\SignpaperExporter;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -61,6 +62,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Translation\Translator;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -238,6 +240,8 @@ class AnmeldungCrudController extends AbstractCrudController
             return;
         }
 
+        $context = $this->getContext();
+
         $currentRuestzeit = $this->currentRuestzeitGenerator->get();
 
         yield FormField::addColumn(12);
@@ -395,27 +399,46 @@ class AnmeldungCrudController extends AbstractCrudController
         yield TextField::new('email', 'E-Mail')->setColumns(6);
 
         if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_DETAIL) {
-            $customFields = $this->entityManager->getRepository(CustomField::class)->findBy([
-                'ruestzeit' => $this->currentRuestzeitGenerator->get(),
-                'owner' => $this->getUser()
-            ]);
+            $criteria = Criteria::create()
+                ->Where(Criteria::expr()->eq('ruestzeit', $this->currentRuestzeitGenerator->get()))
+                ->orWhere(Criteria::expr()->eq('owner', $this->getUser()));
+                        
+            $customFields = $this->entityManager->getRepository(CustomField::class)->matching($criteria);
 
             if (count($customFields) > 0) {
                 yield FormField::addPanel('Zusatzfelder')->setColumns(12);
 
-                foreach ($customFields as $field) {
+                foreach ($customFields as $index => $field) {
+
                     $answers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
                         'customField' => $field,
-                        'anmeldung' => $context?->getEntity()?->getInstance()
+                        'anmeldung' => $context->getEntity()->getInstance()
                     ]);
+
+                    $answerValues = array_map(fn($answer) => $answer->getValue(), $answers);
                     
-                    $value = count($answers) > 0 ? $answers[0]->getValue() : '-';
-                    
-                    yield TextField::new('customFieldAnswers', $field->getTitle())
-                        ->setColumns(6)
-                        ->setDisabled()
-                        ->setValue($value)
-                        ->setFormTypeOption('data', $value);
+                    if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX) {
+                        $options = $field->getOptions() ?? [];
+                        yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
+                            ->setColumns(6)
+                            ->setChoices(array_combine($options, $options))
+                            ->setFormType(ChoiceType::class)
+                            ->setFormTypeOptions([
+                                'multiple' => true,
+                                'expanded' => true,
+                                'data' => $answerValues,
+                                'mapped' => false
+                            ]);
+                    } else {
+                        $value = count($answerValues) > 0 ? $answerValues[0] : '';
+                        yield TextField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
+                            ->setColumns(6)
+                            ->setFormTypeOptions([
+                                'data' => $value,
+                                'mapped' => false,
+                                'empty_data' => ''
+                            ]);
+                    }
                 }
             }
         }
@@ -475,8 +498,59 @@ class AnmeldungCrudController extends AbstractCrudController
         return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
     }
 
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        $formData = $request->request->all();
+
+        // Handle custom field answers
+        $customFields = $this->entityManager->getRepository(CustomField::class)->findBy([
+            'ruestzeit' => $this->currentRuestzeitGenerator->get(),
+            'owner' => $this->getUser()
+        ]);
+
+        foreach ($customFields as $field) {
+            $fieldName = 'customFieldAnswers_' . $field->getId();
+            
+            // Remove existing answers
+            $existingAnswers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
+                'customField' => $field,
+                'anmeldung' => $entityInstance
+            ]);
+            foreach ($existingAnswers as $answer) {
+                $entityManager->remove($answer);
+            }
+
+            // Add new answers if value exists
+            if (isset($formData['Anmeldung'][$fieldName])) {
+                $formValue = $formData['Anmeldung'][$fieldName];
+                
+                // Skip empty values
+                if ($formValue === '' || $formValue === null || $formValue === []) {
+                    continue;
+                }
+
+                $values = $field->getType() === \App\Enum\CustomFieldType::CHECKBOX 
+                    ? (array)$formValue 
+                    : [$formValue];
+
+                foreach ($values as $value) {
+                    if ($value === '' || $value === null) continue;
+                    
+                    $answer = new CustomFieldAnswer();
+                    $answer->setCustomField($field);
+                    $answer->setAnmeldung($entityInstance);
+                    $answer->setValue($value);
+                    $entityManager->persist($answer);
+                }
+            }
+        }
+
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
     #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
-    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
+    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository, EntityManagerInterface $entityManager)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context));
 
