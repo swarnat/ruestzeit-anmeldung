@@ -417,16 +417,16 @@ class AnmeldungCrudController extends AbstractCrudController
 
                     $answerValues = array_map(fn($answer) => $answer->getValue(), $answers);
                     
-                    if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX) {
+                    if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX || $field->getType() === \App\Enum\CustomFieldType::RADIO) {
                         $options = $field->getOptions() ?? [];
                         yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setChoices(array_combine($options, $options))
                             ->setFormType(ChoiceType::class)
                             ->setFormTypeOptions([
-                                'multiple' => true,
+                                'multiple' => $field->getType() === \App\Enum\CustomFieldType::CHECKBOX,
                                 'expanded' => true,
-                                'data' => $answerValues,
+                                'data' => $field->getType() === \App\Enum\CustomFieldType::CHECKBOX ? $answerValues : ($answerValues[0] ?? null),
                                 'mapped' => false
                             ]);
                     } else {
