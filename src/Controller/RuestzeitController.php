@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Anmeldung;
+use App\Entity\CustomFieldAnswer;
 use App\Enum\AnmeldungStatus;
+use App\Enum\CustomFieldType;
 use App\Enum\PersonenTyp;
 use App\Form\AnmeldungType;
 use App\Generator\CurrentRuestzeitGenerator;
@@ -117,6 +119,38 @@ class RuestzeitController extends AbstractController
 
                     $anmeldung->setPersonenTyp(PersonenTyp::TEILNEHMER);
 
+                    // Handle custom field answers
+                    foreach ($ruestzeit->getCustomFields() as $customField) {
+                        $fieldName = 'custom_field_' . $customField->getId();
+                        $value = $request->get('anmeldung')[$fieldName] ?? null;
+                        
+                        if ($value !== null) {
+                            $answer = new CustomFieldAnswer();
+                            $answer->setCustomField($customField);
+                            $answer->setAnmeldung($anmeldung);
+                            
+                            // Handle different field types
+                            switch ($customField->getType()) {
+                                case CustomFieldType::CHECKBOX:
+                                    $answer->setValue($value ? '1' : '0');
+                                    break;
+                                case CustomFieldType::DATE:
+                                    // Convert date from dd.mm.yyyy to Y-m-d
+                                    if ($value) {
+                                        $date = \DateTime::createFromFormat('d.m.Y', $value);
+                                        if ($date) {
+                                            $answer->setValue($date->format('Y-m-d'));
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    $answer->setValue((string)$value);
+                            }
+                            
+                            $this->entityManager->persist($answer);
+                        }
+                    }
+
                     $this->entityManager->persist($anmeldung);
                     $this->entityManager->flush();
 
@@ -177,6 +211,8 @@ class RuestzeitController extends AbstractController
 
                         return new Response($twig->render('ruestzeit/index.html.twig', [
                             'ruestzeit' => $ruestzeit,
+                            'initial_ctoken' => $initialcToken,
+
                             'allowRegistration' => $allowRegistration,
                             'form' => !empty($formView) ? $formView : [],
                         ]));

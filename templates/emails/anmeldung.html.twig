@@ -23,7 +23,25 @@ Folgende Anmeldung ist soeben eingegangen:
         <th>Position der Registrierung</th><td>{{ anmeldung.registrationPosition }}</td>
         <th>Kategorie</th><td>{{ anmeldung.personentyp.value }}</td>
     </tr>
-
+    {% if anmeldung.customFieldAnswers|length > 0 %}
+        <tr>
+            <td colspan="4"><h3 style="margin-top:20px;">Zusätzliche Angaben</h3></td>
+        </tr>
+        {% for answer in anmeldung.customFieldAnswers %}
+        <tr>
+            <th>{{ answer.customField.title }}</th>
+            <td colspan="3">
+                {% if answer.customField.type == 'checkbox' %}
+                    {{ answer.value == '1' ? 'Ja' : 'Nein' }}
+                {% elseif answer.customField.type == 'date' %}
+                    {{ answer.value|date('d.m.Y') }}
+                {% else %}
+                    {{ answer.value }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    {% endif %}
 </table>
 <style>
     th {

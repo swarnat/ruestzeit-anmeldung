@@ -18,8 +18,12 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\RadioType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use App\Entity\CustomField;
+use App\Enum\CustomFieldType;
 
 class AnmeldungType extends AbstractType
 {
@@ -102,11 +106,66 @@ class AnmeldungType extends AbstractType
         $builder
             ->add('notes', TextareaType::class, [
                 "empty_data" => "",
-            ])
-            ->add('dsgvo_agree')->setRequired(true)
-            ->add('agb_agree')->setRequired(true)
+            ]);
 
-        ;
+        // Add custom fields based on Ruestzeit configuration
+        if ($currentRuestzeit) {
+            foreach ($currentRuestzeit->getCustomFields() as $customField) {
+                $fieldName = 'custom_field_' . $customField->getId();
+
+                switch ($customField->getType()) {
+                    case CustomFieldType::INPUT:
+                        $builder->add($fieldName, TextType::class, [
+                            'mapped' => false,
+                            'label' => $customField->getTitle(),
+                            'required' => true,
+                        ]);
+                        break;
+                    case CustomFieldType::TEXTAREA:
+                        $builder->add($fieldName, TextareaType::class, [
+                            'mapped' => false,
+                            'label' => $customField->getTitle(),
+                            'required' => true,
+                        ]);
+                        break;
+                    case CustomFieldType::DATE:
+                        $builder->add($fieldName, DateType::class, [
+                            'mapped' => false,
+                            'label' => $customField->getTitle(),
+                            'required' => true,
+                            'widget' => 'single_text',
+                            'html5' => false,
+                            'format' => 'dd.MM.yyyy',
+                        ]);
+                        break;
+                    case CustomFieldType::CHECKBOX:
+                        $options = $customField->getOptions() ?? [];
+                        $builder->add($fieldName, ChoiceType::class, [
+                            'mapped' => false,
+                            'label' => $customField->getTitle(),
+                            'required' => true,
+                            'choices' => array_combine($options, $options),
+                            'expanded' => true,
+                            'multiple' => true,
+                        ]);
+                        break;
+                    case CustomFieldType::RADIO:
+                        $options = $customField->getOptions() ?? [];
+                        $builder->add($fieldName, ChoiceType::class, [
+                            'mapped' => false,
+                            'label' => $customField->getTitle(),
+                            'required' => true,
+                            'choices' => array_combine($options, $options),
+                            'expanded' => true,
+                        ]);
+                        break;
+                }
+            }
+        }
+
+        $builder
+            ->add('dsgvo_agree')->setRequired(true)
+            ->add('agb_agree')->setRequired(true);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -326,8 +326,29 @@
 									<br/>
 
 									Wir senden dir weitere Informationen, sobald diese zur Verfügung stehen.<br/>
-                                    <br/> 
-                                    <br/> 
+                                    <br/>
+
+                                    {% if anmeldung.customFieldAnswers|length > 0 %}
+                                    <strong>Deine zusätzlichen Angaben:</strong><br/>
+                                    <table style="margin: 15px 0;">
+                                        {% for answer in anmeldung.customFieldAnswers %}
+                                        <tr>
+                                            <td style="padding: 5px 15px 5px 0; color: #666;">{{ answer.customField.title }}:</td>
+                                            <td style="padding: 5px 0;">
+                                                {% if answer.customField.type == 'checkbox' %}
+                                                    {{ answer.value == '1' ? 'Ja' : 'Nein' }}
+                                                {% elseif answer.customField.type == 'date' %}
+                                                    {{ answer.value|date('d.m.Y') }}
+                                                {% else %}
+                                                    {{ answer.value }}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </table>
+                                    {% endif %}
+                                    
+                                    <br/>
                                     <em>Viele Grüße,<br/> 
                                     Dein Team der {{ anmeldung.ruestzeit.title }}</em>
 								</td>
@@ -342,4 +363,3 @@
 			</tr>
 		</table>
 	</body>
-</html>

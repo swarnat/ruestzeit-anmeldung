@@ -118,7 +118,7 @@ class Anmeldung
     private ?string $roommate = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $additional_data1 = null;
+    private ?string $additional_data1 = "";
 
     #[ORM\OneToMany(targetEntity: CustomFieldAnswer::class, mappedBy: 'anmeldung', orphanRemoval: true)]
     private Collection $customFieldAnswers;

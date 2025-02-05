@@ -288,6 +288,32 @@
 								</div>
 							{% endif %}
 
+							{# Custom Fields #}
+							{% for customField in ruestzeit.customFields %}
+								{% set fieldName = 'custom_field_' ~ customField.id %}
+								<div class="field">
+									<label class="label">{{ form_label(attribute(form, fieldName)) }}</label>
+									<div class="control">
+										{% if customField.type.value == 'input' %}
+											<input class="input" type="text" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ field_value(attribute(form, fieldName)) }}" {{ autocomplete |raw }}>
+										{% elseif customField.type.value == 'textarea' %}
+											<textarea class="textarea" name="{{ field_name(attribute(form, fieldName)) }}" {{ autocomplete |raw }}>{{ field_value(attribute(form, fieldName)) }}</textarea>
+										{% elseif customField.type.value == 'date' %}
+											<input class="input birthday_field" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ field_value(attribute(form, fieldName)) }}" type="text" placeholder="TT.MM.JJJJ" required {{ autocomplete |raw }}>
+										{% elseif customField.type.value == 'checkbox' %}
+											{{ form_widget(attribute(form, fieldName)) }}
+										{% elseif customField.type.value == 'radio' %}
+											{% for option in customField.options %}
+												<label class="radio">
+													<input type="radio" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ option }}" {{ autocomplete |raw }}>
+													{{ option }}
+												</label>
+											{% endfor %}
+										{% endif %}
+									</div>
+									{{ form_errors(attribute(form, fieldName)) }}
+								</div>
+							{% endfor %}
 
 						</div>
 						<div class="column">
@@ -411,4 +437,11 @@
 
 	</div>
 	<br />
+	<style>
+		legend.required:after {
+			margin-left:10px;
+			color:red;
+			content: "* ";
+		}
+	</style>
 {% endblock %}
