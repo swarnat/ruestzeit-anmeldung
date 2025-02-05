@@ -59,6 +59,7 @@ class CustomFieldAnswer
 
     public function setAnmeldung(?Anmeldung $anmeldung): static
     {
+        $anmeldung->addCustomFieldAnswer($this);
         $this->anmeldung = $anmeldung;
         return $this;
     }

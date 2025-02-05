@@ -335,9 +335,14 @@
                                         <tr>
                                             <td style="padding: 5px 15px 5px 0; color: #666;">{{ answer.customField.title }}:</td>
                                             <td style="padding: 5px 0;">
-                                                {% if answer.customField.type == 'checkbox' %}
-                                                    {{ answer.value == '1' ? 'Ja' : 'Nein' }}
-                                                {% elseif answer.customField.type == 'date' %}
+                                                {% if answer.customField.type.value == 'checkbox' %}
+                                                    {% set values = answer.value|json_decode %}
+                                                    {% if values is iterable and values is not empty %}
+                                                        {{ values|join(', ') }}
+                                                    {% else %}
+                                                        {{ answer.value }}
+                                                    {% endif %}
+                                                {% elseif answer.customField.type.value == 'date' %}
                                                     {{ answer.value|date('d.m.Y') }}
                                                 {% else %}
                                                     {{ answer.value }}

@@ -415,22 +415,36 @@ class AnmeldungCrudController extends AbstractCrudController
                         'anmeldung' => $context->getEntity()->getInstance()
                     ]);
 
-                    $answerValues = array_map(fn($answer) => $answer->getValue(), $answers);
-                    
-                    if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX || $field->getType() === \App\Enum\CustomFieldType::RADIO) {
+                    if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX) {
+                        // For checkboxes, decode JSON array
+                        $answerValue = count($answers) > 0 ? json_decode($answers[0]->getValue(), true) : [];
                         $options = $field->getOptions() ?? [];
                         yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setChoices(array_combine($options, $options))
                             ->setFormType(ChoiceType::class)
                             ->setFormTypeOptions([
-                                'multiple' => $field->getType() === \App\Enum\CustomFieldType::CHECKBOX,
+                                'multiple' => true,
                                 'expanded' => true,
-                                'data' => $field->getType() === \App\Enum\CustomFieldType::CHECKBOX ? $answerValues : ($answerValues[0] ?? null),
+                                'data' => $answerValue,
+                                'mapped' => false
+                            ]);
+                    } elseif ($field->getType() === \App\Enum\CustomFieldType::RADIO) {
+                        $answerValues = array_map(fn($answer) => $answer->getValue(), $answers);
+                        $options = $field->getOptions() ?? [];
+                        yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
+                            ->setColumns(6)
+                            ->setChoices(array_combine($options, $options))
+                            ->setFormType(ChoiceType::class)
+                            ->setFormTypeOptions([
+                                'multiple' => false,
+                                'expanded' => true,
+                                'data' => $answerValues[0] ?? null,
                                 'mapped' => false
                             ]);
                     } else {
-                        $value = count($answerValues) > 0 ? $answerValues[0] : '';
+                        // For other types, get the first answer value
+                        $value = count($answers) > 0 ? $answers[0]->getValue() : '';
                         yield TextField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setFormTypeOptions([
@@ -530,17 +544,19 @@ class AnmeldungCrudController extends AbstractCrudController
                     continue;
                 }
 
-                $values = $field->getType() === \App\Enum\CustomFieldType::CHECKBOX 
-                    ? (array)$formValue 
-                    : [$formValue];
-
-                foreach ($values as $value) {
-                    if ($value === '' || $value === null) continue;
-                    
+                if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX) {
+                    // For checkboxes, store as JSON array
                     $answer = new CustomFieldAnswer();
                     $answer->setCustomField($field);
                     $answer->setAnmeldung($entityInstance);
-                    $answer->setValue($value);
+                    $answer->setValue(json_encode((array)$formValue, JSON_UNESCAPED_UNICODE));
+                    $entityManager->persist($answer);
+                } else {
+                    // For other types, store the value directly
+                    $answer = new CustomFieldAnswer();
+                    $answer->setCustomField($field);
+                    $answer->setAnmeldung($entityInstance);
+                    $answer->setValue($formValue);
                     $entityManager->persist($answer);
                 }
             }
@@ -550,13 +566,11 @@ class AnmeldungCrudController extends AbstractCrudController
     }
 
     #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
-    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository, EntityManagerInterface $entityManager)
+    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
     {
         $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context));
-
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
-
-        return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf');
+        return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf', []);
     }
 
     #[AdminAction(routePath: '/{entityId}/cancel', routeName: 'anmeldungen_cancel', methods: ['GET'])]

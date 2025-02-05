@@ -132,7 +132,7 @@ class RuestzeitController extends AbstractController
                             // Handle different field types
                             switch ($customField->getType()) {
                                 case CustomFieldType::CHECKBOX:
-                                    $answer->setValue($value ? '1' : '0');
+                                    $answer->setValue(json_encode($value, JSON_UNESCAPED_UNICODE));
                                     break;
                                 case CustomFieldType::DATE:
                                     // Convert date from dd.mm.yyyy to Y-m-d
@@ -208,7 +208,8 @@ class RuestzeitController extends AbstractController
                         // $request->request->set('lastname', '');
                         // $form->handleRequest($request);            
                         $formView = $form->createView();
-
+                        $initialcToken = "222";
+                        
                         return new Response($twig->render('ruestzeit/index.html.twig', [
                             'ruestzeit' => $ruestzeit,
                             'initial_ctoken' => $initialcToken,
@@ -237,6 +238,8 @@ class RuestzeitController extends AbstractController
                     ->timeOut(10000)
                     ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', "Fehler");
             }
+        } else {
+            $initialcToken = "222";
         }
 
         return new Response($twig->render('ruestzeit/index.html.twig', [

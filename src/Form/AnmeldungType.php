@@ -140,6 +140,7 @@ class AnmeldungType extends AbstractType
                         break;
                     case CustomFieldType::CHECKBOX:
                         $options = $customField->getOptions() ?? [];
+
                         $builder->add($fieldName, ChoiceType::class, [
                             'mapped' => false,
                             'label' => $customField->getTitle(),
