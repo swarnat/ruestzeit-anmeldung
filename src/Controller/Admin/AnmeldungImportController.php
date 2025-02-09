@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Anmeldung;
+use App\Entity\CustomField;
+use App\Entity\CustomFieldAnswer;
 use App\Enum\AnmeldungStatus;
 use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
@@ -140,6 +142,10 @@ class AnmeldungImportController extends AbstractController
                 $functionName = 'set' . $property;
                 $value = $row[$index];
 
+                if($fieldObjects[$field]->getCustomOption("customfield") === true) {
+                    continue;
+                }
+
                 switch ($fieldObjects[$field]->getFieldFqcn()) {
                     case ChoiceField::class:
                         foreach ($fieldObjects[$field]->getCustomOptions()->get('choices') as $choiceOption) {
@@ -171,7 +177,45 @@ class AnmeldungImportController extends AbstractController
                 }
             }
 
+            $customFields = $entityManager->getRepository(CustomField::class)->findBy([
+                'ruestzeit' => $ruestzeit
+            ]);
+    
+            $customFieldMap = [];
+            foreach($customFields as $customFieldSingle) {
+                $customFieldMap['customFieldAnswers_' . $customFieldSingle->getId()] = $customFieldSingle;
+            }
 
+            foreach ($fieldSequence as $index => $field) {
+                if($fieldObjects[$field]->getCustomOption("customfield") !== true) {
+                    continue;
+                }
+
+                $customField = $customFieldMap[$fieldObjects[$field]->getProperty()];
+
+                $rowValue = $row[$index];
+                if ($rowValue === '' || $rowValue === null || $rowValue === []) {
+                    continue;
+                }
+
+                if ($customField->getType() === \App\Enum\CustomFieldType::CHECKBOX) {
+                    // For checkboxes, store as JSON array
+                    $answer = new CustomFieldAnswer();
+                    $answer->setCustomField($customField);
+                    $answer->setAnmeldung($anmeldung);
+                    $answer->setValue(json_encode((array)$rowValue, JSON_UNESCAPED_UNICODE));
+                    $entityManager->persist($answer);
+                } else {
+                    // For other types, store the value directly
+                    $answer = new CustomFieldAnswer();
+                    $answer->setCustomField($customField);
+                    $answer->setAnmeldung($anmeldung);
+                    $answer->setValue($rowValue);
+                    $entityManager->persist($answer);
+                }
+
+            }
+            
             $entityManager->persist($anmeldung);
         }
 

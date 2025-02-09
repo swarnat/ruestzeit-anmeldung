@@ -335,16 +335,20 @@ class AnmeldungCrudController extends AbstractCrudController
 
         if ($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
 
-        $createdAt = DateTimeField::new('createdAt')->setFormTypeOptions([
+        $createdAt = DateTimeField::new('createdAt', 'Erstellt am')->setFormTypeOptions([
             'years' => range(date('Y'), date('Y') + 5),
             'widget' => 'single_text',
         ]);
         if (Crud::PAGE_EDIT === $pageName) {
-            yield $createdAt->setFormTypeOption('disabled', true);
+            $createdAt->setFormTypeOption('disabled', true);
+        }
+        if (Crud::PAGE_NEW === $pageName) {
+            $createdAt->setFormTypeOption('data', new \DateTimeImmutable());
         }
         $createdAt->setColumns(4);
         $createdAt->setTimezone("Europe/Berlin");
         $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
+        yield $createdAt;
 
         // yield AssociationField::new("categories", "Kategorien");
 
@@ -437,6 +441,7 @@ class AnmeldungCrudController extends AbstractCrudController
                         yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setChoices(array_combine($options, $options))
+                            ->setCustomOption("customfield", true)
                             ->setFormType(ChoiceType::class)
                             ->setFormTypeOptions([
                                 'multiple' => true,
@@ -450,6 +455,7 @@ class AnmeldungCrudController extends AbstractCrudController
                         yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setChoices(array_combine($options, $options))
+                            ->setCustomOption("customfield", true)
                             ->setFormType(ChoiceType::class)
                             ->setFormTypeOptions([
                                 'multiple' => false,
@@ -462,6 +468,7 @@ class AnmeldungCrudController extends AbstractCrudController
                         $value = !empty($answers) ? $answers[0]->getValue() : '';
                         yield TextField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
+                            ->setCustomOption("customfield", true)
                             ->setFormTypeOptions([
                                 'data' => $value,
                                 'mapped' => false,
@@ -507,19 +514,9 @@ class AnmeldungCrudController extends AbstractCrudController
     #[AdminAction(routePath: '/export', routeName: 'anmeldungen_export', methods: ['GET'])]
     public function export(AdminContext $context, ExcelExporter $csvExporter)
     {
-        $fields = FieldCollection::new([
-            TextField::new('lastname', 'Nachname'),
-            TextField::new('firstname', 'Vorname'),
-            IntegerField::new('registrationPosition', 'Reg.Position'),
-            ChoiceField::new('personenTyp', 'Typ'),
-            TextField::new('roomnumber', 'Raumnummer'),
-            IntegerField::new('age', 'Alter'),
-            ChoiceField::new('mealtype', 'Verpflegung'),
-            ChoiceField::new('roomRequest', 'Raumwunsch'),
-            BooleanField::new('prepayment_done', 'Anzahlung'),
-            BooleanField::new('payment_done', 'Zahlung ok'),
-            DateTimeField::new('createdAt', 'Anmeldung am')
-        ]);
+        $fields = FieldCollection::new(
+            $this->configureFields(Crud::PAGE_NEW)
+        );
 
         $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
@@ -534,8 +531,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
         // Handle custom field answers
         $customFields = $this->entityManager->getRepository(CustomField::class)->findBy([
-            'ruestzeit' => $this->currentRuestzeitGenerator->get(),
-            'owner' => $this->getUser()
+            'ruestzeit' => $this->currentRuestzeitGenerator->get()
         ]);
 
         foreach ($customFields as $field) {
