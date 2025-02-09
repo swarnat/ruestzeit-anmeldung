@@ -6,8 +6,11 @@ use App\Entity\Ruestzeit;
 use App\Enum\MealType;
 use App\Enum\AnmeldungStatus;
 use App\Enum\PersonenTyp;
+use App\Enum\RoomType;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\CategoryRepository;
 use DateTime;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FieldTrait;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -35,7 +38,8 @@ class ExcelExporter
     
     public function __construct(
         private TranslatorInterface $translator,
-        private CategoryRepository $categoryRepository
+        private CategoryRepository $categoryRepository,
+        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
     )
     {}
 
@@ -47,6 +51,8 @@ class ExcelExporter
     public function createResponseFromQueryBuilder(QueryBuilder $queryBuilder, FieldCollection $fields, string $filename): Response
     {
         $result = $queryBuilder->getQuery()->getArrayResult();
+
+        $currentRuestzeit = $this->currentRuestzeitGenerator->get();
 
         // echo "<pre>";
 
@@ -87,30 +93,54 @@ class ExcelExporter
             ];
         }
 
+        $hiddenFields = [];
+        if($currentRuestzeit->isShowRoomRequest() === false) {
+            $hiddenFields[] = "roomRequest";
+        }
+        if($currentRuestzeit->isShowMealtype() === false) {
+            $hiddenFields[] = "mealtype";
+        }
+        if($currentRuestzeit->isShowReferer() === false) {
+            $hiddenFields[] = "referer";
+        }
+        if($currentRuestzeit->isShowRoommate() === false) {
+            $hiddenFields[] = "roommate";
+        }
+
+        $customFields = $currentRuestzeit->getCustomFields();
+
         // Convert DateTime objects into strings
         $data = [];
         $columns = [];
         foreach ($result as $index => $row) {
-
             foreach ($row as $columnKey => $columnValue) {
+                if(in_array($columnKey, $hiddenFields)) {
+                    continue;
+                }
 
                 if(is_object($columnValue)) {
+
                     if( $columnValue instanceof MealType || 
                         $columnValue instanceof AnmeldungStatus || 
-                        $columnValue instanceof PersonenTyp
+                        $columnValue instanceof PersonenTyp ||
+                        $columnValue instanceof RoomType
                     ) {
                         $columnValue = \Symfony\Component\Translation\t($columnValue->value, [], 'messages')->trans($this->translator);
-                    } elseif($columnValue instanceof \DateTimeInterface) {
+                    } elseif(
+                        $columnValue instanceof \DateTimeInterface || 
+                        $columnValue instanceof \DateTimeImmutable
+                    ) {
 
-                        if(!empty($fieldObjects[$columnKey])) {
+                        if(array_key_exists($columnKey, $fieldObjects)) {
                             if($fieldObjects[$columnKey]->getFieldFqcn() == DateField::class) {
                                 $columnValue = $columnValue->format('d.m.Y');
                             } elseif($fieldObjects[$columnKey]->getFieldFqcn() == DateTimeField::class) {
                                 $columnValue = $columnValue->format('d.m.Y H:i:s');
                             }
-                        }                        
-                    
+                        }
+
                     }
+
                 } elseif(is_bool($columnValue)) {
                     $columnValue = $columnValue ? "Ja" : "Nein";
                 } elseif(is_array($columnValue) && in_array($columnKey, ["categories"]) !== false) {
@@ -119,9 +149,11 @@ class ExcelExporter
                 }
 
                 $data[$index][] = $columnValue;
-                
+
                 $columns[$columnKey] = $columnKey;
             }
+
+
 
             $tmpCategories = [];
             foreach($row["categories"] as $rowCategory) {
@@ -161,7 +193,7 @@ class ExcelExporter
                 foreach ($fields as $field) {
                     // Override property name if a custom label was set
                     if ($property === $field->getProperty() && $field->getLabel()) {
-                         $headers[$index] = $field->getLabel();
+                        $headers[$index] = $field->getLabel();
                         // And stop iterating
                         break;
                     }
