@@ -241,7 +241,10 @@ class AnmeldungCrudController extends AbstractCrudController
         }
 
         $context = $this->getContext();
-
+        try {
+            $contextEntity = $context->getEntity();
+        } catch (\Throwable $exp) {}
+        
         $currentRuestzeit = $this->currentRuestzeitGenerator->get();
 
         yield FormField::addColumn(12);
@@ -249,8 +252,16 @@ class AnmeldungCrudController extends AbstractCrudController
         yield FormField::addPanel('Kopfdaten')->setColumns(6);
 
         if ($pageName != Crud::PAGE_INDEX) {
+            if ($pageName === Crud::PAGE_EDIT) {
+                $anmeldung = $contextEntity->getInstance();
+                $currentValue = $anmeldung->getRuestzeit();
+            } else {
+                $currentValue = $currentRuestzeit;
+            }
+
             yield AssociationField::new('ruestzeit', 'Rüstzeit')
                 ->setColumns(5)
+                ->setFormTypeOption('data', $currentValue)
                 ->setDisabled($pageName == Crud::PAGE_EDIT);
 
             yield ChoiceField::new('status', 'Status')
@@ -288,7 +299,8 @@ class AnmeldungCrudController extends AbstractCrudController
         //     ->setChoices(AnmeldungStatus::cases())
         //     ->setFormType(EnumType::class);
 
-        yield DateField::new('birthdate', 'Geburtstag')->setColumns(8);
+        yield DateField::new('birthdate', 'Geburtstag')
+            ->setColumns(8);
 
         if ($pageName != Crud::PAGE_NEW) {
             yield IntegerField::new('age', 'Alter')
@@ -393,16 +405,15 @@ class AnmeldungCrudController extends AbstractCrudController
             ->setRequired(false);
         yield TextField::new('landkreis', 'Landkreis')->setRequired(false);
 
-        yield FormField::addFieldset('Kontakt');
+        yield FormField::addFieldset('Kontakt')->setHelp('Entweder Telefon oder E-Mail ist notwendig');
 
         yield TextField::new('phone', 'Telefon')->setColumns(6);
         yield TextField::new('email', 'E-Mail')->setColumns(6);
 
-        if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_DETAIL) {
+        if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_DETAIL || $pageName === Crud::PAGE_NEW) {
             $criteria = Criteria::create()
-                ->Where(Criteria::expr()->eq('ruestzeit', $this->currentRuestzeitGenerator->get()))
-                ->orWhere(Criteria::expr()->eq('owner', $this->getUser()));
-                        
+                ->Where(Criteria::expr()->eq('ruestzeit', $this->currentRuestzeitGenerator->get()));
+
             $customFields = $this->entityManager->getRepository(CustomField::class)->matching($criteria);
 
             if (count($customFields) > 0) {
@@ -410,14 +421,18 @@ class AnmeldungCrudController extends AbstractCrudController
 
                 foreach ($customFields as $index => $field) {
 
-                    $answers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
-                        'customField' => $field,
-                        'anmeldung' => $context->getEntity()->getInstance()
-                    ]);
+                    if(!empty($contextEntity)) {
+                        $answers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
+                            'customField' => $field,
+                            'anmeldung' => $contextEntity->getInstance()
+                        ]);
+                    } else {
+                        $answers = [];
+                    }
 
                     if ($field->getType() === \App\Enum\CustomFieldType::CHECKBOX) {
                         // For checkboxes, decode JSON array
-                        $answerValue = count($answers) > 0 ? json_decode($answers[0]->getValue(), true) : [];
+                        $answerValue = !empty($answers) ? json_decode($answers[0]->getValue(), true) : [];
                         $options = $field->getOptions() ?? [];
                         yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
@@ -444,7 +459,7 @@ class AnmeldungCrudController extends AbstractCrudController
                             ]);
                     } else {
                         // For other types, get the first answer value
-                        $value = count($answers) > 0 ? $answers[0]->getValue() : '';
+                        $value = !empty($answers) ? $answers[0]->getValue() : '';
                         yield TextField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setFormTypeOptions([

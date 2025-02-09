@@ -69,7 +69,9 @@ class AnmeldungImportController extends AbstractController
 
         $alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-        $fields = FieldCollection::new($controller->configureFields(Crud::PAGE_EDIT));
+        $fields = FieldCollection::new(
+            $controller->configureFields(Crud::PAGE_NEW)
+        );
 
         /** @var FieldTrait[] $fieldObjects */
         $fieldObjects = [];
@@ -79,6 +81,9 @@ class AnmeldungImportController extends AbstractController
             /** @var FieldTrait $field */
             $fieldObjects[$field->getProperty()] = $field;
             if ($field->getCustomOption('generated')) {
+                continue;
+            }
+            if($field->getProperty() == "ruestzeit" || $field->getProperty() == "categories") {
                 continue;
             }
 
@@ -138,7 +143,9 @@ class AnmeldungImportController extends AbstractController
                 switch ($fieldObjects[$field]->getFieldFqcn()) {
                     case ChoiceField::class:
                         foreach ($fieldObjects[$field]->getCustomOptions()->get('choices') as $choiceOption) {
-                            if ($choiceOption->value == $value) {
+                            if(is_string($choiceOption) && $choiceOption == $value) {
+                                $value = $choiceOption;
+                            } elseif (!is_string($choiceOption) && $choiceOption->value == $value) {
                                 $value = $choiceOption;
                             }
                         }
@@ -193,10 +200,10 @@ class AnmeldungImportController extends AbstractController
             $spreadsheet = new Spreadsheet();
             $activeWorksheet = $spreadsheet->getActiveSheet();
             $activeWorksheet->getDefaultRowDimension()->setRowHeight(19);
-
+            
             // $controller = $this->container->get(AnmeldungCrudController::class);
 
-            $fields = FieldCollection::new($controller->configureFields(Crud::PAGE_EDIT));
+            $fields = FieldCollection::new($controller->configureFields(Crud::PAGE_NEW));
 
             $alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -205,8 +212,12 @@ class AnmeldungImportController extends AbstractController
             $fieldList = $headers = [];
             foreach ($fields as $field) {
                 /** @var FieldTrait $field */
+
                 $fieldObjects[$field->getProperty()] = $field;
                 if ($field->getCustomOption('generated')) {
+                    continue;
+                }
+                if($field->getProperty() == "ruestzeit" || $field->getProperty() == "categories") {
                     continue;
                 }
 
@@ -223,7 +234,11 @@ class AnmeldungImportController extends AbstractController
 
                         $list = [];
                         foreach ($field->getCustomOptions()->get('choices') as $value) {
-                            $list[] = $value->value;
+                            if(is_string($value)) {
+                                $list[] = $value;
+                            } else {
+                                $list[] = $value->value;
+                            }
                         }
 
                         $validation = $spreadsheet->getActiveSheet()->getCell($col . '2')
@@ -299,7 +314,7 @@ class AnmeldungImportController extends AbstractController
                     $activeWorksheet->getColumnDimension($col)->setWidth($field["width"]);
                 }
                 if (!empty($field["validator"])) {
-                    $field["validator"]->setSqref($col . '2:' . $col . '1048576');
+                    $field["validator"]->setSqref($col . '2:' . $col . '2000');
                 }
                 if (!empty($field["formatCode"])) {
                     $activeWorksheet->getStyle($col)->getNumberFormat()
@@ -314,7 +329,7 @@ class AnmeldungImportController extends AbstractController
             // format table
 
             $maxCol = substr($alphabet, count($fieldList) - 1, 1);
-            $table = new Table('A1:' . $maxCol . '1048576', 'Table1');
+            $table = new Table('A1:' . $maxCol . '100', 'Table1');
 
             // Optional: apply some styling to the table
             $tableStyle = new TableStyle();
@@ -329,7 +344,6 @@ class AnmeldungImportController extends AbstractController
             $writer = new WriterXlsx($spreadsheet);
             $writer->save('php://output');
         });
-
 
         $filename = "anmeldungen.xlsx";
 
