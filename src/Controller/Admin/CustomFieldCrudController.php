@@ -7,6 +7,7 @@ use App\Enum\CustomFieldType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -39,6 +40,8 @@ class CustomFieldCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('title', 'Frage/Label');
+        yield BooleanField::new('optional', 'Optional')
+            ->setHelp('Wenn aktiviert, muss dieses Feld nicht zwingend ausgefüllt werden');
         
         yield ChoiceField::new('type', 'Feldtyp')
             ->setChoices([

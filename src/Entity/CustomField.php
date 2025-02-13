@@ -26,6 +26,9 @@ class CustomField
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $options = null;
 
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $optional = false;
+
     #[ORM\ManyToOne(inversedBy: 'customFields')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Admin $owner = null;
@@ -77,6 +80,17 @@ class CustomField
     public function setOptions(?array $options): static
     {
         $this->options = $options;
+        return $this;
+    }
+
+    public function isOptional(): bool
+    {
+        return $this->optional;
+    }
+
+    public function setOptional(bool $optional): static
+    {
+        $this->optional = $optional;
         return $this;
     }
 

@@ -118,21 +118,21 @@ class AnmeldungType extends AbstractType
                         $builder->add($fieldName, TextType::class, [
                             'mapped' => false,
                             'label' => $customField->getTitle(),
-                            'required' => true,
+                            'required' => !$customField->isOptional(),
                         ]);
                         break;
                     case CustomFieldType::TEXTAREA:
                         $builder->add($fieldName, TextareaType::class, [
                             'mapped' => false,
                             'label' => $customField->getTitle(),
-                            'required' => true,
+                            'required' => !$customField->isOptional(),
                         ]);
                         break;
                     case CustomFieldType::DATE:
                         $builder->add($fieldName, DateType::class, [
                             'mapped' => false,
                             'label' => $customField->getTitle(),
-                            'required' => true,
+                            'required' => !$customField->isOptional(),
                             'widget' => 'single_text',
                             'html5' => false,
                             'format' => 'dd.MM.yyyy',
@@ -144,7 +144,7 @@ class AnmeldungType extends AbstractType
                         $builder->add($fieldName, ChoiceType::class, [
                             'mapped' => false,
                             'label' => $customField->getTitle(),
-                            'required' => true,
+                            'required' => !$customField->isOptional(),
                             'choices' => array_combine($options, $options),
                             'expanded' => true,
                             'multiple' => true,
@@ -155,7 +155,7 @@ class AnmeldungType extends AbstractType
                         $builder->add($fieldName, ChoiceType::class, [
                             'mapped' => false,
                             'label' => $customField->getTitle(),
-                            'required' => true,
+                            'required' => !$customField->isOptional(),
                             'choices' => array_combine($options, $options),
                             'expanded' => true,
                         ]);
