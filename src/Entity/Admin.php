@@ -33,7 +33,7 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column( type: 'string', nullable: true )]
     private ?string $password = null;
 
-    #[ORM\OneToMany(targetEntity: Ruestzeit::class, mappedBy: 'userid', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Ruestzeit::class, mappedBy: 'admin', orphanRemoval: true)]
     private Collection $ruestzeiten;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -144,7 +144,7 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if (!$this->ruestzeiten->contains($ruestzeiten)) {
             $this->ruestzeiten->add($ruestzeiten);
-            $ruestzeiten->setUserid($this);
+            $ruestzeiten->setAdmin($this);
         }
 
         return $this;
@@ -154,8 +154,8 @@ class Admin implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->ruestzeiten->removeElement($ruestzeiten)) {
             // set the owning side to null (unless already changed)
-            if ($ruestzeiten->getUserid() === $this) {
-                $ruestzeiten->setUserid(null);
+            if ($ruestzeiten->getAdmin() === $this) {
+                $ruestzeiten->setAdmin(null);
             }
         }
 

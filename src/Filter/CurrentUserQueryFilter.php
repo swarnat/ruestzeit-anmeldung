@@ -26,18 +26,34 @@ use Gedmo\SoftDeleteable\SoftDeleteableListener;
  * @final since gedmo/doctrine-extensions 3.11
  */
 class CurrentUserQueryFilter extends SQLFilter {
+    private $security;
+
+    public function setSecurity($security)
+    {
+        $this->security = $security;
+    }
 
     public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {
-        if ($targetEntity->hasAssociation("user")) {
+        if ($targetEntity->getTableName() != "location" && 
+            $targetEntity->hasAssociation("user")) {
+            if (!$this->security) {
+                return '';
+            }
 
-            // here how to get the connected user ???
-            $userID = 1;
-            return $targetTableAlias . ".user_id = '" . $userID . "'";
+            $user = $this->security->getUser();
+            if (!$user) {
+                return '';
+            }
 
+            $userId = $user->getId();
+            if (!$userId) {
+                return '';
+            }
 
+            return $targetTableAlias . ".user_id = '" . $userId . "'";
         }
         return "";
-    }    
+    }
 
 }
