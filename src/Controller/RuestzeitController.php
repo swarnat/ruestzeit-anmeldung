@@ -32,14 +32,6 @@ class RuestzeitController extends AbstractController
     ) {
     }
 
-    #[Route('/', name: 'homepage')]
-    public function index(Request $request, Environment $twig, RuestzeitRepository $ruestzeitRepository, MailerInterface $mailer): Response
-    {
-        $ruestzeit = $ruestzeitRepository->findOneBy([]);
-
-        return new RedirectResponse("/not-found");
-    }
-
     public function show(Request $request, Environment $twig, RuestzeitRepository $ruestzeitRepository, MailerInterface $mailer, String $ruestzeit_id): Response
     {
         $ruestzeit = $ruestzeitRepository->findOneBy([
