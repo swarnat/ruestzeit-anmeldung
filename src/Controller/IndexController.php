@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class IndexController extends AbstractController
 {
-    public function __construct() {}
+    public function __construct(private string $main_domain) {}
 
     
     #[Route('/_health', name: 'app_health')]
@@ -30,7 +30,10 @@ class IndexController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function home(): Response
     {
-        return $this->render('index.html.twig');
+        return $this->render('index.html.twig', 
+        [
+            "canonical" => "https://" . $this->main_domain ."/"
+        ]);
     }
 
 }

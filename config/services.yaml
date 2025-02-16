@@ -6,6 +6,7 @@
 parameters:
     aws_bucket_name: '%env(AWS_BUCKET_NAME)%'
     domain_list: '%env(DOMAINLIST)%'
+    main_domain: '%env(MAIN_DOMAIN)%'
 
 
 services:
@@ -41,6 +42,10 @@ services:
     App\Controller\Admin\RuestzeitCrudController:
         arguments:
             $domainList: '%domain_list%'
+
+    App\Controller\IndexController:
+        arguments:
+            $main_domain: '%main_domain%'
 
     App\Filter\CurrentUserFilterConfigurator:
         tags:
