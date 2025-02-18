@@ -50,7 +50,20 @@
     contrast(9);  /* make it black/white */
 
 }
+.content-header {
+  
+  max-width: calc(100vw - 300px);
+}
+.content-body thead {
+  
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
 
+  // max-width: calc(100vw - 300px);
+  // overflow:auto;
+}
 .copyright {
   font-weight:bold;
 }
