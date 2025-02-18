@@ -123,6 +123,8 @@ class Anmeldung
     #[ORM\OneToMany(targetEntity: CustomFieldAnswer::class, mappedBy: 'anmeldung', orphanRemoval: true)]
     private Collection $customFieldAnswers;
 
+    private $customFieldValues = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -530,5 +532,24 @@ class Anmeldung
         }
 
         return $this;
+    }
+
+    public function getCustomFieldAnswerValues() {
+        
+        if($this->customFieldValues === null) {
+            $this->customFieldValues  = [];
+
+            $customFieldAnswers = $this->getCustomFieldAnswers();
+            
+            foreach($customFieldAnswers as $customFieldAnswer) {
+                $customField = $customFieldAnswer->getCustomField();
+                $this->customFieldValues[$customField->getId()] = [
+                    "raw" => $customFieldAnswer->getValue(),
+                    "formatted" => $customField->formatValue($customFieldAnswer->getValue())
+                ];
+            }
+        }
+
+        return $this->customFieldValues;
     }
 }

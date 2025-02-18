@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Ruestzeit;
 use App\Enum\MealType;
 use App\Enum\AnmeldungStatus;
+use App\Enum\CustomFieldType;
 use App\Enum\PersonenTyp;
 use App\Enum\RoomType;
 use App\Generator\CurrentRuestzeitGenerator;
@@ -29,6 +30,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx as WriterXlsx;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Translation\Translator;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -39,7 +44,8 @@ class ExcelExporter
     public function __construct(
         private TranslatorInterface $translator,
         private CategoryRepository $categoryRepository,
-        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
+        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator,
+        private RequestStack $requestStack,
     )
     {}
 
@@ -52,10 +58,22 @@ class ExcelExporter
     {
         $result = $queryBuilder->getQuery()->getArrayResult();
 
+        if(empty($result)) {
+            $session = $this->requestStack->getSession();
+            
+            if ($session instanceof FlashBagAwareSessionInterface) {
+                $session->getFlashBag()->add('error', "Es konnten keine Anmeldungen für den Export gefunden werden");
+            }
+
+
+            return new RedirectResponse("/admin/anmeldung");
+        }
+
         $currentRuestzeit = $this->currentRuestzeitGenerator->get();
-
+        $customFields = $currentRuestzeit->getCustomFields();
+        $customFieldMapping = [];
         // echo "<pre>";
-
+        
         /** @var FieldTrait[] $fieldObjects */
         $fieldObjects = [];
 
@@ -64,6 +82,36 @@ class ExcelExporter
         foreach($fields as $field) {
             /** @var FieldTrait $field */
             $fieldObjects[$field->getProperty()] = $field;
+        }
+
+        foreach($customFields as $customField) {
+            $id = $customField->getId();
+
+            if($customField->getType() != CustomFieldType::CHECKBOX) {
+                
+                $columnData["customfield_" . $id] = [
+                    "index" => "customfield_" . $id,
+                    "conditionalStyles" => [],
+                    "countnotempty" => true,
+                    "wrap" => false,
+                    "width" => 35
+                ];
+
+            } else {
+                $options = $customField->getOptions();
+                
+                foreach($options as $optionIndex => $option) {
+
+                    $columnData["customfield_" . $id . "_" . $optionIndex] = [
+                        "index" => "customfield_" . $id . "_" . $optionIndex,
+                        "conditionalStyles" => [],
+                        "countnotempty" => true,
+                        "wrap" => false,
+                        "width" => 50
+                    ];
+    
+                }
+            }
         }
 
         $categories = $this->categoryRepository->findAll();
@@ -143,7 +191,7 @@ class ExcelExporter
 
                 } elseif(is_bool($columnValue)) {
                     $columnValue = $columnValue ? "Ja" : "Nein";
-                } elseif(is_array($columnValue) && in_array($columnKey, ["categories"]) !== false) {
+                } elseif(is_array($columnValue) && in_array($columnKey, ["categories", "customFieldAnswers"]) !== false) {
                     // ignore some columns, when they are relations
                     continue;
                 }
@@ -154,6 +202,48 @@ class ExcelExporter
             }
 
 
+            foreach($customFields as $customField) {
+
+                // var_dump($row["customFieldAnswers"], $customFieldId);exit();
+                $found = false;                
+                foreach($row["customFieldAnswers"] as $customFieldAnswer) {
+                    if ($customFieldAnswer["customField"]["id"] == $customField->getId()) {
+                        
+                        if($customField->getType() != CustomFieldType::CHECKBOX) {
+                            $data[$index][] = $customField->formatValue($customFieldAnswer["value"]);
+                        } else {
+                            $options = $customField->getOptions();
+                            $selectedOptions = json_decode($customFieldAnswer["value"], true);
+                            
+                            foreach($options as $option) {
+                                if(in_array($option, $selectedOptions)) {
+                                    $data[$index][] = $option;
+                                } else {
+                                    $data[$index][] = "";
+                                }
+
+                            }
+                        }
+
+                        $found = true;
+                        break;
+                    }
+                }            
+
+                if(!$found) {
+                    // When CustomField was not answered for this anmeldung
+                    if($customField->getType() != CustomFieldType::CHECKBOX) {
+                        $data[$index][] = "";
+                    } else {
+                        // When CustomField is a checkbox, then we have 1 column per option, we must fill with empty values
+                        $options = $customField->getOptions();
+                        foreach($options as $option) {
+                            $data[$index][] = "";
+                        }
+                    }
+                }
+                
+            }
 
             $tmpCategories = [];
             foreach($row["categories"] as $rowCategory) {
@@ -168,10 +258,12 @@ class ExcelExporter
                 }
             }
 
+
         }
 
+        // echo "<pre>";var_dump($data);exit();
         $conditionalStyles = [];
-        
+
         // Humanize headers based on column labels in EA
         if (isset($data[0])) {
             $headers = [];
@@ -200,11 +292,29 @@ class ExcelExporter
                 }
             }
 
+    
+            foreach($customFields as $customField) {
+
+                if($customField->getType() != CustomFieldType::CHECKBOX) {
+                    
+                    $headers['customfield_' . $customField->getId()] = $customField->getTitle();
+
+                } elseif($customField->getType() == CustomFieldType::CHECKBOX) {
+                    $options = $customField->getOptions();
+                    
+                    foreach($options as $optionIndex => $option) {
+                        $headers['customfield_' . $customField->getId() . "_" . $optionIndex] = $customField->getTitle() . " - " . $option;
+                    }
+                }
+                // $conditionalStyles[$colData["index"]] = $colData["conditionalStyles"];
+            }
+
             foreach($categoryMapping as $title => $colData) {
                 $headers[$colData["index"]] = $title;
                 $conditionalStyles[$colData["index"]] = $colData["conditionalStyles"];
             }
-    
+
+
             // Add headers to the final data array
             // array_unshift($data, $headers);
         }
@@ -239,6 +349,8 @@ class ExcelExporter
             $spreadsheet = new Spreadsheet();
             $activeWorksheet = $spreadsheet->getActiveSheet();
             
+            Calculation::getInstance($spreadsheet)->disableCalculationCache();
+
             $activeWorksheet
                 ->fromArray($headers, NULL, 'A1');
 

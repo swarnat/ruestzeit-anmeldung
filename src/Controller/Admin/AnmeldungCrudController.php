@@ -109,6 +109,12 @@ class AnmeldungCrudController extends AbstractCrudController
         $queryBuilder->leftJoin('entity.categories', 'c')
             ->addSelect("c");
 
+        $queryBuilder->leftJoin('entity.customFieldAnswers', 'ca')
+            ->addSelect("ca");
+
+        $queryBuilder->leftJoin('ca.customField', 'cf')
+            ->addSelect("cf");
+
         return $queryBuilder;
     }
 
@@ -415,6 +421,7 @@ class AnmeldungCrudController extends AbstractCrudController
         yield TextField::new('email', 'E-Mail')->setColumns(6);
 
         if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_DETAIL || $pageName === Crud::PAGE_NEW) {
+            
             $criteria = Criteria::create()
                 ->Where(Criteria::expr()->eq('ruestzeit', $this->currentRuestzeitGenerator->get()));
 
@@ -512,16 +519,18 @@ class AnmeldungCrudController extends AbstractCrudController
 
 
     #[AdminAction(routePath: '/export', routeName: 'anmeldungen_export', methods: ['GET'])]
-    public function export(AdminContext $context, ExcelExporter $csvExporter)
+    public function export(AdminContext $context, ExcelExporter $excelExporter)
     {
+
         $fields = FieldCollection::new(
             $this->configureFields(Crud::PAGE_NEW)
         );
 
         $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
+
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
 
-        return $csvExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
+        return $excelExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
     }
 
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void

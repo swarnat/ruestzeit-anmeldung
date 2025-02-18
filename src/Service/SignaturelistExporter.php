@@ -73,7 +73,10 @@ class SignaturelistExporter
 
     public function generateXLS(Ruestzeit $ruestzeit, array $fields, string $filename, array $options)
     {
-        $query = $this->entityManager->createQuery('SELECT a FROM App\Entity\Anmeldung a WHERE a.ruestzeit = ' . $ruestzeit->getId() . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' ORDER BY a.lastname, a.firstname");
+        $query = $this->entityManager->createQuery('SELECT a, cfa
+            FROM App\Entity\Anmeldung a 
+            LEFT JOIN App\Entity\CustomFieldAnser cfa
+            WHERE a.ruestzeit = ' . $ruestzeit->getId() . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' ORDER BY a.lastname, a.firstname");
         $anmeldungen = $query->getResult();
 
         $anmeldeListe = $this->getGroups($anmeldungen, $options);
@@ -156,20 +159,21 @@ class SignaturelistExporter
         exit();
     }
 
-    private function getGroups($anmeldungen, $options): array
+    private function getGroups($datalists, $options): array
     {
         $anmeldeListe = [];
 
-        foreach ($anmeldungen as $anmeldung) {
+        foreach ($datalists as $anmeldung) {
+            
             if (!empty($options["split"]) && $options["split"] != "none") {
-                $field = "get" . ucfirst($options["split"]);
-                $value = $anmeldung->$field();
+                // $field = "get" . ucfirst($options["split"]);
+                $value = $anmeldung[$options["split"]];
 
-                if (is_object($anmeldung->$field())) {
-                    $value = \Symfony\Component\Translation\t($anmeldung->$field()->value, [], 'messages')->trans($this->translator);
+                if (is_object($value)) {
+                    $value = \Symfony\Component\Translation\t($value->value, [], 'messages')->trans($this->translator);
                 }
 
-                $groupTitle = $options["group_prefix"] . " " . $value;
+                $groupTitle = trim(($options["group_prefix"] ?? "") . " " . $value);
                 if (empty($groupTitle)) continue;
             } else {
                 $groupTitle = "";
@@ -185,12 +189,61 @@ class SignaturelistExporter
         return $anmeldeListe;
     }
 
+    /**
+     * Generate Data for Signaturelist
+     *
+     * @param Anmeldungen[] $anmeldungen
+     * @param array $fields
+     * @return void
+     */
+    public function generateData($anmeldungen, array $fields, array $options) {
+        $datalist = [];
+
+        foreach($anmeldungen as $anmeldung) {
+            $row = [];
+
+            foreach($fields as $field) {
+                if(strpos($field->getProperty(), "customFieldAnswers_") === false) {
+                    $methodGetter = "get" . ucfirst($field->getProperty());
+                
+                    $tmpValue = $anmeldung->$methodGetter();
+
+                    if (is_object($tmpValue)) {
+                        $tmpValue = \Symfony\Component\Translation\t($tmpValue->value, [], 'messages')->trans($this->translator);
+                    }
+
+                    $row[$field->getProperty()] = $tmpValue;
+    
+                } else {
+                    $customFieldValues = $anmeldung->getCustomFieldAnswerValues();
+                    $customFieldId = str_replace("customFieldAnswers_", "", $field->getProperty());
+
+                    if(isset($customFieldValues[$customFieldId])) {
+                        $row[$field->getProperty()] = $customFieldValues[$customFieldId]["formatted"];
+                    } else {
+                        $row[$field->getProperty()] = "";
+                    }
+                }
+            }
+
+            if (!empty($options["split"]) && $options["split"] != "none") {
+                $methodGetter = "get" . ucfirst($options["split"]);
+                $row[$options["split"]] = $anmeldung->$methodGetter();
+            }
+
+            $datalist[] = $row;
+        }
+
+        return $datalist;
+    }
+
     public function generatePDF(Ruestzeit $ruestzeit, array $fields, string $filename, array $options)
     {
-        $query = $this->entityManager->createQuery('SELECT a FROM App\Entity\Anmeldung a WHERE a.ruestzeit = ' . $ruestzeit->getId() . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' ORDER BY a.lastname, a.firstname");
-        $anmeldungen = $query->getResult();
+        $anmeldungen = $ruestzeit->getActiveAnmeldungen();
 
-        $anmeldeListe = $this->getGroups($anmeldungen, $options);
+        $datalist = $this->generateData($anmeldungen, $fields, $options);
+
+        $anmeldeListe = $this->getGroups($datalist, $options);
 
         $template = $this->twig->render('unterschriften/signaturelist.html.twig', [
             'fields' => $fields,

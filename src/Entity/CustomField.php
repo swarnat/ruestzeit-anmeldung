@@ -145,4 +145,22 @@ class CustomField
 
         return $this;
     }
+
+    public function formatValue($value) {
+        switch($this->getType()) {
+            case \App\Enum\CustomFieldType::CHECKBOX:
+                if(is_string($value) && !empty($value)) {
+                    $value = json_decode($value, true);
+                }
+
+                if(empty($value)) {
+                    $value = [];
+                }
+
+                return implode(", ", $value);
+                break;
+            default:
+                return $value;
+        }
+    }
 }
