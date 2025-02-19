@@ -29,6 +29,9 @@ class CustomField
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $optional = false;
 
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $intern = false;
+
     #[ORM\ManyToOne(inversedBy: 'customFields')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Admin $owner = null;
@@ -91,6 +94,17 @@ class CustomField
     public function setOptional(bool $optional): static
     {
         $this->optional = $optional;
+        return $this;
+    }
+
+    public function isIntern(): bool
+    {
+        return $this->intern;
+    }
+
+    public function setIntern(bool $intern): static
+    {
+        $this->intern = $intern;
         return $this;
     }
 

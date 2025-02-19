@@ -42,6 +42,8 @@ class CustomFieldCrudController extends AbstractCrudController
         yield TextField::new('title', 'Frage/Label');
         yield BooleanField::new('optional', 'Optional')
             ->setHelp('Wenn aktiviert, muss dieses Feld nicht zwingend ausgefüllt werden');
+        yield BooleanField::new('intern', 'Internes / Admin only Feld')
+            ->setHelp('Wenn aktiviert wird dieses Feld nur in er Verwaltung dargestellt und kann vom Teilnehmer nicht selbst befüllt werden');
         
         yield ChoiceField::new('type', 'Feldtyp')
             ->setChoices([

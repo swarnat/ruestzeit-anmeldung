@@ -61,7 +61,7 @@
 							</div>
 						{% endif %}
 						{% if ruestzeit.imageUrl != "" %}
-							<a href="{{ ruestzeit.flyerUrl }}" target="_blank"tabindex="-1">
+							<a href="{{ ruestzeit.flyerUrl }}" target="_blank" tabindex="-1">
 								<img src="{{ ruestzeit.imageUrl }}" alt="Flyer zur {{ ruestzeit.title }}"/>
 							</a>
 						{% endif %}
@@ -76,14 +76,14 @@
 		</section>
 
 		{% if ruestzeit.isRegistrationActive() %}
-			
-				{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
-					<div class="notification is-primary">
-						Die Anmeldung wird am
-						{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
-						Uhr freigeschalten.
-					</div>
-				{% endif %}
+
+			{% if ruestzeit.registrationstart|date('U') > 'now'|date('U') %}
+				<div class="notification is-primary">
+					Die Anmeldung wird am
+					{{ ruestzeit.registrationstart | format_datetime(locale='de', timeFormat='short', timezone='Europe/Berlin') }}
+					Uhr freigeschalten.
+				</div>
+			{% endif %}
 
 			{% if allowRegistration %}
 				<div class="notification is-success">
@@ -105,7 +105,7 @@
 				<div class="alert alert-danger text-center" role="alert">
 
 					{% set formErrors = form.vars.errors.form.getErrors(true) %}
-					
+
 					{% if formErrors|length %}
 						<div class="notification  is-danger" role="alert">
 							Es wurden Fehler im Formular festgestellt. Bitte prüfen Sie Ihre Eingaben.
@@ -122,15 +122,15 @@
 
 					{{ form_errors(form.ruestzeit) }}
 					{# 
-
-					<div class="field" style='display:none;'>
-						<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
-						</label>
-						<div class="control">
-							{{ form_widget(form.ruestzeit) }}
-						</div>
-						<p class="help">Pflichtfeld</p>
-					</div>  #}
+					
+										<div class="field" style='display:none;'>
+											<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
+											</label>
+											<div class="control">
+												{{ form_widget(form.ruestzeit) }}
+											</div>
+											<p class="help">Pflichtfeld</p>
+										</div>  #}
 
 					<div class="columns">
 						<div class="column">
@@ -218,26 +218,26 @@
 							</div>
 
 							{% if ruestzeit.isShowMealtype() %}
-							<div class="field">
-								<label class="label">Verpflegung<sup>*</sup>
-								</label>
-								<div class="control">
-									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "ALL" or field_value(form.mealtype) == "" %}checked{% endif %}>
-										Alles
+								<div class="field">
+									<label class="label">Verpflegung<sup>*</sup>
 									</label>
-									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="51" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "VEGETARIAN" %}checked{% endif %}>
-										Vegetarisch
-									</label>
-									<label class="radio">
-										<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="52" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "VEGAN" %}checked{% endif %}>
-										Vegan
-									</label>
+									<div class="control">
+										<label class="radio">
+											<input type="radio" name="{{ field_name(form.mealtype) }}" value="ALL" required tabindex="50" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "ALL" or field_value(form.mealtype) == "" %} checked {% endif %}>
+											Alles
+										</label>
+										<label class="radio">
+											<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGETARIAN" required tabindex="51" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "VEGETARIAN" %} checked {% endif %}>
+											Vegetarisch
+										</label>
+										<label class="radio">
+											<input type="radio" name="{{ field_name(form.mealtype) }}" value="VEGAN" required tabindex="52" {{ autocomplete |raw }} {% if field_value(form.mealtype) == "VEGAN" %} checked {% endif %}>
+											Vegan
+										</label>
+									</div>
+									<p class="help">Pflichtfeld</p>
+									{{ form_errors(form.mealtype) }}
 								</div>
-								<p class="help">Pflichtfeld</p>
-								{{ form_errors(form.mealtype) }}
-							</div>
 							{% endif %}
 
 							{% if ruestzeit.isShowRoomRequest() %}
@@ -246,17 +246,17 @@
 									</label>
 									<div class="control">
 										<label class="radio">
-											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="SINGLE" required tabindex="55" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "SINGLE" %}checked{% endif %}>
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="SINGLE" required tabindex="55" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "SINGLE" %} checked {% endif %}>
 											Einzelzimmer
 										</label>
 										<label class="radio">
-											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="DOUBLE" required tabindex="56" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "DOUBLE" or field_value(form.roomRequest) == "" %}checked{% endif %}>
+											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="DOUBLE" required tabindex="56" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "DOUBLE" or field_value(form.roomRequest) == "" %} checked {% endif %}>
 											Doppelzimmer
 										</label>
 										{# <label class="radio">
-											<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "FAMILY" %}checked{% endif %}>
-											Familienzimmer
-										</label> #}
+																					<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "FAMILY" %}checked{% endif %}>
+																					Familienzimmer
+																				</label> #}
 									</div>
 									<p class="help">Pflichtfeld</p>
 									{{ form_help(form.roomRequest) }}
@@ -290,29 +290,32 @@
 
 							{# Custom Fields #}
 							{% for customField in ruestzeit.customFields %}
-								{% set fieldName = 'custom_field_' ~ customField.id %}
-								<div class="field">
-									<label class="label">{{ form_label(attribute(form, fieldName)) }}</label>
-									<div class="control">
-										{% if customField.type.value == 'input' %}
-											<input class="input" type="text" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ field_value(attribute(form, fieldName)) }}" {% if not customField.optional %}required{% endif %} {{ autocomplete |raw }}>
-										{% elseif customField.type.value == 'textarea' %}
-											<textarea class="textarea" name="{{ field_name(attribute(form, fieldName)) }}" {% if not customField.optional %}required{% endif %} {{ autocomplete |raw }}>{{ field_value(attribute(form, fieldName)) }}</textarea>
-										{% elseif customField.type.value == 'date' %}
-											<input class="input birthday_field" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ field_value(attribute(form, fieldName)) }}" type="text" placeholder="TT.MM.JJJJ" {% if not customField.optional %}required{% endif %} {{ autocomplete |raw }}>
-										{% elseif customField.type.value == 'checkbox' %}
-											{{ form_widget(attribute(form, fieldName)) }}
-										{% elseif customField.type.value == 'radio' %}
-											{% for option in customField.options %}
-												<label class="radio">
-													<input type="radio" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ option }}" {% if not customField.optional %}required{% endif %} {{ autocomplete |raw }}>
-													{{ option }}
-												</label>
-											{% endfor %}
-										{% endif %}
+								{% if not customField.intern %}
+
+									{% set fieldName = 'custom_field_' ~ customField.id %}
+									<div class="field">
+										<label class="label">{{ form_label(attribute(form, fieldName)) }}</label>
+										<div class="control">
+											{% if customField.type.value == 'input' %}
+												<input class="input" type="text" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ field_value(attribute(form, fieldName)) }}" {% if not customField.optional %} required {% endif %} {{ autocomplete |raw }}>
+											{% elseif customField.type.value == 'textarea' %}
+												<textarea class="textarea" name="{{ field_name(attribute(form, fieldName)) }}" {% if not customField.optional %} required {% endif %} {{ autocomplete |raw }}>{{ field_value(attribute(form, fieldName)) }}</textarea>
+											{% elseif customField.type.value == 'date' %}
+												<input class="input birthday_field" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ field_value(attribute(form, fieldName)) }}" type="text" placeholder="TT.MM.JJJJ" {% if not customField.optional %} required {% endif %} {{ autocomplete |raw }}>
+											{% elseif customField.type.value == 'checkbox' %}
+												{{ form_widget(attribute(form, fieldName)) }}
+											{% elseif customField.type.value == 'radio' %}
+												{% for option in customField.options %}
+													<label class="radio">
+														<input type="radio" name="{{ field_name(attribute(form, fieldName)) }}" value="{{ option }}" {% if not customField.optional %} required {% endif %} {{ autocomplete |raw }}>
+														{{ option }}
+													</label>
+												{% endfor %}
+											{% endif %}
+										</div>
+										{{ form_errors(attribute(form, fieldName)) }}
 									</div>
-									{{ form_errors(attribute(form, fieldName)) }}
-								</div>
+								{% endif %}
 							{% endfor %}
 
 						</div>
@@ -321,8 +324,7 @@
 								<label class="label">Geburtstag des Teilnehmers<sup>*</sup>
 								</label>
 								<div class="control has-icons-left">
-									<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" 
-												type="text" placeholder="TT.MM.JJJJ" tabindex="20" required {{ autocomplete |raw }}>
+									<input class="input birthday_field" name="{{ field_name(form.birthdate) }}" value="{{ field_value(form.birthdate) }}" type="text" placeholder="TT.MM.JJJJ" tabindex="20" required {{ autocomplete |raw }}>
 									<span class="icon is-small is-left">
 										<i class="fas fa-calendar"></i>
 									</span>
@@ -336,7 +338,7 @@
 									<label class="label">{{ form_label(form.schoolclass) }}<sup>*</sup>
 									</label>
 									<div class="control">
-										<input class="input"  type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="25" required {{ autocomplete |raw }}>
+										<input class="input" type="number" name="{{ field_name(form.schoolclass) }}" value="{{ field_value(form.schoolclass) }}" tabindex="25" required {{ autocomplete |raw }}>
 									</div>
 									{{ form_help(form.schoolclass) }}
 									{{ form_errors(form.schoolclass) }}
@@ -436,11 +438,11 @@
 		{% endif %}
 
 	</div>
-	<br />
+	<br/>
 	<style>
 		legend.required:after {
-			margin-left:10px;
-			color:red;
+			margin-left: 10px;
+			color: red;
 			content: "* ";
 		}
 	</style>
