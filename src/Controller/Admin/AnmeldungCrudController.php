@@ -48,6 +48,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -221,8 +222,15 @@ class AnmeldungCrudController extends AbstractCrudController
     {
 
         if ($pageName == Crud::PAGE_INDEX) {
-            yield TextField::new('lastname', 'Nachname');
-            yield TextField::new('firstname', 'Vorname');
+            yield Field::new('customAction', '')
+                ->setTemplatePath('admin/edit_anmeldung.html.twig');
+    
+            yield TextField::new('lastname', 'Nachname')
+                ->setTemplatePath('admin/anmeldung/title.html.twig');
+
+            yield TextField::new('firstname', 'Vorname')
+                ->setTemplatePath('admin/anmeldung/title.html.twig');
+                
             yield IntegerField::new('registrationPosition', 'Reg.Position');
             yield ChoiceField::new('personenTyp', 'Typ');
             yield TextField::new('roomnumber', 'Raumnummer');
@@ -253,7 +261,7 @@ class AnmeldungCrudController extends AbstractCrudController
         
         $currentRuestzeit = $this->currentRuestzeitGenerator->get();
 
-        yield FormField::addColumn(12);
+        yield FormField::addColumn($pageName == Crud::PAGE_DETAIL ? 6 : 12);
 
         yield FormField::addPanel('Kopfdaten')->setColumns(6);
 
@@ -288,6 +296,15 @@ class AnmeldungCrudController extends AbstractCrudController
                 ->setColumns(1)
                 ->setCustomOption('generated', true);
         }
+
+        if($pageName == Crud::PAGE_DETAIL) {
+        yield FormField::addColumn(6);
+
+        yield FormField::addPanel('')->setColumns(6);
+        
+        if ($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
+    }
+
 
         yield FormField::addColumn(6);
 
@@ -339,7 +356,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
         yield FormField::addFieldset();
 
-        if ($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
+        if ($pageName != Crud::PAGE_INDEX && $pageName != Crud::PAGE_DETAIL) yield TextareaField::new('notes', 'Anmerkungen');
 
         $createdAt = DateTimeField::new('createdAt', 'Erstellt am')->setFormTypeOptions([
             'years' => range(date('Y'), date('Y') + 5),

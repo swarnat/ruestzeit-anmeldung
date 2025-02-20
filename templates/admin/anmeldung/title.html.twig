@@ -1,0 +1,8 @@
+{# Display linked title in index view #}
+<a href="{{ ea_url()
+    .setController('App\\Controller\\Admin\\AnmeldungCrudController')
+    .setAction('detail')
+    .setEntityId(entity.instance.id)
+}}">
+    {{ field.value }}
+</a>
