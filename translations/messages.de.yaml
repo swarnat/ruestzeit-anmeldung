@@ -8,3 +8,8 @@ WAITLIST: 'Warteliste'
 ROOM_SINGLE: "Einzelzimmer"
 ROOM_DOUBLE: "Doppelzimmer"
 ROOM_FAMILY: "Familienzimmer"
+
+CORE_INFORMATION: "Stammdaten"
+CONTACT_INFORMATION: "Kontaktdaten"
+PAYMENT_INFORMATION: "Zahlungsdaten"
+OTHER_INFORMATION: "Sonstige Informationen"

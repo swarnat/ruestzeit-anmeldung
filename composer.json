@@ -7,6 +7,7 @@
         "php": ">=8.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "aws/aws-sdk-php-symfony": "^2.7",
         "doctrine/dbal": "^3",
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/doctrine-migrations-bundle": "^3.3",
@@ -16,7 +17,6 @@
         "endroid/qr-code-bundle": "^6.0",
         "handcraftedinthealps/goodby-csv": "^1.4",
         "mpdf/mpdf": "^8.2",
-        "aws/aws-sdk-php-symfony": "^2.7",
         "php-flasher/flasher-symfony": "^1.15",
         "php-flasher/flasher-toastr-symfony": "^1.15",
         "phpdocumentor/reflection-docblock": "^5.3",
@@ -51,8 +51,8 @@
         "symfony/ux-turbo": "^2.16",
         "symfony/validator": "7.2.*",
         "symfony/web-link": "7.2.*",
-        "symfony/webpack-encore-bundle": "^2.1",
         "symfony/yaml": "7.2.*",
+        "symfonycasts/sass-bundle": "^0.8.2",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/intl-extra": "^3.8",
         "twig/twig": "^2.12|^3.0"
@@ -116,6 +116,7 @@
         "symfony/maker-bundle": "^1.56",
         "symfony/phpunit-bridge": "^7.0",
         "symfony/stopwatch": "7.2.*",
+        "symfony/var-dumper": "7.2.*",
         "symfony/web-profiler-bundle": "7.2.*"
     }
 }

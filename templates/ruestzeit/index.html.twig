@@ -10,7 +10,7 @@
 
 {% block body %}
 
-	<div class="container">
+	<div class="container is-max-desktop" {{ stimulus_controller('ruestzeit') }}>
 		<h1 class="title" tabindex="-1">{{ ruestzeit.title }}</h1>
 
 		<section class="mb-5 entry_description_outer">
@@ -421,8 +421,15 @@
 					</div>
 					{{ form_widget(form._token) }}
 
-					<button class="button is-success">Anmeldung absenden</button>
-					<div style="width:calc(100% - 200px); display:inline-block; padding-left:25px;">
+					<button class="button is-success">
+						<span class="icon is-small">
+							<i class="fas fa-check"></i>
+						</span>				
+						<span>	
+							Anmeldung absenden
+						</soan>
+					</button>
+					<div style="width:calc(100% - 250px); display:inline-block; padding-left:25px;">
 						<label>
 							<input type="checkbox" name="repeat_process" value="1">
 							Ich möchte im Anschluss einen weiteren Teilnehmer mit ähnlichen Angaben anmelden.<br/>

@@ -3,7 +3,7 @@
         "@ehyiah/ux-quill": {
             "quill": {
                 "enabled": true,
-                "fetch": "eager",
+                "fetch": "lazy",
                 "autoimport": {
                     "quill/dist/quill.snow.css": true,
                     "quill/dist/quill.bubble.css": true

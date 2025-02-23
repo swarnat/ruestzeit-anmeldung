@@ -1,0 +1,61 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Spalten Konfiguration für
+	{{ currentRuestzeit.title }}
+{% endblock %}
+
+{% block main %}
+	<div class="content" {{ stimulus_controller('column-config') }}>
+		<div class="alert alert-info">
+			Wählen Sie die Spalten aus, die Sie in der Übersicht sehen möchten. Sie können die Reihenfolge durch Ziehen und Ablegen ändern.<br/>
+			Dies ist Ihre persönliche Konfiguration und ausschließlich bezogen auf die aktuell gewählte Rüstzeit.
+		</div>
+
+		<form method="post" action="{{ path('admin_anmeldung_column_config_save') }}">
+			<div class="card">
+				<div class="card-body">
+					<div id="sortableColumns" class="list-group" {{ stimulus_target('column-config', 'list') }}>
+						{% for index, field in flatColumns %}
+							<div class="list-group-item" draggable="true">
+								<div class="form-check">
+									<input type="checkbox" class="form-check-input" name="columns[]" value="{{ field.field }}" id="check_{{ field.field }}" {% if field.enabled %} checked {% endif %}>
+									<input type="hidden" class="form-check-input" name="available_columns[]" value="{{ field.field }}"/>
+									<label class="form-check-label" for="check_{{ field.field }}">
+										<strong>{{ field.label }}</strong>
+										-
+										<em>{{ field.group }}</em>
+									</label>
+									<i class="fas fa-grip-vertical float-end text-muted"></i>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+
+			<div class="mt-3">
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save"></i>
+					Speichern
+				</button>
+
+				<a href="{{ ea_url() .setController('App\\\\Controller\\\\Admin\\\\AnmeldungCrudController') .setAction('index') }}" class="btn btn-secondary">
+					<i class="fas fa-times"></i>
+					Abbrechen
+				</a>
+			</div>
+		</form>
+	</div>
+
+	<style>
+		.list-group-item {
+			cursor: move;
+		}
+		.list-group-item.dragging {
+			opacity: 0.5;
+		}
+		.list-group-item:hover {
+			background-color: #f8f9fa;
+		}
+	</style>
+	{% endblock %}

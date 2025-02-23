@@ -12,12 +12,12 @@
  * The "importmap:require" command can be used to add new entries to this file.
  */
 return [
-    'app' => [
-        'path' => './assets/app.js',
+    'frontend-app' => [
+        'path' => './assets/frontend/app.js',
         'entrypoint' => true,
     ],
-    'quill-admin' => [
-        'path' => './assets/quill-admin.js',
+    'backend-app' => [
+        'path' => './assets/backend/app.js',
         'entrypoint' => true,
     ],
     '@hotwired/stimulus' => [
@@ -109,5 +109,39 @@ return [
     ],
     'quill-resize-image' => [
         'version' => '1.0.4',
+    ],
+    'bulma/css/bulma.min.css' => [
+        'version' => '1.0.3',
+        'type' => 'css',
+    ],
+    'imask' => [
+        'version' => '7.6.1',
+    ],
+    'toastr' => [
+        'version' => '2.1.4',
+    ],
+    'jquery' => [
+        'version' => '3.7.1',
+    ],
+    'toastr/build/toastr.min.css' => [
+        'version' => '2.1.4',
+        'type' => 'css',
+    ],
+    'tom-select' => [
+        'version' => '2.4.3',
+    ],
+    '@orchidjs/sifter' => [
+        'version' => '1.1.0',
+    ],
+    '@orchidjs/unicode-variants' => [
+        'version' => '1.1.2',
+    ],
+    'tom-select/dist/css/tom-select.default.min.css' => [
+        'version' => '2.4.3',
+        'type' => 'css',
+    ],
+    '@fortawesome/fontawesome-free/css/all.css' => [
+        'version' => '6.7.2',
+        'type' => 'css',
     ],
 ];

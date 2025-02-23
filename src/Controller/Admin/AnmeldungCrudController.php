@@ -9,6 +9,7 @@ use App\Entity\Category;
 use App\Entity\CustomField;
 use App\Entity\CustomFieldAnswer;
 use App\Entity\Ruestzeit;
+use App\Entity\UserColumnConfig;
 use App\Enum\AnmeldungStatus;
 use App\Enum\MealType;
 use App\Enum\PersonenTyp;
@@ -66,7 +67,9 @@ use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -147,6 +150,12 @@ class AnmeldungCrudController extends AbstractCrudController
 
     public function configureActions(Actions $actions): Actions
     {
+        $configureColumnsAction = Action::new('configureColumns', 'Spalten konfigurieren')
+            ->linkToRoute('admin_anmeldung_column_config')
+            ->createAsGlobalAction()
+            ->setIcon('fa fa-columns')
+            ->setCssClass('btn btn-secondary');
+
         $exportAction = Action::new('export')
             ->linkToUrl(function () {
                 $request = $this->requestStack->getCurrentRequest();
@@ -154,92 +163,62 @@ class AnmeldungCrudController extends AbstractCrudController
                     ->setAction('export')
                     ->generateUrl();
             })
-            // ... line 81
             ->setIcon('fa fa-download')
+            ->createAsGlobalAction();
 
-            ->createAsGlobalAction();
-        /*
-        $signaturelistAction = Action::new('signaturelist', "Unterschriftenliste")
-            ->linkToUrl(function () {
-                $request = $this->requestStack->getCurrentRequest();
-                return $this->adminUrlGenerator->setAll($request->query->all())
-                    ->setAction('signaturelist')
-                    ->generateUrl();
-            })
-            // ... line 81
-            ->setIcon('fa fa-download')
-            ->createAsGlobalAction();
-*/
         $cancelAction = Action::new('cancel', "Stornieren")
             ->linkToCrudAction('anmeldungen_cancel')
             ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])
             ->setIcon('fa fa-cancel')
-            ->setCssClass('btn btn-danger')
-            // ->setTemplatePath('CancelAction.html.twig')
-        ;
+            ->setCssClass('btn btn-danger');
 
-
-
-        /** @var \EasyCorp\Bundle\EasyAdminBundle\Config\Actions $actions */
         return parent::configureActions($actions)
-            // ->update(Crud::PAGE_INDEX, Action::DELETE, static function(Action $action) {
-            //     $action->displayIf(static function (Anmeldung $question) {
-            //         // always display, so we can try via the subscriber instead
-            //         return true;
-            //         //return !$question->getIsApproved();
-            //     });
-            // })
-            // ->setPermission(Action::INDEX, 'ROLE_MODERATOR')
-            // ->setPermission(Action::DETAIL, 'ROLE_MODERATOR')
-            // ->setPermission(Action::EDIT, 'ROLE_MODERATOR')
-            // ->setPermission(Action::NEW, 'ROLE_SUPER_ADMIN')
-            // ->setPermission(Action::DELETE, 'ROLE_SUPER_ADMIN')
-            // ->setPermission(Action::BATCH_DELETE, 'ROLE_SUPER_ADMIN')
-            // ->add(Crud::PAGE_DETAIL, $viewAction)
-            // ->add(Crud::PAGE_INDEX, $viewAction)
-            // ->add(Crud::PAGE_DETAIL, $approveAction)
-
             ->remove(Crud::PAGE_INDEX, "delete")
-
+            ->add(Crud::PAGE_INDEX, $configureColumnsAction)
             ->add(Crud::PAGE_INDEX, $exportAction)
-
-            // ->add(Crud::PAGE_INDEX, $signaturelistAction)
             ->add(Crud::PAGE_INDEX, $cancelAction)
-            ->reorder(Crud::PAGE_INDEX, ["edit", "cancel"]);
+            ->reorder(Crud::PAGE_INDEX, ["configureColumns", "edit", "cancel"]);
     }
 
-
-    public function createEntity(string $entityFqcn)
+    public function configureIndexFields()
     {
-        $entity = parent::createEntity($entityFqcn);
+        // Get user's column configuration
+        $config = $this->getUserColumnConfig();
 
-        $entity->setAgbAgree(true);
-        $entity->setDsgvoAgree(true);
-        return $entity;
-    }
+        if ($config && !empty($config->getColumns())) {
+            $columns = $config->getColumns();
 
-    public function configureFields(string $pageName, ?AdminContext $context = null): iterable
-    {
+            // Sort columns by order
+            usort($columns, function ($a, $b) {
+                return $a['order'] <=> $b['order'];
+            });
 
-        if ($pageName == Crud::PAGE_INDEX) {
             yield Field::new('customAction', '')
                 ->setTemplatePath('admin/edit_anmeldung.html.twig');
-    
+
+            // Only show enabled columns in the configured order
+            foreach ($columns as $column) {
+                if ($column['enabled']) {
+                    yield $this->getIndexFieldForColumn($column['field']);
+                }
+            }
+        } else {
+            // Default columns if no configuration exists
+            yield Field::new('customAction', '')
+                ->setTemplatePath('admin/edit_anmeldung.html.twig');
+
             yield TextField::new('lastname', 'Nachname')
                 ->setTemplatePath('admin/anmeldung/title.html.twig');
 
             yield TextField::new('firstname', 'Vorname')
                 ->setTemplatePath('admin/anmeldung/title.html.twig');
-                
+
             yield IntegerField::new('registrationPosition', 'Reg.Position');
             yield ChoiceField::new('personenTyp', 'Typ');
             yield TextField::new('roomnumber', 'Raumnummer');
-            yield IntegerField::new('age', 'Alter');
 
             yield ChoiceField::new('mealtype', 'Verpflegung');
-
             yield ChoiceField::new('roomRequest', 'Raumwunsch');
-
             yield BooleanField::new('prepayment_done', 'Anzahlung');
             yield BooleanField::new('payment_done', 'Zahlung ok');
 
@@ -250,6 +229,17 @@ class AnmeldungCrudController extends AbstractCrudController
             $createdAt->setTimezone("Europe/Berlin");
             $createdAt->setFormTypeOption('view_timezone', "Europe/Berlin");
             yield $createdAt;
+        }
+    }
+
+    public function configureFields(string $pageName, ?AdminContext $context = null): iterable
+    {
+        if ($pageName == Crud::PAGE_INDEX) {
+            $fields = $this->configureIndexFields();
+
+            foreach($fields as $field) {
+                yield $field;
+            }
 
             return;
         }
@@ -257,8 +247,9 @@ class AnmeldungCrudController extends AbstractCrudController
         $context = $this->getContext();
         try {
             $contextEntity = $context->getEntity();
-        } catch (\Throwable $exp) {}
-        
+        } catch (\Throwable $exp) {
+        }
+
         $currentRuestzeit = $this->currentRuestzeitGenerator->get();
 
         yield FormField::addColumn($pageName == Crud::PAGE_DETAIL ? 6 : 12);
@@ -297,13 +288,13 @@ class AnmeldungCrudController extends AbstractCrudController
                 ->setCustomOption('generated', true);
         }
 
-        if($pageName == Crud::PAGE_DETAIL) {
-        yield FormField::addColumn(6);
+        if ($pageName == Crud::PAGE_DETAIL) {
+            yield FormField::addColumn(6);
 
-        yield FormField::addPanel('')->setColumns(6);
-        
-        if ($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
-    }
+            yield FormField::addPanel('')->setColumns(6);
+
+            if ($pageName != 'index') yield TextareaField::new('notes', 'Anmerkungen');
+        }
 
 
         yield FormField::addColumn(6);
@@ -438,7 +429,7 @@ class AnmeldungCrudController extends AbstractCrudController
         yield TextField::new('email', 'E-Mail')->setColumns(6);
 
         if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_DETAIL || $pageName === Crud::PAGE_NEW) {
-            
+
             $criteria = Criteria::create()
                 ->Where(Criteria::expr()->eq('ruestzeit', $this->currentRuestzeitGenerator->get()));
 
@@ -449,7 +440,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
                 foreach ($customFields as $index => $field) {
 
-                    if(!empty($contextEntity)) {
+                    if (!empty($contextEntity)) {
                         $answers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
                             'customField' => $field,
                             'anmeldung' => $contextEntity->getInstance()
@@ -462,7 +453,7 @@ class AnmeldungCrudController extends AbstractCrudController
                         // For checkboxes, decode JSON array
                         $answerValue = !empty($answers) ? json_decode($answers[0]->getValue(), true) : [];
                         $options = $field->getOptions() ?? [];
-                        yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
+                        yield ChoiceField::new('customFieldAnswers_' . $field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setChoices(array_combine($options, $options))
                             ->setCustomOption("customfield", true)
@@ -476,7 +467,7 @@ class AnmeldungCrudController extends AbstractCrudController
                     } elseif ($field->getType() === \App\Enum\CustomFieldType::RADIO) {
                         $answerValues = array_map(fn($answer) => $answer->getValue(), $answers);
                         $options = $field->getOptions() ?? [];
-                        yield ChoiceField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
+                        yield ChoiceField::new('customFieldAnswers_' . $field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setChoices(array_combine($options, $options))
                             ->setCustomOption("customfield", true)
@@ -490,7 +481,7 @@ class AnmeldungCrudController extends AbstractCrudController
                     } else {
                         // For other types, get the first answer value
                         $value = !empty($answers) ? $answers[0]->getValue() : '';
-                        yield TextField::new('customFieldAnswers_'.$field->getId(), $field->getTitle())
+                        yield TextField::new('customFieldAnswers_' . $field->getId(), $field->getTitle())
                             ->setColumns(6)
                             ->setCustomOption("customfield", true)
                             ->setFormTypeOptions([
@@ -502,6 +493,84 @@ class AnmeldungCrudController extends AbstractCrudController
                 }
             }
         }
+    }
+
+    private function getIndexFieldForColumn(string $fieldName)
+    {
+        switch ($fieldName) {
+            case 'customAction':
+                return Field::new('customAction', '')
+                    ->setTemplatePath('admin/edit_anmeldung.html.twig');
+            case 'lastname':
+                return TextField::new('lastname', 'Nachname')
+                    ->setTemplatePath('admin/anmeldung/title.html.twig');
+            case 'firstname':
+                return TextField::new('firstname', 'Vorname')
+                    ->setTemplatePath('admin/anmeldung/title.html.twig');
+            case 'registrationPosition':
+                return IntegerField::new('registrationPosition', 'Reg.Position');
+            case 'notes':
+                return TextareaField::new('notes', 'Anmerkungen');
+            case 'status':
+                return ChoiceField::new('status', 'Status')
+                    ->setChoices(AnmeldungStatus::cases());
+
+            case 'birthdate':
+                return DateField::new('birthdate', 'Geburtstag');
+            case 'personenTyp':
+                return ChoiceField::new('personenTyp', 'Typ');
+            case 'roomnumber':
+                return TextField::new('roomnumber', 'Raumnummer');
+            case 'schoolclass':
+                return TextField::new('schoolclass', 'Schulklasse');
+            case 'email':
+                return TextField::new('email', 'E-Mail');
+            case 'phone':
+                return TextField::new('phone', 'Telefon');
+            case 'address':
+                return TextField::new('address', 'Strasse');
+            case 'roommate':
+                return TextField::new('roommate', 'Zimmerpartner');
+            case 'categories':
+                return CategorySelectionField::new("categories", "Kategorien");
+            case 'landkreis':
+                return TextField::new('landkreis', 'Landkreis');
+            case 'postalcode':
+                return TextField::new('postalcode', 'PLZ');
+            case 'city':
+                return TextField::new('city', 'Stadt');
+            case 'age':
+                return IntegerField::new('age', 'Alter');
+            case 'mealtype':
+                return ChoiceField::new('mealtype', 'Verpflegung');
+            case 'roomRequest':
+                return ChoiceField::new('roomRequest', 'Raumwunsch');
+            case 'prepayment_done':
+                return BooleanField::new('prepayment_done', 'Anzahlung');
+            case 'payment_done':
+                return BooleanField::new('payment_done', 'Zahlung ok');
+            case 'createdAt':
+                $field = DateTimeField::new('createdAt', 'Anmeldung am')
+                    ->setFormTypeOptions([
+                        'years' => range(date('Y'), date('Y') + 5),
+                        'widget' => 'single_text',
+                    ]);
+                $field->setTimezone("Europe/Berlin");
+                $field->setFormTypeOption('view_timezone', "Europe/Berlin");
+                return $field;
+            default:
+                var_dump($fieldName);exit();
+                return null;
+        }
+    }
+
+    private function getUserColumnConfig(): ?UserColumnConfig
+    {
+        return $this->entityManager->getRepository(UserColumnConfig::class)
+            ->findForUserAndRuestzeit(
+                $this->getUser(),
+                $this->currentRuestzeitGenerator->get()
+            );
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -544,9 +613,7 @@ class AnmeldungCrudController extends AbstractCrudController
         );
 
         $filters = $this->container->get(FilterFactory::class)->create($context->getCrud()->getFiltersConfig(), $fields, $context->getEntity());
-
         $queryBuilder = $this->createIndexQueryBuilder($context->getSearch(), $context->getEntity(), $fields, $filters);
-
         return $excelExporter->createResponseFromQueryBuilder($queryBuilder, $fields, 'Anmeldungen.xlsx');
     }
 
@@ -562,7 +629,7 @@ class AnmeldungCrudController extends AbstractCrudController
 
         foreach ($customFields as $field) {
             $fieldName = 'customFieldAnswers_' . $field->getId();
-            
+
             // Remove existing answers
             $existingAnswers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
                 'customField' => $field,
@@ -575,7 +642,7 @@ class AnmeldungCrudController extends AbstractCrudController
             // Add new answers if value exists
             if (isset($formData['Anmeldung'][$fieldName])) {
                 $formValue = $formData['Anmeldung'][$fieldName];
-                
+
                 // Skip empty values
                 if ($formValue === '' || $formValue === null || $formValue === []) {
                     continue;
@@ -605,7 +672,7 @@ class AnmeldungCrudController extends AbstractCrudController
     #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
     public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
     {
-        $fields = FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context));
+        $fields = iterator_to_array(FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context)));
         $ruestzeit = $ruestzeitRepository->findOneBy([]);
         return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf', []);
     }

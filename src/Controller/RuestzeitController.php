@@ -230,8 +230,6 @@ class RuestzeitController extends AbstractController
                     ->timeOut(10000)
                     ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', "Fehler");
             }
-        } else {
-            $initialcToken = "222";
         }
 
         return new Response($twig->render('ruestzeit/index.html.twig', [

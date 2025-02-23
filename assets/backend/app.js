@@ -1,7 +1,12 @@
 // 
-import './styles/admin.scss';
-import axios from 'axios';
-import TomSelect from "tom-select/dist/js/tom-select.complete.min";
+import "./bootstrap.js"
+
+import './styles/admin.scss'; 
+
+import TomSelect from 'tom-select'
+
+// import axios from 'axios';
+// import TomSelect from "tom-select/dist/js/tom-select.complete.min";
 
 window.addEventListener("load", function () {
   var checkboxes = document.getElementsByClassName("categoryAssignment");

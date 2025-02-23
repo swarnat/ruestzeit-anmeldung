@@ -2,6 +2,7 @@
 
 {# DO THIS: the '!' symbol tells Symfony to extend from the original template #}
 {% extends '@!EasyAdmin/layout.html.twig' %}
+
 {% set current_ruestzeit = current_ruestzeit_service.get %}
 {% set admin_color = current_ruestzeit.getAdminColor %}
 
@@ -31,4 +32,8 @@
 		}
 	</style>
 	{% endif %}	
+{% endblock %}
+
+{% block importmap %}
+	{{ importmap('backend-app') }}
 {% endblock %}
