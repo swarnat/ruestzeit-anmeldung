@@ -1,0 +1,9 @@
+{# Display custom field value in index view #}
+{% set customFieldId = field.property|replace({'customfieldanswer_': ''}) %}
+{% set customFieldValues = entity.instance.customFieldAnswerValues %}
+
+{% if customFieldValues[customFieldId] is defined %}
+    {{ customFieldValues[customFieldId].formatted }}
+{% else %}
+    -
+{% endif %}
