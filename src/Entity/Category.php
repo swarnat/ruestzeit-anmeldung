@@ -30,6 +30,10 @@ class Category
     #[ORM\ManyToOne(inversedBy: 'categories')]
     private ?Admin $user = null;
 
+    #[ORM\ManyToOne(inversedBy: 'categories')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Ruestzeit $ruestzeit = null;
+
     #[ORM\Column(length: 8, nullable: true)]
     private ?string $textcolor = null;
 
@@ -119,6 +123,18 @@ class Category
     public function setTextcolor(?string $textcolor): static
     {
         $this->textcolor = $textcolor;
+
+        return $this;
+    }
+
+    public function getRuestzeit(): ?Ruestzeit
+    {
+        return $this->ruestzeit;
+    }
+
+    public function setRuestzeit(?Ruestzeit $ruestzeit): static
+    {
+        $this->ruestzeit = $ruestzeit;
 
         return $this;
     }

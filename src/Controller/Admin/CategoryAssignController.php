@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Anmeldung;
 use App\Entity\Category;
 use App\Enum\AnmeldungStatus;
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\AnmeldungRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\RuestzeitRepository;
@@ -42,17 +43,21 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class CategoryAssignController extends AbstractController
 {
-    #[Route('/category/assignment-ui', name: 'teilnehmer_cat_assignments')]
+    #[Route('/category-assignment-ui', name: 'teilnehmer_cat_assignments')]
     public function index(
         Request $request,
         CategoryRepository $categoryRepository,
-        RuestzeitRepository $ruestzeitRepository
+        CurrentRuestzeitGenerator $currentRuestzeitGenerator
     ): Response
     {
-        $categories = $categoryRepository->findBy(["id" => $request->get("batchActionEntityIds", [])]);
+        $ruestzeit = $currentRuestzeitGenerator->get();
+        $categories = $ruestzeit->getCategories();
 
-        $ruestzeit = $ruestzeitRepository->findOneBy([]);
+        if (!$ruestzeit) {
+            throw new \Exception('No Ruestzeit found');
+        }
 
+        // Only show anmeldungen from the current Ruestzeit
         $anmeldungen = $ruestzeit->getActiveAnmeldungen();
 
         return $this->render('categories/assign.html.twig', [

@@ -3,6 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Category;
+use App\Entity\Ruestzeit;
+use App\Generator\CurrentRuestzeitGenerator;
+use App\Repository\RuestzeitRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -26,8 +29,33 @@ class CategoryCrudController extends AbstractCrudController
         return Category::class;
     }
 
+    private RuestzeitRepository $ruestzeitRepository;
+
+    public function __construct(
+        private CurrentRuestzeitGenerator $currentRuestzeitGenerator
+        )
+    {
+        
+    }
+
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): ORMQueryBuilder
+    {
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+        
+        // Get the current Ruestzeit
+        $currentRuestzeit = $this->getCurrentRuestzeit();
+        
+        if ($currentRuestzeit) {
+            $queryBuilder
+                ->andWhere('entity.ruestzeit = :ruestzeit')
+                ->setParameter('ruestzeit', $currentRuestzeit);
+        }
+        
+        return $queryBuilder;
+    }
+
     public function configureActions(Actions $actions): Actions
-    {;
+    {
         $assignAction = Action::new('Zuweisungen')
             ->linkToRoute('teilnehmer_cat_assignments')
             // ... line 81
@@ -75,9 +103,25 @@ class CategoryCrudController extends AbstractCrudController
     public function createEntity(string $entityFqcn) {
         $entity = new Category();
         $entity->setUser($this->getUser());
+        
+        // Set the current Ruestzeit
+        $currentRuestzeit = $this->getCurrentRuestzeit();
+        if ($currentRuestzeit) {
+            $entity->setRuestzeit($currentRuestzeit);
+        }
 
         return $entity;
-    }     
+    }
+    
+    private function getCurrentRuestzeit(): ?Ruestzeit
+    {
+        // Get the current Ruestzeit from the session or a default one
+        // This is a simplified example - you might want to implement a more sophisticated
+        // way to determine the "current" Ruestzeit based on your application's logic
+        
+        // For now, we'll just get the first one as an example
+        return $this->currentRuestzeitGenerator->get();
+    }
 
 
 }
