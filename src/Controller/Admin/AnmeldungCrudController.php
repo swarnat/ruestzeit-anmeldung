@@ -19,6 +19,7 @@ use App\FieldTypes\CategorySelectionType;
 use App\FieldTypes\TagType;
 use App\Filter\LandkreisFilter;
 use App\Generator\CurrentRuestzeitGenerator;
+use App\Repository\CustomFieldRepository;
 use App\Repository\RuestzeitRepository;
 use App\Service\CsvExporter;
 use App\Service\ExcelExporter;
@@ -79,7 +80,8 @@ class AnmeldungCrudController extends AbstractCrudController
         protected AdminUrlGenerator $adminUrlGenerator,
         protected RequestStack $requestStack,
         protected EntityManagerInterface $entityManager,
-        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator
+        protected CurrentRuestzeitGenerator $currentRuestzeitGenerator,
+        protected CustomFieldRepository $customFieldRepository
     ) {}
 
     public function createEditForm(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormInterface
@@ -559,6 +561,16 @@ class AnmeldungCrudController extends AbstractCrudController
                 $field->setFormTypeOption('view_timezone', "Europe/Berlin");
                 return $field;
             default:
+                if(strpos($fieldName, "customfieldanswer_") !== false) {
+                    $parts = explode("_", $fieldName);
+                    
+                    $customFieldId = $parts[1];
+                    $customField = $this->customFieldRepository->find($customFieldId);
+
+                    return TextField::new('customfieldanswer_' . $customFieldId, $customField->getTitle())
+                        ->setTemplatePath('admin/anmeldung/custom_field.html.twig');
+                }
+
                 var_dump($fieldName);exit();
                 return null;
         }

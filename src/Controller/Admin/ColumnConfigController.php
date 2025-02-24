@@ -25,10 +25,11 @@ class ColumnConfigController extends AbstractController
     #[Route('/admin/anmeldungen-fields', name: 'admin_anmeldung_column_config')]
     public function index(): Response
     {
+        $currentRuestzeit = $this->currentRuestzeitGenerator->get();
         $config = $this->entityManager->getRepository(UserColumnConfig::class)
             ->findForUserAndRuestzeit(
                 $this->getUser(),
-                $this->currentRuestzeitGenerator->get()
+                $currentRuestzeit
             );
 
         // Define the base structure
@@ -64,8 +65,14 @@ class ColumnConfigController extends AbstractController
                 'createdAt' => 'Erstellt am',
                 'notes' => 'Anmerkungen',
                 'categories' => 'Kategorien',
-            ]
+            ],
+            "CUSTOM_INFORMATION" => []
         ];
+
+        $customFields = $currentRuestzeit->getCustomFields();
+        foreach($customFields as $customField) {
+            $allAvailableColumns["CUSTOM_INFORMATION"]["customfieldanswer_" . $customField->getId()] = $customField->getTitle();
+        }
 
         if(!empty($config)) {
             $configuredFields = $config->getColumns();
