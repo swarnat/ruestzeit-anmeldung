@@ -98,7 +98,7 @@ class SignatureController extends AbstractController
             }
         }
 
-        $ruestzeit = $ruestzeitRepository->findOneBy([]);
+        $ruestzeit = $this->currentRuestzeitGenerator->get();
 
         if ($format == "xls") {
             $exporter->generateXLS($ruestzeit, $reportFields, 'Unterschriften.xlsx', $options);
