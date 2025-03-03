@@ -12,6 +12,7 @@ use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use App\Service\PostalcodeService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -30,7 +31,8 @@ class RuestzeitController extends AbstractController
         private EntityManagerInterface $entityManager,
         private PostalcodeService $postalcodeService,
         private CurrentRuestzeitGenerator $currentRuestzeitGenerator,
-        private KernelInterface $appKernel
+        private KernelInterface $appKernel,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -79,6 +81,8 @@ class RuestzeitController extends AbstractController
                 $ruestzeit->isRegistrationActive() === false
             ) {
                 $error = true;
+
+                $this->logger->error('Registration received, but registration is disabled');
             }
 
             if (empty($error)) {
@@ -179,6 +183,7 @@ class RuestzeitController extends AbstractController
 
                             $debug = $mailer->send($email);
                         } catch (\Exception $e) {
+                            $this->logger->error($e->getMessage());
                             // some error prevented the email sending; display an
                             // error message or try to resend the message
                         }
@@ -219,6 +224,8 @@ class RuestzeitController extends AbstractController
                         return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), ]);
                     }
                 } else {
+                    $this->logger->notice("Captcha Check not success");
+
                     $initialcToken = "222";
                     toastr()
                         ->positionClass('toast-top-center toast-full-width')
@@ -226,6 +233,8 @@ class RuestzeitController extends AbstractController
                         ->addError('Fehler bei der Verarbeitung. Bitte erneut versuchen', "Fehler");
                 }
             } else {
+                $this->logger->notice("Error with data during registration");
+
                 $initialcToken = "222";
                 toastr()
                     ->positionClass('toast-top-center toast-full-width')

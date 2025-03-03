@@ -681,13 +681,13 @@ class AnmeldungCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
-    #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
-    public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
-    {
-        $fields = iterator_to_array(FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context)));
-        $ruestzeit = $ruestzeitRepository->findOneBy([]);
-        return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf', []);
-    }
+    // #[AdminAction(routePath: '/{entityId}/signatures', routeName: 'anmeldungen_signaturelist', methods: ['GET'])]
+    // public function signaturelist(AdminContext $context, SignaturelistExporter $csvExporter, RuestzeitRepository $ruestzeitRepository)
+    // {
+    //     $fields = iterator_to_array(FieldCollection::new($this->configureFields(Crud::PAGE_EDIT, $context)));
+    //     $ruestzeit = $this->currentRuestzeitGenerator->get();
+    //     return $csvExporter->generatePDF($ruestzeit, $fields, 'Unterschriften.pdf', []);
+    // }
 
     #[AdminAction(routePath: '/{entityId}/cancel', routeName: 'anmeldungen_cancel', methods: ['GET'])]
     public function anmeldungen_cancel(AdminContext $context, UrlGeneratorInterface $urlGenerator)

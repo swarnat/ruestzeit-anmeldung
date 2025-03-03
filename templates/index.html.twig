@@ -2,6 +2,10 @@
 
 {%- block title -%}PlanFreizeit - Das Tool für eure Rüstzeit{%- endblock -%}
 
+{% block importmap %}
+	{{ importmap('frontend-app') }}
+{% endblock %}
+
 {% block stylesheets %}
 	{{ parent() }}
 	<style>
