@@ -12,3 +12,12 @@ import 'imask';
 
 import 'toastr';
 
+
+window.fillForm = function() {
+    const randomId = Math.round(Math.random() * 10000)
+    
+    document.querySelector('[data-checkname="firstname"]').value = "FirstName " + randomId
+    document.querySelector('[data-checkname="lastname"]').value = "LastName " + randomId
+    document.querySelector('[name="anmeldung[phone]"]').value = "0123/45678"
+    console.log(randomId)
+  }
