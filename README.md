@@ -6,6 +6,10 @@ php bin/console doctrine:schema:update --force
 
 php bin/console doctrine:migrations:migrate --no-interaction
 
+## Compile Assets
+
+php bin/console asset-map:compile
+
 ## Maintenance Mode
 
 Create a file .maintenance in Root directory to disable the frontend functions completely.  

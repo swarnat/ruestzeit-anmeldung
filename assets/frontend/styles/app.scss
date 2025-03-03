@@ -185,3 +185,26 @@ div.bottom_version {
   font-size:12px;
   padding:5px 0;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bulma-label-color: white !important;
+  }
+  .entry_description_outer {
+    background-color:#222222;
+  }
+  .entry_location_details {
+    border-color:black;
+    background-color: black;
+  }
+  body {
+    background-color:black;
+  }
+  .label {
+    color:white;
+  }
+
+  .input, .select select, .textarea {
+    background-color:#000 !important;
+  }
+}
