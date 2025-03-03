@@ -1,0 +1,27 @@
+services:
+    Sentry\Monolog\BreadcrumbHandler:
+        arguments:
+        - '@Sentry\State\HubInterface'
+        - !php/const Monolog\Logger::INFO # Configures the level of messages to capture as breadcrumbs
+
+when@prod:
+    sentry:
+        dsn: '%env(SENTRY_DSN)%'
+        options:
+            # Specify a fixed sample rate
+            traces_sample_rate: 0.1
+
+            ignore_exceptions:
+                - 'Symfony\Component\ErrorHandler\Error\FatalError'
+                - 'Symfony\Component\Debug\Exception\FatalErrorException'
+
+        register_error_listener: false
+        register_error_handler: false
+
+    monolog:
+        handlers:
+            sentry:
+                type: sentry
+                level: !php/const Monolog\Logger::NOTICE
+                hub_id: Sentry\State\HubInterface
+
