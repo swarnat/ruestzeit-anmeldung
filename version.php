@@ -1,3 +1,5 @@
 <?php
 
-return "2.0.0";
+define("PLANFREIZEIT_VERSION", "3.0.0");
+define("PLANFREIZEIT_VERSION_DATE", "27.02.2025");
+

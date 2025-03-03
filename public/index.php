@@ -36,6 +36,7 @@ if(is_file(dirname(__DIR__) . DIRECTORY_SEPARATOR . ".maintenance")) {
 
 use App\Kernel;
 
+require_once dirname(__DIR__).'/version.php';
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 // date_default_timezone_set( 'Europe/Berlin' );
