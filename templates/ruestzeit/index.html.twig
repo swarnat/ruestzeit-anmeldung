@@ -122,15 +122,15 @@
 
 					{{ form_errors(form.ruestzeit) }}
 					{# 
-					
-										<div class="field" style='display:none;'>
-											<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
-											</label>
-											<div class="control">
-												{{ form_widget(form.ruestzeit) }}
-											</div>
-											<p class="help">Pflichtfeld</p>
-										</div>  #}
+															
+																				<div class="field" style='display:none;'>
+																					<label class="label">Anmelden für folgende Rüstzeit<sup>*</sup>
+																					</label>
+																					<div class="control">
+																						{{ form_widget(form.ruestzeit) }}
+																					</div>
+																					<p class="help">Pflichtfeld</p>
+																				</div>  #}
 
 					<div class="columns">
 						<div class="column">
@@ -254,9 +254,9 @@
 											Doppelzimmer
 										</label>
 										{# <label class="radio">
-																					<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "FAMILY" %}checked{% endif %}>
-																					Familienzimmer
-																				</label> #}
+																																									<input type="radio" name="{{ field_name(form.roomRequest) }}" value="FAMILY" required tabindex="57" {{ autocomplete |raw }} {% if field_value(form.roomRequest) == "FAMILY" %}checked{% endif %}>
+																																									Familienzimmer
+																																								</label> #}
 									</div>
 									<p class="help">Pflichtfeld</p>
 									{{ form_help(form.roomRequest) }}
@@ -424,12 +424,12 @@
 					<button class="button is-success">
 						<span class="icon is-small">
 							<i class="fas fa-check"></i>
-						</span>				
-						<span>	
+						</span>
+						<span>
 							Anmeldung absenden
 						</soan>
 					</button>
-					<div style="width:calc(100% - 250px); display:inline-block; padding-left:25px;">
+					<div style="width:calc(100% - 250px); display:inline-block; padding-left:25px;" class="more_registration_text">
 						<label>
 							<input type="checkbox" name="repeat_process" value="1">
 							Ich möchte im Anschluss einen weiteren Teilnehmer mit ähnlichen Angaben anmelden.<br/>

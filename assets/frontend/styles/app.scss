@@ -143,7 +143,12 @@ form .invalid-feedback {
       padding:10px;
     }        
   }
-
+  .more_registration_text {
+    display:block !important;
+    padding-left:0 !important;
+    width:100% !important;
+    padding-top:10px;
+  }
 
   .entry_location_details {
     width:100%;

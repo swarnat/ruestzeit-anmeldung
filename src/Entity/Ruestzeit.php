@@ -121,7 +121,7 @@ class Ruestzeit
     private ?bool $showMealtype = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $additional_question1 = null;
+    private ?string $additional_question1 = "";
 
     #[ORM\OneToMany(targetEntity: CustomField::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
     private Collection $customFields;
