@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Controller;
-
+use App\Entity\Protocol;
 use App\Entity\Anmeldung;
 use App\Entity\CustomFieldAnswer;
 use App\Enum\AnmeldungStatus;
@@ -76,155 +76,178 @@ class RuestzeitController extends AbstractController
 
         $error = false;
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            if (
-                $ruestzeit->isRegistrationActive() === false
-            ) {
-                $error = true;
-
-                $this->logger->error('Registration received, but registration is disabled');
-            }
-
-            if (empty($error)) {
-                $repeatProcess = !empty($request->get('repeat_process'));
-                $ctoken = $request->get('ctoken');
-                $anmeldungData = $request->get('anmeldung');
-                $timingValue = (int)$request->get('timing');
-
-                if (!empty($anmeldungData['agefield'])) {
-                    $captcha = false;
-                } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
-                    $captcha = false;
-                } elseif(strpos($ctoken, "0") !== false) {
-                    $captcha = false;
-                } else {
-                    $captcha = true;
+        if ($form->isSubmitted()) {
+            // Log the request data in Protocol entity
+            $protocol = new Protocol();
+            $protocol->setRequestData(json_encode($request->request->all(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            $protocol->setRuestzeit($ruestzeit);
+            $protocol->setRequestUri($request->getRequestUri());
+            $protocol->setRequestMethod($request->getMethod());
+            $protocol->setIpAddress($request->getClientIp());
+            $protocol->setUserAgent($request->headers->get('User-Agent'));
+            $protocol->setIsSuccessful(false); // Will be updated to true if successful
+            
+            $this->entityManager->persist($protocol);
+            
+            if ($form->isValid()) {
+                if ($ruestzeit->isRegistrationActive() === false) {
+                    $error = true;
+                    $this->logger->error('Registration received, but registration is disabled');
                 }
 
-                if ($captcha) {
-                    $anmeldung->setRuestzeit($ruestzeit);
+                if (empty($error)) {
+                    $repeatProcess = !empty($request->get('repeat_process'));
+                    $ctoken = $request->get('ctoken');
+                    $anmeldungData = $request->get('anmeldung');
+                    $timingValue = (int)$request->get('timing');
 
-                    if ($ruestzeit->isFull()) {
-                        $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
+                    if (!empty($anmeldungData['agefield'])) {
+                        $captcha = false;
+                    } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
+                        $captcha = false;
+                    } elseif(strpos($ctoken, "0") !== false) {
+                        $captcha = false;
                     } else {
-                        $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
+                        $captcha = true;
                     }
 
-                    $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
-                    if (!empty($postalcodeData)) {
-                        $anmeldung->setLandkreis($postalcodeData["region"]);
-                    }
+                    if ($captcha) {
+                        $anmeldung->setRuestzeit($ruestzeit);
 
-                    $anmeldung->setPersonenTyp(PersonenTyp::TEILNEHMER);
-
-                    // Handle custom field answers
-                    foreach ($ruestzeit->getCustomFields() as $customField) {
-                        $fieldName = 'custom_field_' . $customField->getId();
-                        $value = $request->get('anmeldung')[$fieldName] ?? null;
-                        
-                        if ($value !== null) {
-                            $answer = new CustomFieldAnswer();
-                            $answer->setCustomField($customField);
-                            $answer->setAnmeldung($anmeldung);
-                            
-                            // Handle different field types
-                            switch ($customField->getType()) {
-                                case CustomFieldType::CHECKBOX:
-                                    $answer->setValue(json_encode($value, JSON_UNESCAPED_UNICODE));
-                                    break;
-                                case CustomFieldType::DATE:
-                                    // Convert date from dd.mm.yyyy to Y-m-d
-                                    if ($value) {
-                                        $date = \DateTime::createFromFormat('d.m.Y', $value);
-                                        if ($date) {
-                                            $answer->setValue($date->format('Y-m-d'));
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    $answer->setValue((string)$value);
-                            }
-                            
-                            $this->entityManager->persist($answer);
+                        if ($ruestzeit->isFull()) {
+                            $anmeldung->setStatus(AnmeldungStatus::WAITLIST);
+                        } else {
+                            $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
                         }
-                    }
 
-                    $this->entityManager->persist($anmeldung);
-                    $this->entityManager->flush();
+                        $postalcodeData = $this->postalcodeService->getPostalcodeData("DE", $anmeldung->getPostalcode());
+                        if (!empty($postalcodeData)) {
+                            $anmeldung->setLandkreis($postalcodeData["region"]);
+                        }
 
-                    $email = (new TemplatedEmail())
-                        ->to($ruestzeit->getAdmin()->getEmail())
-                        ->htmlTemplate('emails/anmeldung.html.twig')
-                        ->locale('de')
-                        ->subject('[' . $ruestzeit->getTitle() . '] Anmeldung ' . $anmeldung->getLastname() . ', ' . $anmeldung->getFirstname() . ' [' . $anmeldung->getStatus()->value . ']')
-                        ->context([
-                            'anmeldung' => $anmeldung,
-                        ]);
+                        $anmeldung->setPersonenTyp(PersonenTyp::TEILNEHMER);
 
-                    try {
-                        $debug = $mailer->send($email);
-                    } catch (TransportExceptionInterface $e) {
-                        // some error prevented the email sending; display an
-                        // error message or try to resend the message
-                    }
+                        // Handle custom field answers
+                        foreach ($ruestzeit->getCustomFields() as $customField) {
+                            $fieldName = 'custom_field_' . $customField->getId();
+                            $value = $request->get('anmeldung')[$fieldName] ?? null;
+                            
+                            if ($value !== null) {
+                                $answer = new CustomFieldAnswer();
+                                $answer->setCustomField($customField);
+                                $answer->setAnmeldung($anmeldung);
+                                
+                                // Handle different field types
+                                switch ($customField->getType()) {
+                                    case CustomFieldType::CHECKBOX:
+                                        $answer->setValue(json_encode($value, JSON_UNESCAPED_UNICODE));
+                                        break;
+                                    case CustomFieldType::DATE:
+                                        // Convert date from dd.mm.yyyy to Y-m-d
+                                        if ($value) {
+                                            $date = \DateTime::createFromFormat('d.m.Y', $value);
+                                            if ($date) {
+                                                $answer->setValue($date->format('Y-m-d'));
+                                            }
+                                        }
+                                        break;
+                                    default:
+                                        $answer->setValue((string)$value);
+                                }
+                                
+                                $this->entityManager->persist($answer);
+                            }
+                        }
 
-                    $emailAddress = $anmeldung->getEmail();
+                        $this->entityManager->persist($anmeldung);
+                        
+                        // Update the protocol with the created anmeldung and set as successful
+                        $protocol->setAnmeldung($anmeldung);
+                        $protocol->setIsSuccessful(true);
+                        
+                        $this->entityManager->flush();
 
-                    if (!empty($emailAddress)) {
+                        $email = (new TemplatedEmail())
+                            ->to($ruestzeit->getAdmin()->getEmail())
+                            ->htmlTemplate('emails/anmeldung.html.twig')
+                            ->locale('de')
+                            ->subject('[' . $ruestzeit->getTitle() . '] Anmeldung ' . $anmeldung->getLastname() . ', ' . $anmeldung->getFirstname() . ' [' . $anmeldung->getStatus()->value . ']')
+                            ->context([
+                                'anmeldung' => $anmeldung,
+                            ]);
+
                         try {
-                            $email = (new TemplatedEmail())
-                                ->to($emailAddress)
-                                ->htmlTemplate('emails/confirmation.html.twig')
-                                ->locale('de')
-                                ->subject('[' . $ruestzeit->getTitle() . '] Bestätigung der Anmeldung')
-                                ->context([
-                                    'anmeldung' => $anmeldung,
-                                ]);
-
                             $debug = $mailer->send($email);
-                        } catch (\Exception $e) {
-                            $this->logger->error($e->getMessage());
+                        } catch (TransportExceptionInterface $e) {
                             // some error prevented the email sending; display an
                             // error message or try to resend the message
                         }
-                    }
 
-                    toastr()
-                        ->positionClass('toast-top-center toast-full-width')
-                        ->timeOut(10000)
-                        ->success('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', [], "Erfolgreich");
+                        $emailAddress = $anmeldung->getEmail();
 
-                    if ($repeatProcess) {
-                        $nextAnmeldung = new Anmeldung();
-                        $nextAnmeldung->setAddress($anmeldung->getAddress());
-                        $nextAnmeldung->setPostalcode($anmeldung->getPostalcode());
-                        $nextAnmeldung->setCity($anmeldung->getCity());
-                        $nextAnmeldung->setPhone($anmeldung->getPhone());
-                        $nextAnmeldung->setEmail($anmeldung->getEmail());
+                        if (!empty($emailAddress)) {
+                            try {
+                                $email = (new TemplatedEmail())
+                                    ->to($emailAddress)
+                                    ->htmlTemplate('emails/confirmation.html.twig')
+                                    ->locale('de')
+                                    ->subject('[' . $ruestzeit->getTitle() . '] Bestätigung der Anmeldung')
+                                    ->context([
+                                        'anmeldung' => $anmeldung,
+                                    ]);
 
-                        $form = $this->createForm(AnmeldungType::class, $nextAnmeldung);
-                        // $request->request->set('firstname', '');
-                        // $request->request->set('lastname', '');
-                        // $form->handleRequest($request);            
-                        $formView = $form->createView();
-                        $initialcToken = "222";
-                        
-                        return new Response($twig->render('ruestzeit/index.html.twig', [
-                            'ruestzeit' => $ruestzeit,
-                            'initial_ctoken' => $initialcToken,
+                                $debug = $mailer->send($email);
+                            } catch (\Exception $e) {
+                                $this->logger->error($e->getMessage());
+                                // some error prevented the email sending; display an
+                                // error message or try to resend the message
+                            }
+                        }
 
-                            'allowRegistration' => $allowRegistration,
-                            'form' => !empty($formView) ? $formView : [],
-                        ]));
-                    }
+                        toastr()
+                            ->positionClass('toast-top-center toast-full-width')
+                            ->timeOut(10000)
+                            ->success('Die Anmeldung wurde erfolgreich gespeichert.<br/>Vielen Dank!', [], "Erfolgreich");
 
-                    if ($allowRegistration) {
-                        return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), "pw" => $ruestzeit->getPassword()]);
+                        if ($repeatProcess) {
+                            $nextAnmeldung = new Anmeldung();
+                            $nextAnmeldung->setAddress($anmeldung->getAddress());
+                            $nextAnmeldung->setPostalcode($anmeldung->getPostalcode());
+                            $nextAnmeldung->setCity($anmeldung->getCity());
+                            $nextAnmeldung->setPhone($anmeldung->getPhone());
+                            $nextAnmeldung->setEmail($anmeldung->getEmail());
+
+                            $form = $this->createForm(AnmeldungType::class, $nextAnmeldung);
+                            // $request->request->set('firstname', '');
+                            // $request->request->set('lastname', '');
+                            // $form->handleRequest($request);            
+                            $formView = $form->createView();
+                            $initialcToken = "222";
+                            
+                            return new Response($twig->render('ruestzeit/index.html.twig', [
+                                'ruestzeit' => $ruestzeit,
+                                'initial_ctoken' => $initialcToken,
+                                'allowRegistration' => $allowRegistration,
+                                'form' => !empty($formView) ? $formView : [],
+                            ]));
+                        }
+
+                        if ($allowRegistration) {
+                            return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), "pw" => $ruestzeit->getPassword()]);
+                        } else {
+                            return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug()]);
+                        }
                     } else {
-                        return $this->redirectToRoute('ruestzeit', ["ruestzeit_id" => $ruestzeit->getSlug(), ]);
+                        $this->logger->notice("Captcha Check not success");
+
+                        $initialcToken = "222";
+                        toastr()
+                            ->positionClass('toast-top-center toast-full-width')
+                            ->timeOut(10000)
+                            ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
                     }
                 } else {
-                    $this->logger->notice("Captcha Check not success");
+                    $this->logger->notice("Error with data during registration");
 
                     $initialcToken = "222";
                     toastr()
@@ -232,14 +255,6 @@ class RuestzeitController extends AbstractController
                         ->timeOut(10000)
                         ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
                 }
-            } else {
-                $this->logger->notice("Error with data during registration");
-
-                $initialcToken = "222";
-                toastr()
-                    ->positionClass('toast-top-center toast-full-width')
-                    ->timeOut(10000)
-                    ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
             }
         }
 
