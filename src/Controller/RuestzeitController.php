@@ -255,6 +255,14 @@ class RuestzeitController extends AbstractController
                         ->timeOut(10000)
                         ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
                 }
+            } else {
+                $this->logger->notice("Form not valid");
+
+                toastr()
+                ->positionClass('toast-top-center toast-full-width')
+                ->timeOut(10000)
+                ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
+
             }
         }
 
