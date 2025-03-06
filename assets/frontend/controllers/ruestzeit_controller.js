@@ -17,7 +17,7 @@ export default class extends Controller {
     document.querySelector(".emailfield input").setAttribute("tabindex", -1);
   
     var timing = document.querySelector('[name="timing"]').value;
-    document.querySelector('.emailfield input[rel="email"]').value =
+    document.querySelector('.emailfield input[rel="subject"]').value =
       (timing * 3) / 2 + "@example.com";
   }
 

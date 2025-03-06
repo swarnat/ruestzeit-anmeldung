@@ -103,7 +103,7 @@ class RuestzeitController extends AbstractController
 
                     if (!empty($anmeldungData['agefield'])) {
                         $captcha = false;
-                    } elseif ($anmeldungData['email_repeat'] != (($timingValue * 3) / 2) . '@example.com') {
+                    } elseif ($anmeldungData['request_title'] != (($timingValue * 3) / 2) . '@example.com') {
                         $captcha = false;
                     } elseif(strpos($ctoken, "0") !== false) {
                         $captcha = false;
