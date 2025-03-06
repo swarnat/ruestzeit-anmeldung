@@ -92,7 +92,7 @@
 			{% endif %}
 
 			{% set autocomplete = 'autocomplete="off" aria-autocomplete="none"' %}
-			<form class="box" method="POST" action="#" enctype="multipart/form-data" {{ autocomplete |raw }}>
+			<form class="box" method="POST" action="#" enctype="multipart/form-data" {{ autocomplete |raw }} id="registration_form">
 				<h2 class="title">Anmeldung</h2>
 
 				{% if ruestzeit.isFull() == true %}
@@ -421,7 +421,7 @@
 					</div>
 					{{ form_widget(form._token) }}
 
-					<button class="button is-success">
+					<button class="button is-success send_registration">
 						<span class="icon is-small">
 							<i class="fas fa-check"></i>
 						</span>

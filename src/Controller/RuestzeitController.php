@@ -256,13 +256,24 @@ class RuestzeitController extends AbstractController
                         ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
                 }
             } else {
-                $this->logger->notice("Form not valid");
+               
+                $errors = $this->getErrorMessages($form);
 
-                toastr()
-                ->positionClass('toast-top-center toast-full-width')
-                ->timeOut(10000)
-                ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
+                $this->logger->notice("Form not valid", [
+                    "formerrors" => $errors
+                ]);
 
+                if(!empty($errors["ruestzeit"]) && !empty($errors["ruestzeit"][0]) && $errors["ruestzeit"][0] == "Dieser Wert wird bereits verwendet.") {
+                    toastr()
+                    ->positionClass('toast-top-center toast-full-width')
+                    ->timeOut(10000)
+                    ->error('Fehler bei der Verarbeitung. <u>Du wurdest bereits als Teilnehmer gefunden.</u>', [], "Fehler");
+                } else {
+                    toastr()
+                        ->positionClass('toast-top-center toast-full-width')
+                        ->timeOut(10000)
+                        ->error('Fehler bei der Verarbeitung. Bitte erneut versuchen', [], "Fehler");
+                }
             }
         }
 
@@ -274,4 +285,24 @@ class RuestzeitController extends AbstractController
             'form' => !empty($formView) ? $formView : [],
         ]));
     }
+
+    private function getErrorMessages(\Symfony\Component\Form\Form $form) {
+        $errors = array();
+    
+        foreach ($form->getErrors() as $key => $error) {
+            if ($form->isRoot()) {
+                $errors['#'][] = $error->getMessage();
+            } else {
+                $errors[] = $error->getMessage();
+            }
+        }
+    
+        foreach ($form->all() as $child) {
+            if (!$child->isValid()) {
+                $errors[$child->getName()] = $this->getErrorMessages($child);
+            }
+        }
+    
+        return $errors;
+    }    
 }

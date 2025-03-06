@@ -8,6 +8,21 @@ export default class extends Controller {
     this.initCheckToken();
     
     this.initTimings();
+    this.preventDoubleClick();
+  }
+
+  preventDoubleClick() {
+    const form = document.getElementById("registration_form");
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      console.log('Formular wurde abgeschickt');
+
+      document.querySelector("button.send_registration").disabled = true;
+
+      form.submit();
+    });
   }
 
   initTimings() {
