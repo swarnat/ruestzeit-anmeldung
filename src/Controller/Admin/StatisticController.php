@@ -147,7 +147,7 @@ class StatisticController extends AbstractController
                     // we add ~12 hours to workaround timezone issues
                     $dateTo = $ruestzeit->getDateTo()->getTimestamp() + 43000;
 
-                    $firstDate = date('Y-m-d', strtotime('-' . ($value).' years -1 day', $dateTo));
+                    $firstDate = date('Y-m-d', strtotime('-' . ($value).' years', $dateTo));
                     $lastDate = date('Y-m-d', strtotime('-'.($value + 1).' years +1 day', $dateTo));
 
                     $link = $this->adminUrlGenerator
@@ -241,6 +241,103 @@ class StatisticController extends AbstractController
             }
             
         }
+
+        $ageGroups = [
+            0,  # 0-1
+            0,  # 2-6
+            0,  # 7-10
+            0,  # 10-18
+
+            0,  # 19-29
+            0,  # 30-60
+            0,  # 61-70
+            0,  # > 70
+        ];
+
+        foreach($statistics["age"]["table"] as $entry) {
+            $age = $entry["category"];
+            $count = $entry["count"];
+
+            if($age <= 1) {
+                $ageGroups[0] += $count;
+            } elseif($age <= 6) {
+                $ageGroups[1] += $count;
+            } elseif($age <= 10) {
+                $ageGroups[2] += $count;
+            } elseif($age <= 18) {
+                $ageGroups[3] += $count;
+            } elseif($age <= 29) {
+                $ageGroups[4] += $count;
+            } elseif($age <= 60) {
+                $ageGroups[5] += $count;
+            } elseif($age <= 70) {
+                $ageGroups[6] += $count;
+            } else {
+                $ageGroups[7] += $count;
+            }
+        }
+
+        
+        $ageGroupLabels = [
+            "0-1", 
+            "2-6", 
+            "7-10", 
+            "11-18", 
+            
+            "19-29", 
+            "30-60", 
+            "61-70", 
+            "> 71"
+        ];
+
+        $statistics["age_groups"] = [
+            "title" => "Altersgruppen",
+            "table" => [],
+            "chart_data" => [
+                "labels" => [],
+                "datasets" => [[
+                    "label" => "Altersgruppen",
+                    "data" => []
+                ]]
+            ]
+        ];
+
+        
+        $ageGroupTable = [];
+        $dateTo = $ruestzeit->getDateTo()->getTimestamp() + 43000;
+
+        foreach($ageGroupLabels as $index => $label) {
+
+            if($ageGroups[$index] > 0) {
+                $parts = explode("-", $label);
+                if(count($parts) == 1) {
+                    $parts = [71, 1000];
+                }
+    
+                $firstDate = date('Y-m-d', strtotime('-' . ($parts[0]).' years', $dateTo));
+                $lastDate = date('Y-m-d', strtotime('-'.($parts[1] + 1).' years +1 day', $dateTo));
+    
+                $link = $this->adminUrlGenerator
+                    ->setController(AnmeldungCrudController::class)
+                    ->setAction(Action::INDEX)
+                    ->setEntityId(null)
+                    ->set('filters[birthdate][comparison]', 'between')
+                    ->set('filters[birthdate][value]', $firstDate)
+                    ->set('filters[birthdate][value2]', $lastDate)
+                ->generateUrl();
+
+                $ageGroupTable[] = [
+                    "category" => $label,
+                    "count" => $ageGroups[$index],
+                    "link" => $link
+                ];
+
+                $statistics["age_groups"]["chart_data"]["labels"][] = $label;
+                $statistics["age_groups"]["chart_data"]["datasets"][0]["data"][] = $ageGroups[$index];
+
+            }
+        }
+        $statistics["age_groups"]["table"] = $ageGroupTable;
 
         return $this->render('statistiken/index.html.twig', [
             'ruestzeit' => $ruestzeit,
