@@ -11,54 +11,47 @@
 
   margin-bottom: 10px;
 
-  margin-top:-5px;
+  margin-top: -5px;
   margin-right: -10px;
-  margin-left: -20px;  
+  margin-left: -20px;
 }
 .sidebar_ruestzeit_top span {
   font-weight: bold;
   flex-grow: 1;
 
-  padding:5px 0;
-
+  padding: 5px 0;
 }
 .sidebar_ruestzeit_top {
-  a { 
-    background-color:red;
+  a {
+    background-color: red;
   }
   display: flex;
   flex-direction: row;
 
   align-items: center;
 
-  background-color: #fff;  
-  color:black;
-  padding-top:5px;
+  background-color: #fff;
+  color: black;
+  padding-top: 5px;
 }
 .sidebar_ruestzeit_current {
   font-size: 10px;
 
-  padding:5px 0;
-  font-weight:bold;
+  padding: 5px 0;
+  font-weight: bold;
 
   background: inherit;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: 
-    sepia(5)      /* add some color to grey so the rest works */
-    saturate(100) /* increase strength of color channels */
-    invert(1)     /* invert the color */
-    grayscale(1)  /* make it grey */
-    contrast(9);  /* make it black/white */
-
+  filter: sepia(5) /* add some color to grey so the rest works */ saturate(100)
+    /* increase strength of color channels */ invert(1) /* invert the color */
+    grayscale(1) /* make it grey */ contrast(9); /* make it black/white */
 }
 .content-header {
-  
   max-width: calc(100vw - 300px);
 }
 .content-body thead {
-  
   position: sticky;
   top: 0;
   background-color: white;
@@ -68,14 +61,109 @@
   // overflow:auto;
 }
 .copyright {
-  font-weight:bold;
+  font-weight: bold;
 }
 .copyright .author {
-  font-weight:normal;
+  font-weight: normal;
 }
-.copyright, .copyright a {
-  color:#ccc;
-  text-align:center;
+.copyright,
+.copyright a {
+  color: #ccc;
+  text-align: center;
 
-  font-size:12px;
+  font-size: 12px;
+}
+
+div.stats_field_chart_container {
+  width: 65%;
+}
+
+div.stats_field_table_container {
+  flex-grow: 1;
+  max-width: 50%;
+  padding-right:10px;
+
+  table.statistic_table {
+    width: 100%;
+
+    tr:hover td {
+      background-color: #bbb !important;
+    }
+
+    tr td {
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      padding: 5px 2px;
+
+      &.category {
+        background-color: #eee;
+        width: 50%;
+      }
+    }
+  }
+}
+.stats_field_row {
+  display: flex;
+  flex-direction: row;
+  border: 4px solid #eee;
+  padding: 5px;
+}
+.stats_field_container {
+  break-inside: avoid;
+}
+.stats_field_head {
+  background-color: #eee;
+  margin-bottom: 0;
+  margin-top: 10px;
+  padding-left: 10px;
+  line-height: 35px;
+}
+
+@media print {
+  h1.title {
+    font-size: 18px !important;
+  }
+  aside.content-top {
+    display: none;
+    height: 0px !important;
+  }
+  div.responsive-header {
+    display: none;
+    height: 0px !important;
+  }
+  div.wrapper {
+    display: block;
+  }
+  div.sidebar-wrapper {
+    display: none;
+  }
+
+  .stats_field_row {
+    border:none;
+    padding-left:0;
+    // height:400px;
+
+    .chart-container {
+      height: auto !important;
+      width: 350px !important;
+    }
+  }
+
+  .stats_field_head {
+    background-color: #fff;
+    padding-left: 0px;
+    line-height: 35px;
+
+    border-bottom:1px solid #000;
+    margin-bottom:6px;
+  }
+
+  a {
+    color:#000000;
+  }
+
+  div.stats_field_chart_container {
+    width:auto;
+  }
+  
 }

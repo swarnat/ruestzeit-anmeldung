@@ -317,7 +317,7 @@ class Anmeldung
     public function getAge(): int {
         $birthdate = $this->getBirthdate();
 
-        if(empty($this->getBirthdate())) return 0;
+        if(empty($birthdate)) return 0;
 
         // $tz  = new DateTimeZone('Europe/Brussels');
    

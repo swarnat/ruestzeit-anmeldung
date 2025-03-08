@@ -59,7 +59,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Exception;
@@ -596,6 +598,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->add(BooleanFilter::new('payment_done'))
             ->add(TextFilter::new('lastname'))
             ->add(TextFilter::new('postalcode'))
+            ->add(DateTimeFilter::new('birthdate'))
             ->add(TextFilter::new('city'))
             ->add(
                 LandkreisFilter::new('landkreis')

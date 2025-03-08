@@ -111,10 +111,12 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Verwaltung');
 
         yield MenuItem::linkToRoute("Bezeichnungen", 'fas fa-upload', 'ruestzeit_label_overwrite');
+        
+        yield MenuItem::linkToRoute("Auswertungen", 'fas fa-table', 'admin_statistics');
 
         yield MenuItem::linkToCrud('Landkreise', 'fas fa-flag', Landkreis::class);
         
-        yield MenuItem::linkToCrud('Kategorie', 'fas fa-flag', Category::class);
+        yield MenuItem::linkToCrud('Kategorie', 'fas fa-list', Category::class);
 
         yield MenuItem::linkToCrud('Zusatzfelder', 'fas fa-list-check', CustomField::class)
             ->setController(CustomFieldCrudController::class);

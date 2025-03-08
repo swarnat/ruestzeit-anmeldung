@@ -1,0 +1,93 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}
+	Auswertungen<br/>{{ ruestzeit.title }}
+{% endblock %}
+
+{% block page_content %}
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	{% for field, data in statistics %}
+		<div class="stats_field_container">
+			<h4 class="stats_field_head">{{ data.title }}</h4>
+
+			<div class="stats_field_row">
+				<div class="stats_field_table_container">
+					<table class="statistic_table">
+						<thead>
+							<tr>
+								<th>Wert</th>
+								<th>Anzahl</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for row in data.table %}
+								<tr>
+									<td class="category">
+										{% if not row.link is empty %}
+											<a href="{{ row.link }}" target="_blank">{{ row.category }}</a>
+										{% else %}
+											{{ row.category }}
+										{% endif %}
+									</td>
+									<td class="count">{{ row.count }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				<div class="stats_field_chart_container">
+					<div class="chart-container" style="position: relative; height:40vh; margin: auto;">
+						<canvas id="chart-{{ field|raw }}"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<script>
+				document.addEventListener('DOMContentLoaded', function () {
+                    const ctx = document.getElementById('chart-{{ field|raw }}').getContext('2d');
+                    const chartData = {{ data.chart_data|json_encode|raw }};
+
+                    new Chart(ctx, {
+                        type: 'bar', // oder 'line', 'pie', etc.
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+
+                            plugins: {
+                                legend: {
+                                    display: false,
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                }
+                            }                                                    
+                        }
+                    });
+                });
+			</script>
+		</div>
+	{% endfor %}
+
+    <script>
+   
+        function beforePrintHandler () {
+            for (let id in Chart.instances) {
+                Chart.instances[id].resize(400, 200);
+            }
+        } 
+        function afterPrintHandler () {
+            for (let id in Chart.instances) {
+                Chart.instances[id].resize();
+            }
+        } 
+
+        window.addEventListener('beforeprint', beforePrintHandler);
+        window.addEventListener('afterprint', afterPrintHandler);                
+    </script>
+{% endblock %}
