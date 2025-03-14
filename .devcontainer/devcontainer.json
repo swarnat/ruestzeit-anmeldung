@@ -1,0 +1,22 @@
+{
+    "name": "Symfony PHP Development",
+    "dockerComposeFile": "../compose.yaml",
+    "service": "php",
+    "workspaceFolder": "/var/www/html",
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "bmewburn.vscode-intelephense-client",
+          "junstyle.php-cs-fixer",
+          "ms-azuretools.vscode-docker",
+          "mhutchie.git-graph",
+          "xdebug.php-debug"
+        ],
+        "settings": {
+          "php.validate.executablePath": "/usr/local/bin/php"
+        }
+      }
+    },
+    "forwardPorts": [8000, 3306, 8025],
+    "postCreateCommand": "composer install"
+  }

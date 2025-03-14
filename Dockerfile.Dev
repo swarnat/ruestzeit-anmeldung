@@ -1,0 +1,29 @@
+FROM php:8.2-fpm
+
+ENV SYMFONY_ALLOW_ALL_IP=true
+
+# Installiere benötigte Pakete und PHP-Erweiterungen
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libfreetype6-dev libjpeg62-turbo-dev libpng-dev \
+    libicu-dev \
+    libzip-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+    gd \
+    pdo_mysql \
+    intl \
+    zip
+
+# Installiere Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Installiere Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash
+RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
+WORKDIR /var/www/html
+
+# Standardbefehl
+CMD symfony server:start --no-tls --allow-http --port=8000
