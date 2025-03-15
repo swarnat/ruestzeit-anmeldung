@@ -1,3 +1,9 @@
+## 3.0.1 - 2025-03-15
+
+### Bugfixes
+  - Change Captcha field from "email_repeat" to "subject" to prevent autofill of android phones trigger spamcheck
+  - UI changes in administration for repsonsive view
+  
 ## 3.0.0 - 2025-02-27
 
 ### New features
