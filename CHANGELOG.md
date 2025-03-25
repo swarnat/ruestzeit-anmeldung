@@ -1,4 +1,4 @@
-## 3.0.1 - 2025-03-25
+## 3.0.2 - 2025-03-25
 
 ### Bugfixes
   - Disable Doctrine Cache to prevent problems in admin
