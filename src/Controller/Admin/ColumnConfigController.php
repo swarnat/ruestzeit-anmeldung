@@ -64,7 +64,7 @@ class ColumnConfigController extends AbstractController
 
                 'createdAt' => 'Erstellt am',
                 'notes' => 'Anmerkungen',
-                'categories' => 'Kategorien',
+                // 'categories' => 'Kategorien',
             ],
             "CUSTOM_INFORMATION" => []
         ];
