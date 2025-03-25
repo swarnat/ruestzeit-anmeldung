@@ -114,8 +114,8 @@ class AnmeldungCrudController extends AbstractCrudController
             ->andWhere('entity.ruestzeit = :ruestzeit_id')->setParameter(':ruestzeit_id', $this->currentRuestzeitGenerator->get()->getId())
         ;
 
-        $queryBuilder->leftJoin('entity.categories', 'c')
-            ->addSelect("c");
+        // $queryBuilder->leftJoin('entity.categories', 'c')
+        //     ->addSelect("c");
 
         $queryBuilder->leftJoin('entity.customFieldAnswers', 'ca')
             ->addSelect("ca");
