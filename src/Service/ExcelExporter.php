@@ -117,6 +117,7 @@ class ExcelExporter
         $categories = $this->categoryRepository->findAll();
 
         $categoryMapping = [];
+        /*
         foreach($categories as $i => $category) {
             $conditional = new \PhpOffice\PhpSpreadsheet\Style\Conditional();
             $conditional->setConditionType(\PhpOffice\PhpSpreadsheet\Style\Conditional::CONDITION_NOTCONTAINSBLANKS);
@@ -140,6 +141,7 @@ class ExcelExporter
                 "width" => 15
             ];
         }
+            */
 
         $hiddenFields = [];
         if($currentRuestzeit->isShowRoomRequest() === false) {
@@ -246,6 +248,7 @@ class ExcelExporter
             }
 
             $tmpCategories = [];
+            /*
             foreach($row["categories"] as $rowCategory) {
                 $tmpCategories[$rowCategory["title"]] = true;
             }
@@ -257,7 +260,7 @@ class ExcelExporter
                     $data[$index][] = "";
                 }
             }
-
+            */
 
         }
 

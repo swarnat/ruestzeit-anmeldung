@@ -535,8 +535,8 @@ class AnmeldungCrudController extends AbstractCrudController
                 return TextField::new('address', 'Strasse');
             case 'roommate':
                 return TextField::new('roommate', 'Zimmerpartner');
-            case 'categories':
-                return CategorySelectionField::new("categories", "Kategorien");
+            // case 'categories':
+            //     return CategorySelectionField::new("categories", "Kategorien");
             case 'landkreis':
                 return TextField::new('landkreis', 'Landkreis');
             case 'postalcode':
