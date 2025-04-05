@@ -114,9 +114,9 @@ class RuestzeitCrudController extends AbstractCrudController
             ->setHtmlAttributes(["target" => "_blank"])
             ->setIcon('fa fa-link');
 
-        $activateAction = Action::new('ruestzeit_activate', "Ruestzeit wechseln")
-            ->linkToCrudAction('activate_ruestzeit')
-            ->setIcon('fa fa-download');
+        // $activateAction = Action::new('ruestzeit_activate', "Ruestzeit wechseln")
+        //     ->linkToCrudAction('activate_ruestzeit')
+        //     ->setIcon('fa fa-download');
 
         $qrCode = Action::new('show_qrcode', "QR Code")
             ->linkToCrudAction('show_qrcode')
@@ -133,14 +133,22 @@ class RuestzeitCrudController extends AbstractCrudController
                 return $ruestzeit->getAdmin() === $this->getUser();
             });
 
+        $cancelAction = Action::new('delete-ruestzeit', "Rüstzeit löschen")
+            ->linkToCrudAction('ruestzeit_delete')
+            ->setHtmlAttributes(['onclick' => "return confirm('Wenn Sie die Rüstzeit löschen, werden alle Anmeldungen und Daten unwiederbringlich gelöscht. Fortsetzen?')"])
+            ->setIcon('fa fa-trash')
+            ->setCssClass('btn btn-danger danger-button');
+
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, "delete")
+            ->add(Crud::PAGE_INDEX, $cancelAction)            
             ->add(Crud::PAGE_INDEX, $passwordLink)
             ->add(Crud::PAGE_INDEX, $shortLink)
             ->add(Crud::PAGE_INDEX, $longLink)
-            ->add(Crud::PAGE_INDEX, $activateAction)
+            // ->add(Crud::PAGE_INDEX, $activateAction)
             ->add(Crud::PAGE_INDEX, $qrCode)
             ->add(Crud::PAGE_INDEX, $shareAction)
+            ->reorder(Crud::PAGE_INDEX, ["edit", "show_qrcode", "link_password", "link_registration_short", "link_registration_long", "share", "delete-ruestzeit"])
         ;
     }
 
@@ -150,6 +158,23 @@ class RuestzeitCrudController extends AbstractCrudController
         $ruestzeit = $context->getEntity()->getInstance();
 
         $this->requestStack->getSession()->set("current_ruestzeit", $ruestzeit->getId());
+
+        $url = $this->container->get(AdminUrlGenerator::class)
+            ->setController(RuestzeitCrudController::class)
+            ->setAction(Action::INDEX)
+            ->generateUrl();
+
+        return new RedirectResponse($url);
+    }
+
+    #[AdminAction(routePath: '/{entityId}/ruestzeit_delete', routeName: 'ruestzeit_delete', methods: ['GET'])]
+    public function ruestzeit_delete(AdminContext $context)
+    {
+        $ruestzeit = $context->getEntity()->getInstance();
+        //$ruestzeit = $context->getEntity()->getInstance();
+
+        $this->entityManager->remove($ruestzeit);
+        $this->entityManager->flush();
 
         $url = $this->container->get(AdminUrlGenerator::class)
             ->setController(RuestzeitCrudController::class)

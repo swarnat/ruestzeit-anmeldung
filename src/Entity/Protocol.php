@@ -21,10 +21,10 @@ class Protocol
     #[ORM\Column(type: Types::TEXT)]
     private ?string $requestData = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Ruestzeit::class, cascade: ["remove"])]
     private ?Ruestzeit $ruestzeit = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(targetEntity: Anmeldung::class, cascade: ["remove"])]
     private ?Anmeldung $anmeldung = null;
 
     #[ORM\Column(length: 45, nullable: true)]

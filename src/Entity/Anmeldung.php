@@ -123,6 +123,9 @@ class Anmeldung
     #[ORM\OneToMany(targetEntity: CustomFieldAnswer::class, mappedBy: 'anmeldung', orphanRemoval: true)]
     private Collection $customFieldAnswers;
 
+    #[ORM\OneToMany(targetEntity: Protocol::class, mappedBy: 'anmeldung', orphanRemoval: true)]
+    private Collection $protocols;
+
     private $customFieldValues = null;
 
     public function __construct()

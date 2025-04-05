@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  web:
+    image: swarnat/ruestzeit-anmeldung:latest
+    environment:
+      # Database connection
+      DATABASE_URL: "mysql://symfony:symfony@database:3306/symfony?serverVersion=mariadb-10.6.15"
+      
+      # WHere emails should be delivered
+      MAILER_DSN: "smtp://localhost:1025"
+      
+      # Use your hostname here. You can also use https
+      SERVER_NAME: "http://localhost:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  database:
+    image: mariadb:10.6
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: symfony
+      MARIADB_USER: symfony
+      MARIADB_PASSWORD: symfony
+    healthcheck:
+      test: [ "CMD", "mariadb-admin", "ping", "-h", "localhost", "-proot"]   
+      interval: 10s   
+      timeout: 5s   
+      retries: 5
+    ports:
+      - "3306:3306"
+    volumes:
+      - db2-data:/var/lib/mysql
+
+volumes:
+  db2-data:

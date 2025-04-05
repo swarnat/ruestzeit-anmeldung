@@ -12,3 +12,6 @@ dev:
 	
 clear-cache:
 	php bin/console cache:clear
+
+docker-build:
+	docker build . -t ruestzeit-anmeldung

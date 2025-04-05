@@ -172,9 +172,9 @@ class AnmeldungCrudController extends AbstractCrudController
 
         $cancelAction = Action::new('cancel', "Stornieren")
             ->linkToCrudAction('anmeldungen_cancel')
-            ->setHtmlAttributes(['onclick' => 'return confirm("Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten")'])
+            ->setHtmlAttributes(['onclick' => "return confirm('Bitte bestätigen Sie, dass Sie diesen Teilnehmer stornieren möchten')"])
             ->setIcon('fa fa-cancel')
-            ->setCssClass('btn btn-danger');
+            ->setCssClass('btn btn-danger danger-button');
 
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, "delete")
@@ -711,4 +711,25 @@ class AnmeldungCrudController extends AbstractCrudController
             ->generateUrl();
         return new RedirectResponse($url);
     }
+
+    #[AdminAction(routePath: '/{entityId}/activate', routeName: 'anmeldungen_activate', methods: ['GET'])]
+    public function anmeldungen_activate(AdminContext $context) {
+        $anmeldung = $context->getEntity()->getInstance();
+        
+        $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);
+
+        $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
+
+        $entityManager->persist($anmeldung);
+        $entityManager->flush();
+
+
+        $url = $this->container->get(AdminUrlGenerator::class)
+            ->setController(AnmeldungCrudController::class)
+            ->setAction(Action::INDEX)
+            ->generateUrl();
+        return new RedirectResponse($url);
+    }
+
+
 }

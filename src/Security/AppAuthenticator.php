@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,7 +26,8 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator, 
-        private RuestzeitRepository $ruestzeitRepository 
+        private RuestzeitRepository $ruestzeitRepository,
+        private CurrentRuestzeitGenerator $currentRuestzeGenerator
         )
     {
     }
@@ -50,14 +52,16 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
     {
         $session = $request->getSession();
 
-        $current_ruestzeit = $this->ruestzeitRepository->findOneWithFutureDateFrom($token->getUser()->getId());
+        // $current_ruestzeit = $this->ruestzeitRepository->findOneWithFutureDateFrom($token->getUser()->getId());
 
-        if(empty($current_ruestzeit)) {
-            $current_ruestzeit = $this->ruestzeitRepository->findOneBy(["admin" => $token->getUser()->getId()]);
-        }
+        // if(empty($current_ruestzeit)) {
+        //     $current_ruestzeit = $this->ruestzeitRepository->findOneBy(["admin" => $token->getUser()->getId()]);
+        // }
 
-        $session->set("current_ruestzeit", $current_ruestzeit->getId());
+        // $session->set("current_ruestzeit", $current_ruestzeit->getId());
 
+        $this->currentRuestzeGenerator->get();
+        
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }

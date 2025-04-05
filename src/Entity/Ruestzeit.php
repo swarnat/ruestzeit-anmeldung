@@ -90,16 +90,16 @@ class Ruestzeit
     private ?string $forwarder = null;
 
     #[ORM\Column]
-    private ?bool $ask_schoolclass = null;
+    private ?bool $ask_schoolclass = false;
 
     #[ORM\Column]
-    private ?bool $showRoomRequest = null;
+    private ?bool $showRoomRequest = false;
 
     #[ORM\Column]
-    private ?bool $showReferer = null;
+    private ?bool $showReferer = false;
 
     #[ORM\Column(length: 10)]
-    private ?string $admincolor = null;
+    private ?string $admincolor = "#072f4f";
 
     /**
      * @var Collection<int, LanguageOverwrite>
@@ -118,7 +118,7 @@ class Ruestzeit
     private ?string $domain = null;
 
     #[ORM\Column]
-    private ?bool $showMealtype = null;
+    private ?bool $showMealtype = false;
 
     #[ORM\Column(length: 255)]
     private ?string $additional_question1 = "";
