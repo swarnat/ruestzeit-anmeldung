@@ -1,3 +1,14 @@
+## 3.0.3 - 2025-03-25
+
+### Feature
+  - Add option to delete done tours / registrations
+
+### UI
+  - Allow activation from Waitlist with one click
+
+### Fix
+  - Catch error, when no tour is existing
+
 ## 3.0.2 - 2025-03-25
 
 ### Bugfixes
