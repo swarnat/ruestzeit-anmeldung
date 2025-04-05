@@ -14,4 +14,7 @@ clear-cache:
 	php bin/console cache:clear
 
 docker-build:
-	docker build . -t ruestzeit-anmeldung
+	docker build . -t swarnat/ruestzeit-anmeldung:latest
+	
+docker-push:
+	docker push swarnat/ruestzeit-anmeldung:latest

@@ -1,6 +1,6 @@
 {
     "name": "Symfony PHP Development",
-    "dockerComposeFile": "../compose.yaml",
+    "dockerComposeFile": "../compose.dev.yaml",
     "service": "php",
     "workspaceFolder": "/var/www/html",
     "customizations": {
