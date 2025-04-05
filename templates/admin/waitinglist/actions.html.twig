@@ -1,0 +1,14 @@
+{# templates/admin/custom_button_field.html.twig #}
+{% set current_ruestzeit = current_ruestzeit_service.get %}
+
+<div style="width:250px;">
+<a href="{{ path('admin_anmeldung_anmeldungen_activate', {'entityId':  entity.instance.id }) }}"
+   class="btn btn-sm btn-success">
+    {{ 'Anmeldung aktivieren' }}
+</a>
+
+<a href="{{ path('admin_anmeldung_edit', {'entityId':  entity.instance.id }) }}"
+   class="btn btn-sm btn-primary">
+    {{ 'Bearbeiten' }}
+</a>
+</div>

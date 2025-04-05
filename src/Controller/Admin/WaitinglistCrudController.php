@@ -28,6 +28,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -63,6 +64,9 @@ class WaitinglistCrudController extends AnmeldungCrudController
             yield from parent::configureFields($pageName);
             return;
         }
+
+        yield Field::new('customAction', '')
+            ->setTemplatePath('admin/waitinglist/actions.html.twig');
 
         // yield ChoiceField::new('status', 'Status der Anmeldung')
         //     ->setChoices(AnmeldungStatus::cases())
@@ -130,36 +134,17 @@ class WaitinglistCrudController extends AnmeldungCrudController
     {;
         $actions = parent::configureActions($actions);
 
-        $activateAction = Action::new('activate')
-            ->linkToCrudAction('anmeldungen_activate')
-            // ... line 81
-            ->setIcon('fa fa-check')
-            // ->createAsGlobalAction()
-            ;
+        // $activateAction = Action::new('activate')
+        //     ->linkToCrudAction('anmeldungen_activate')
+        //     // ... line 81
+        //     ->setIcon('fa fa-check')
+        //     // ->createAsGlobalAction()
+        //     ;
 
-        $actions
-            ->add(Crud::PAGE_INDEX, $activateAction);
+        // $actions
+        //     ->add(Crud::PAGE_INDEX, $activateAction);
 
         return $actions;
-    }
-
-    #[AdminAction(routePath: '/{entityId}/activate', routeName: 'anmeldungen_activate', methods: ['GET'])]
-    public function anmeldungen_activate(AdminContext $context, UrlGeneratorInterface $urlGenerator) {
-        $anmeldung = $context->getEntity()->getInstance();
-        
-        $entityManager = $this->container->get('doctrine')->getManagerForClass(Anmeldung::class);
-
-        $anmeldung->setStatus(AnmeldungStatus::ACTIVE);
-
-        $entityManager->persist($anmeldung);
-        $entityManager->flush();
-
-
-        $url = $this->container->get(AdminUrlGenerator::class)
-            ->setController(AnmeldungCrudController::class)
-            ->setAction(Action::INDEX)
-            ->generateUrl();
-        return new RedirectResponse($url);
     }
 
 }
