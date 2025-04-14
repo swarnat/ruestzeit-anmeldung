@@ -637,6 +637,12 @@ class AnmeldungCrudController extends AbstractCrudController
         $request = $this->requestStack->getCurrentRequest();
         $formData = $request->request->all();
 
+        // When Field is changed in INDEX view, then do not clear custom answers, because you do not have them
+        if($request->getMethod() == "PATCH" && in_array($request->get("fieldName"), ["prepayment_done", "payment_done"])) {
+            parent::updateEntity($entityManager, $entityInstance);
+            return;
+        }
+
         // Handle custom field answers
         $customFields = $this->entityManager->getRepository(CustomField::class)->findBy([
             'ruestzeit' => $this->currentRuestzeitGenerator->get()
