@@ -1,3 +1,9 @@
+
+## 3.0.4 - 2025-04-14
+
+### Fix
+  - Set Prepayment done and final payment done in ListView do not clear custom fields anymore
+
 ## 3.0.3 - 2025-03-25
 
 ### Feature

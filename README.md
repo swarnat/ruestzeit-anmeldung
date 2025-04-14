@@ -29,6 +29,13 @@ php bin/console doctrine:schema:update --force
 
 php bin/console asset-map:compile
 
+# Update
+
+  - To update just pull latest tag from github repository
+  - run "`php bin/console doctrine:migrations:migrate --no-interaction`" in current directory
+  - run "`composer install`" in current directory
+  - run "`php bin/console asset-map:compile`" in current directory
+
 ## Maintenance Mode
 
 Create a file .maintenance in Root directory to disable the frontend functions completely.  
