@@ -101,12 +101,14 @@ class DashboardController extends AbstractDashboardController
         ;
 
         yield MenuItem::linkToRoute(
-            label: "Import", 
+            label: "Import",
             icon: 'fas fa-upload',
             routeName: 'app_anmeldung_import'
         );
 
         yield MenuItem::linkToRoute("Unterschriften", 'fas fa-upload', 'app_anmeldung_unterschriften');
+        
+        yield MenuItem::linkToRoute("E-Mail Versand", 'fas fa-envelope', 'admin_mailing');
         
         yield MenuItem::section('Verwaltung');
 
@@ -122,7 +124,7 @@ class DashboardController extends AbstractDashboardController
             ->setController(CustomFieldCrudController::class);
         
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
-                ->setEntityId($this->getUser()->getId())
+                ->setEntityId($this->getUser()?->getId())
                 ->setAction('edit');
     }
 

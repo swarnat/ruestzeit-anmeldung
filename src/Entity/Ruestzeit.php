@@ -131,6 +131,12 @@ class Ruestzeit
      */
     #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
     private Collection $categories;
+    
+    /**
+     * @var Collection<int, MailAttachment>
+     */
+    #[ORM\OneToMany(targetEntity: MailAttachment::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
+    private Collection $mailAttachments;
 
     public function getFlyerFile(): ?UploadedFile
     {
@@ -162,6 +168,7 @@ class Ruestzeit
         $this->shareInvitations = new ArrayCollection();
         $this->customFields = new ArrayCollection();
         $this->categories = new ArrayCollection();
+        $this->mailAttachments = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -714,6 +721,36 @@ class Ruestzeit
             // set the owning side to null (unless already changed)
             if ($category->getRuestzeit() === $this) {
                 $category->setRuestzeit(null);
+            }
+        }
+
+        return $this;
+    }
+    
+    /**
+     * @return Collection<int, MailAttachment>
+     */
+    public function getMailAttachments(): Collection
+    {
+        return $this->mailAttachments;
+    }
+
+    public function addMailAttachment(MailAttachment $mailAttachment): static
+    {
+        if (!$this->mailAttachments->contains($mailAttachment)) {
+            $this->mailAttachments->add($mailAttachment);
+            $mailAttachment->setRuestzeit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMailAttachment(MailAttachment $mailAttachment): static
+    {
+        if ($this->mailAttachments->removeElement($mailAttachment)) {
+            // set the owning side to null (unless already changed)
+            if ($mailAttachment->getRuestzeit() === $this) {
+                $mailAttachment->setRuestzeit(null);
             }
         }
 

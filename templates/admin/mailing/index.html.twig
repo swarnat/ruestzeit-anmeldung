@@ -1,0 +1,263 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}E-Mail Versand{% endblock %}
+
+{% block content_title %}E-Mail Versand{% endblock %}
+
+{% block main %}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">E-Mail an Teilnehmer versenden</h5>
+        </div>
+        <div class="card-body">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+            
+            <form method="post" action="{{ path('admin_mailing_send') }}">
+                <div class="form-group mb-3">
+                    <label for="recipient_type">Empfänger</label>
+                    <select class="form-control" id="recipient_type" name="recipient_type" required>
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="individual">Einzelner Empfänger</option>
+                        <option value="custom_email">Freie E-Mail-Adresse</option>
+                        <option value="mitarbeiter">Alle Mitarbeiter</option>
+                        <option value="active">Alle aktiven Anmeldungen</option>
+                    </select>
+                </div>
+                
+                <div class="form-group mb-3" id="individual-recipient-container" style="display: none;">
+                    <label for="individual_recipient">Einzelner Empfänger</label>
+                    <select class="form-control" id="individual_recipient" name="individual_recipient">
+                        <option value="">-- Bitte wählen --</option>
+                        {% for anmeldung in anmeldungen %}
+                            <option value="{{ anmeldung.id }}">
+                                {{ anmeldung.firstname }} {{ anmeldung.lastname }}
+                                ({{ anmeldung.personenTyp.value }}, {{ anmeldung.status.value }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group mb-3" id="custom-email-container" style="display: none;">
+                    <label for="custom_email">E-Mail-Adresse</label>
+                    <input type="email" class="form-control" id="custom_email" name="custom_email" placeholder="beispiel@domain.de">
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="subject">Betreff</label>
+                    <input type="text" class="form-control" id="subject" name="subject" required>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="content">Inhalt</label>
+                    <div id="editor" style="height: 300px;"></div>
+                    <input type="hidden" name="content" id="content-input">
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label>Dateianhänge</label>
+                    <div class="file-upload-container">
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" id="file-upload" aria-describedby="file-upload-button">
+                            <button class="btn btn-outline-secondary" type="button" id="file-upload-button">Hochladen</button>
+                        </div>
+                        <div id="upload-progress" class="progress mb-3" style="display: none;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div id="attachments-container" class="mb-3">
+                            <div class="alert alert-info" id="no-attachments-message">
+                                Keine Dateianhänge vorhanden
+                            </div>
+                            <div id="attachments-list" class="list-group">
+                                <!-- Attachments will be listed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">E-Mail versenden</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        ['link'],
+                        ['clean']
+                    ]
+                }
+            });
+            
+            var form = document.querySelector('form');
+            form.onsubmit = function() {
+                var contentInput = document.querySelector('#content-input');
+                contentInput.value = quill.root.innerHTML;
+                return true;
+            };
+            
+            // File upload functionality
+            const fileUploadButton = document.getElementById('file-upload-button');
+            const fileUploadInput = document.getElementById('file-upload');
+            const uploadProgress = document.getElementById('upload-progress');
+            const progressBar = uploadProgress.querySelector('.progress-bar');
+            const attachmentsList = document.getElementById('attachments-list');
+            const noAttachmentsMessage = document.getElementById('no-attachments-message');
+            
+            // Load existing attachments
+            loadAttachments();
+            
+            function loadAttachments() {
+                fetch('{{ path('admin_mailing_attachments') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.attachments.length > 0) {
+                            noAttachmentsMessage.style.display = 'none';
+                            renderAttachments(data.attachments);
+                        } else {
+                            noAttachmentsMessage.style.display = 'block';
+                            attachmentsList.innerHTML = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading attachments:', error);
+                    });
+            }
+            
+            function renderAttachments(attachments) {
+                attachmentsList.innerHTML = '';
+                
+                attachments.forEach(attachment => {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    
+                    const fileInfo = document.createElement('div');
+                    fileInfo.innerHTML = `
+                        <strong>${attachment.filename}</strong>
+                        <small class="d-block text-muted">Hochgeladen am: ${attachment.createdAt}</small>
+                    `;
+                    
+                    const actions = document.createElement('div');
+                    
+                    const insertButton = document.createElement('button');
+                    insertButton.className = 'btn btn-sm btn-primary me-2';
+                    insertButton.textContent = 'In E-Mail einfügen';
+                    insertButton.addEventListener('click', function() {
+                        insertAttachmentLink(attachment);
+                    });
+                    
+                    actions.appendChild(insertButton);
+                    
+                    item.appendChild(fileInfo);
+                    item.appendChild(actions);
+                    attachmentsList.appendChild(item);
+                });
+            }
+            
+            function insertAttachmentLink(attachment) {
+                // Get current cursor position
+                const range = quill.getSelection(true);
+                
+                // Insert URL as a link at cursor position
+                quill.insertText(range.index, 'Dateianhang: ', 'bold');
+                quill.insertText(range.index + 13, attachment.filename, 'link', attachment.url);
+                
+                // Focus back on editor
+                quill.focus();
+            }
+            
+            fileUploadButton.addEventListener('click', function() {
+                if (!fileUploadInput.files.length) {
+                    alert('Bitte wählen Sie zuerst eine Datei aus.');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('file', fileUploadInput.files[0]);
+                
+                // Show loading state
+                fileUploadButton.disabled = true;
+                uploadProgress.style.display = 'block';
+                progressBar.style.width = '0%';
+                
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = (e.loaded / e.total) * 100;
+                        progressBar.style.width = percentComplete + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', function() {
+                    fileUploadButton.disabled = false;
+                    uploadProgress.style.display = 'none';
+                    fileUploadInput.value = '';
+                    
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // Reload attachments list
+                            loadAttachments();
+                        } else {
+                            alert('Fehler beim Hochladen: ' + (response.error || 'Unbekannter Fehler'));
+                        }
+                    } else {
+                        alert('Fehler beim Hochladen: ' + xhr.statusText);
+                    }
+                });
+                
+                xhr.addEventListener('error', function() {
+                    fileUploadButton.disabled = false;
+                    uploadProgress.style.display = 'none';
+                    alert('Fehler beim Hochladen. Bitte versuchen Sie es erneut.');
+                });
+                
+                xhr.open('POST', '{{ path('admin_mailing_upload') }}', true);
+                xhr.send(formData);
+            });
+            // Show/hide recipient fields based on selected recipient type
+            var recipientTypeSelect = document.querySelector('#recipient_type');
+            var individualRecipientContainer = document.querySelector('#individual-recipient-container');
+            var customEmailContainer = document.querySelector('#custom-email-container');
+            
+            recipientTypeSelect.addEventListener('change', function() {
+                // Hide all containers first
+                individualRecipientContainer.style.display = 'none';
+                customEmailContainer.style.display = 'none';
+                
+                // Remove required attributes
+                document.querySelector('#individual_recipient').removeAttribute('required');
+                document.querySelector('#custom_email').removeAttribute('required');
+                
+                // Show the appropriate container based on selection
+                if (this.value === 'individual') {
+                    individualRecipientContainer.style.display = 'block';
+                    document.querySelector('#individual_recipient').setAttribute('required', 'required');
+                } else if (this.value === 'custom_email') {
+                    customEmailContainer.style.display = 'block';
+                    document.querySelector('#custom_email').setAttribute('required', 'required');
+                }
+            });
+        });
+    </script>
+{% endblock %}

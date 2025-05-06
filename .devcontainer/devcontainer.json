@@ -10,7 +10,8 @@
           "junstyle.php-cs-fixer",
           "ms-azuretools.vscode-docker",
           "mhutchie.git-graph",
-          "xdebug.php-debug"
+          "xdebug.php-debug",
+          "rooveterinaryinc.roo-cline"
         ],
         "settings": {
           "php.validate.executablePath": "/usr/local/bin/php"
