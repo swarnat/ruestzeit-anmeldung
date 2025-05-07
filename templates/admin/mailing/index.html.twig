@@ -173,6 +173,14 @@
                     
                     const actions = document.createElement('div');
                     
+
+                    const openButton = document.createElement('a');
+                    openButton.href = attachment.url;
+                    openButton.target = "_blank"
+                    openButton.className = 'btn btn-sm btn-info me-2';
+                    openButton.textContent = 'Öffnen';
+                    
+                    actions.appendChild(openButton);                    
                     const insertButton = document.createElement('button');
                     insertButton.type = "button";
                     insertButton.className = 'btn btn-sm btn-primary me-2';
