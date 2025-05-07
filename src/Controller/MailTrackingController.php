@@ -29,20 +29,25 @@ class MailTrackingController extends AbstractController
         private MailAttachmentClickRepository $mailAttachmentClickRepository,
         private S3FileUploader $s3FileUploader,
         #[Autowire('%kernel.debug%')] private bool $kernelDebug
-    ) {
-    }
+    ) {}
 
     #[Route('/{trackingId}/logo.png', name: 'mail_tracking_open')]
     public function trackOpen(string $trackingId): Response
     {
         $logoFile = ABSPATH . '/assets/images/logo_128.png';
 
+        // Special case for test emails with "draft" tracking ID
+        if ($trackingId === 'draft') {
+            // Just return the logo without tracking for test emails
+            return new BinaryFileResponse($logoFile);
+        }
+
         try {
             $uuid = Uuid::fromString($trackingId);
-            $mail = $this->mailRepository->findByUuid($trackingId); 
+            $mail = $this->mailRepository->findByUuid($trackingId);
 
             if (!$mail) {
-                if($this->kernelDebug) {
+                if ($this->kernelDebug) {
                     throw new Exception("Tracking ID not found");
                 }
 
@@ -63,14 +68,13 @@ class MailTrackingController extends AbstractController
             // you can modify headers here, before returning
             return $response;
         } catch (\Exception $e) {
-            if($this->kernelDebug) {
+            if ($this->kernelDebug) {
                 throw $e;
             }
 
             $response = new BinaryFileResponse($logoFile);
             // you can modify headers here, before returning
             return $response;
-
         }
     }
 
@@ -79,13 +83,23 @@ class MailTrackingController extends AbstractController
     {
         try {
             $attachmentUuid = Uuid::fromString($attachmentId);
-            $mailUuid = Uuid::fromString($trackingId);
-
             $attachment = $this->mailAttachmentRepository->findOneBy(['uuid' => $attachmentUuid]);
+
+            if (!$attachment) {
+                throw new NotFoundHttpException('Attachment not found');
+            }
+
+            // Special case for test emails with "draft" tracking ID
+            if ($trackingId === 'draft') {
+                // Just return the file without tracking for test emails
+                return $this->outputMedia($attachment);
+            }
+
+            $mailUuid = Uuid::fromString($trackingId);
             $mail = $this->mailRepository->findOneBy(['uuid' => $mailUuid]);
 
-            if (!$attachment || !$mail) {
-                throw new NotFoundHttpException('Attachment or mail not found');
+            if (!$mail) {
+                throw new NotFoundHttpException('Mail not found');
             }
 
             // Find or create a click record for this mail-attachment pair
@@ -93,14 +107,14 @@ class MailTrackingController extends AbstractController
                 $mail->getId(),
                 $attachment->getId()
             );
-            
+
             if (!$click) {
                 $click = new MailAttachmentClick();
                 $click->setMail($mail);
                 $click->setAttachment($attachment);
                 $this->entityManager->persist($click);
             }
-            
+
             // Update tracking information if not already clicked
             if (!$click->isClicked()) {
                 $click->setClicked(true);
@@ -108,14 +122,18 @@ class MailTrackingController extends AbstractController
                 $this->entityManager->flush();
             }
 
-            // Get the file from S3
-            $s3Key = $attachment->getS3Key();
-            $url = $this->s3FileUploader->getPublicUrl($s3Key);
-
-            // Redirect to the actual file
-            return $this->redirect($url);
+            return $this->outputMedia($attachment);
         } catch (\Exception $e) {
             throw new NotFoundHttpException('Invalid tracking ID or attachment ID');
         }
+    }
+
+    private function outputMedia(MailAttachment $attachment)
+    {
+        $s3Key = $attachment->getS3Key();
+        $url = $this->s3FileUploader->getPublicUrl($s3Key);
+
+        // Redirect to the actual file
+        return $this->redirect($url);
     }
 }

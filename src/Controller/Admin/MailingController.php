@@ -25,6 +25,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Uid\Uuid;
 
 #[IsGranted('ROLE_ADMIN')]
 class MailingController extends AbstractController
@@ -378,5 +379,143 @@ class MailingController extends AbstractController
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], 500);
         }
+    }
+    
+    #[Route('/admin/mailing/test', name: 'admin_mailing_test', methods: ['POST'])]
+    public function sendTestEmail(Request $request): JsonResponse
+    {
+        try {
+            $subject = $request->request->get('subject');
+            $content = $request->request->get('content');
+            $testEmail = $request->request->get('test_email');
+            $attachmentIds = $request->request->all('attachments') ?? [];
+            
+            if (empty($subject) || empty($content) || empty($testEmail)) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => 'Betreff, Inhalt und Test-E-Mail-Adresse dürfen nicht leer sein.'
+                ], 400);
+            }
+            
+            if (!filter_var($testEmail, FILTER_VALIDATE_EMAIL)) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => 'Ungültige E-Mail-Adresse.'
+                ], 400);
+            }
+            
+            // Get the current ruestzeit
+            $ruestzeit = $this->currentRuestzeitGenerator->get();
+            if (!$ruestzeit) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => 'Keine aktive Rüstzeit gefunden.'
+                ], 400);
+            }
+            
+            // Get the current admin user
+            /** @var Admin $admin */
+            $admin = $this->getUser();
+            
+            // Create a temporary Mail entity for the test (will not be persisted)
+            $mail = new Mail();
+            $mail->setSubject($subject);
+            $mail->setContent($content);
+            $mail->setRuestzeit($ruestzeit);
+            $mail->setSender($admin);
+            $mail->setSenderEmail($admin->getEmail());
+            $mail->setSenderName($admin->getUsername());
+            $mail->setRecipientEmail($testEmail);
+            
+            // Set a special UUID for test emails that will be ignored in tracking
+            $mail->setUuid(Uuid::fromString('00000000-0000-0000-0000-000000000000'));
+            
+            // Get attachments if any
+            $attachments = [];
+            if (!empty($attachmentIds)) {
+                foreach($attachmentIds as $attachmentId) {
+                    $attachment = $this->mailAttachmentRepository->findOneBy(['uuid' => $attachmentId]);
+                    if ($attachment) {
+                        $attachments[] = $attachment;
+                        $mail->addAttachment($attachment);
+                    }
+                }
+            }
+            
+            // Generate tracking URL with "draft" as tracking ID
+            $trackingUrl = $this->urlGenerator->generate(
+                'mail_tracking_open',
+                ['trackingId' => 'draft'],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            
+            // Process content with attachments first
+            $processedContent = $this->processTestContent($mail->getContent(), $mail, $trackingUrl);
+            
+            // Process attachment links to use tracking URLs
+            foreach ($attachments as $attachment) {
+                $originalUrl = $this->s3FileUploader->getPublicUrl($attachment->getS3Key());
+                $attachmentUrl = $this->urlGenerator->generate(
+                    'mail_tracking_attachment',
+                    [
+                        'attachmentId' => $attachment->getUuid()->toRfc4122(),
+                        'trackingId' => 'draft',
+                        'filename' => $attachment->getFilename()
+                    ],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
+                
+                $processedContent = str_replace($originalUrl, $attachmentUrl, $processedContent);
+            }
+            
+            // Create the email with the fully processed content
+            $email = (new TemplatedEmail())
+                ->from(new Address($mail->getSenderEmail(), $mail->getSenderName() ?: ''))
+                ->to(new Address($mail->getRecipientEmail()))
+                ->subject('[TEST] ' . $mail->getSubject())
+                ->htmlTemplate('emails/generic.html.twig')
+                ->context([
+                    'subject' => $mail->getSubject(),
+                    'headline' => str_replace(":", ":<br/>", $mail->getSubject()),
+                    'content' => $processedContent,
+                    'trackingUrl' => $trackingUrl,
+                    'imprint' => "PlanFreizeit 2025,01 [TEST]",
+                ]);
+            
+            // Send the email
+            $this->mailer->send($email);
+            
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Test-E-Mail wurde erfolgreich gesendet.'
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Process the test email content to add tracking
+     */
+    private function processTestContent(string $content, Mail $mail, string $trackingUrl): string
+    {
+        // Add the tracking image at the end of the content
+        $trackingImage = '<img src="' . $trackingUrl . '" alt="" width="1" height="1" style="display:none;" />';
+        
+        // Process placeholders if a recipient is set
+        $anmeldung = $mail->getRecipient();
+        if ($anmeldung) {
+            $content = str_ireplace("(vorname)", $anmeldung->getFirstname(), $content);
+            $content = str_ireplace("(nachname)", $anmeldung->getLastname(), $content);
+        } else {
+            // For test emails without a specific recipient, use placeholder values
+            $content = str_ireplace("(vorname)", "[Vorname]", $content);
+            $content = str_ireplace("(nachname)", "[Nachname]", $content);
+        }
+        
+        return $content . $trackingImage;
     }
 }

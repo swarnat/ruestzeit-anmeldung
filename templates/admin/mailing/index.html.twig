@@ -88,8 +88,33 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary">E-Mail versenden</button>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">E-Mail versenden</button>
+                    <button type="button" id="test-email-btn" class="btn btn-secondary">Test E-Mail senden</button>
+                </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Test Email Modal -->
+    <div class="modal fade" id="testEmailModal" tabindex="-1" aria-labelledby="testEmailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="testEmailModalLabel">Test E-Mail senden</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label for="test_email_address">E-Mail-Adresse für den Test</label>
+                        <input type="email" class="form-control" id="test_email_address" required placeholder="beispiel@domain.de">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-primary" id="send-test-email-btn">Test E-Mail senden</button>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -318,6 +343,80 @@
                     customEmailContainer.style.display = 'block';
                     document.querySelector('#custom_email').setAttribute('required', 'required');
                 }
+            });
+            
+            // Test Email functionality
+            const testEmailBtn = document.getElementById('test-email-btn');
+            const testEmailModal = new bootstrap.Modal(document.getElementById('testEmailModal'));
+            const sendTestEmailBtn = document.getElementById('send-test-email-btn');
+            
+            testEmailBtn.addEventListener('click', function() {
+                // Validate form fields before showing the modal
+                const subject = document.getElementById('subject').value;
+                const editorContent = quill.root.innerHTML;
+                
+                if (!subject || !editorContent) {
+                    alert('Bitte füllen Sie Betreff und Inhalt aus, bevor Sie eine Test-E-Mail senden.');
+                    return;
+                }
+                
+                testEmailModal.show();
+            });
+            
+            sendTestEmailBtn.addEventListener('click', function() {
+                const testEmailAddress = document.getElementById('test_email_address').value;
+                
+                if (!testEmailAddress) {
+                    alert('Bitte geben Sie eine E-Mail-Adresse für den Test ein.');
+                    return;
+                }
+                
+                // Get form data
+                const subject = document.getElementById('subject').value;
+                const content = quill.root.innerHTML;
+                
+                // Get selected attachments
+                const selectedAttachments = [];
+                document.querySelectorAll('.attachment-checkbox:checked').forEach(checkbox => {
+                    selectedAttachments.push(checkbox.value);
+                });
+                
+                // Create form data
+                const formData = new FormData();
+                formData.append('subject', subject);
+                formData.append('content', content);
+                formData.append('test_email', testEmailAddress);
+                selectedAttachments.forEach(attachment => {
+                    formData.append('attachments[]', attachment);
+                });
+                
+                // Show loading state
+                sendTestEmailBtn.disabled = true;
+                sendTestEmailBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Senden...';
+                
+                // Send test email
+                fetch('{{ path('admin_mailing_test') }}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    sendTestEmailBtn.disabled = false;
+                    sendTestEmailBtn.textContent = 'Test E-Mail senden';
+                    
+                    if (data.success) {
+                        testEmailModal.hide();
+                        alert('Test-E-Mail wurde erfolgreich an ' + testEmailAddress + ' gesendet.');
+                    } else {
+                        alert('Fehler beim Senden der Test-E-Mail: ' + (data.error || 'Unbekannter Fehler'));
+                    }
+                })
+                .catch(error => {
+                    sendTestEmailBtn.disabled = false;
+                    sendTestEmailBtn.textContent = 'Test E-Mail senden';
+                    alert('Fehler beim Senden der Test-E-Mail. Bitte versuchen Sie es erneut.');
+                    console.error('Error sending test email:', error);
+                });
             });
         });
     </script>
