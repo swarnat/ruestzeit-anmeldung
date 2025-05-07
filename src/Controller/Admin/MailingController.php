@@ -38,7 +38,8 @@ class MailingController extends AbstractController
         protected S3FileUploader $s3FileUploader,
         protected MailerInterface $mailer,
         protected MailAttachmentRepository $mailAttachmentRepository,
-        protected UrlGeneratorInterface $urlGenerator
+        protected UrlGeneratorInterface $urlGenerator,
+        protected \App\Service\MailProcessingService $mailProcessingService
     ) {
     }
     
@@ -150,7 +151,9 @@ class MailingController extends AbstractController
                 $this->entityManager->flush();
                 
                 // Send the email with tracking
-                $this->sendEmail($mail);
+                $this->mailProcessingService->createAndSendEmail(
+                    $mail
+                );
                 
                 $sentCount++;
             } catch (\Exception $e) {
@@ -170,91 +173,7 @@ class MailingController extends AbstractController
         return $this->redirect('/admin?routeName=admin_mailing');
     }
     
-    /**
-     * Send an email with tracking
-     */
-    private function sendEmail(Mail $mail): void
-    {
-        // Get the tracking URL for the logo
-        $trackingUrl = $this->urlGenerator->generate(
-            'mail_tracking_open',
-            ['trackingId' => $mail->getUuid()->toRfc4122()],
-            UrlGeneratorInterface::ABSOLUTE_URL
-        );
-        
-        $anmeldung = $mail->getRecipient();
-
-        // Create the email
-        $email = (new TemplatedEmail())
-            ->from(new Address($mail->getSenderEmail(), $mail->getSenderName() ?: ''))
-            ->to(new Address($mail->getRecipientEmail(), $mail->getRecipientName() ?: ''))
-            ->subject($mail->getSubject())
-            ->htmlTemplate('emails/generic.html.twig')
-            ->context([
-                'subject' => $mail->getSubject(),
-                'headline' => str_replace(":", ":<br/>", $mail->getSubject()),
-                'content' => $this->processContent($mail->getContent(), $mail, $trackingUrl),
-                'trackingUrl' => $trackingUrl,
-                'imprint' => "PlanFreizeit 2025,01",                
-            ]);
-        
-        // Add attachments if any
-        foreach ($mail->getAttachments() as $attachment) {
-            $attachmentUrl = $this->urlGenerator->generate(
-                'mail_tracking_attachment',
-                [
-                    'attachmentId' => $attachment->getUuid()->toRfc4122(),
-                    'trackingId' => $mail->getUuid()->toRfc4122(),
-                    'filename' => $attachment->getFilename()
-                ],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-            
-            // Replace the original attachment URL with the tracking URL in the content
-            $originalUrl = $this->s3FileUploader->getPublicUrl($attachment->getS3Key());
-
-            $mail->setContent(str_replace($originalUrl, $attachmentUrl, $mail->getContent()));
-            
-            // Get the file content from S3 and attach it to the email
-            // $s3Key = $attachment->getS3Key();
-            // $tempFile = tempnam(sys_get_temp_dir(), 'mail_attachment_');
-            // file_put_contents($tempFile, file_get_contents($this->s3FileUploader->getPublicUrl($s3Key)));
-            
-            // Add the attachment to the email
-            // $email->attachFromPath($tempFile, $attachment->getFilename(), $attachment->getMimeType());
-        }
-        
-        // Send the email
-        $this->mailer->send($email);
-    }
-    
-    /**
-     * Process the email content to add tracking
-     */
-    private function processContent(string $content, Mail $mail, string $trackingUrl): string
-    {
-        // Add the tracking image at the end of the content
-        $trackingImage = '<img src="' . $trackingUrl . '" alt="" width="1" height="1" style="display:none;" />';
-        
-        // Process attachment links to use tracking URLs
-        foreach ($mail->getAttachments() as $attachment) {
-            $originalUrl = $this->s3FileUploader->getPublicUrl($attachment->getS3Key());
-            $trackingUrl = $this->urlGenerator->generate(
-                'mail_tracking_attachment',
-                [
-                    'attachmentId' => $attachment->getUuid()->toRfc4122(),
-                    'trackingId' => $mail->getUuid()->toRfc4122(),
-                    'filename' => $attachment->getFilename()
-                ],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-            
-            $content = str_replace($originalUrl, $trackingUrl, $content);
-        }
-
-        
-        return $content . $trackingImage;
-    }
+    // Methods removed and moved to MailProcessingService
     
     /**
      * Get recipients based on the selected type
@@ -435,55 +354,19 @@ class MailingController extends AbstractController
             if (!empty($attachmentIds)) {
                 foreach($attachmentIds as $attachmentId) {
                     $attachment = $this->mailAttachmentRepository->findOneBy(['uuid' => $attachmentId]);
-                    if ($attachment) {
+
+                    if ($attachment && strpos($content, $attachment->getS3Key()) !== false) {
                         $attachments[] = $attachment;
                         $mail->addAttachment($attachment);
                     }
                 }
             }
             
-            // Generate tracking URL with "draft" as tracking ID
-            $trackingUrl = $this->urlGenerator->generate(
-                'mail_tracking_open',
-                ['trackingId' => 'draft'],
-                UrlGeneratorInterface::ABSOLUTE_URL
+            // Send the test email using the service
+            $this->mailProcessingService->createAndSendEmail(
+                $mail,
+                true // Mark as test email
             );
-            
-            // Process content with attachments first
-            $processedContent = $this->processTestContent($mail->getContent(), $mail, $trackingUrl);
-            
-            // Process attachment links to use tracking URLs
-            foreach ($attachments as $attachment) {
-                $originalUrl = $this->s3FileUploader->getPublicUrl($attachment->getS3Key());
-                $attachmentUrl = $this->urlGenerator->generate(
-                    'mail_tracking_attachment',
-                    [
-                        'attachmentId' => $attachment->getUuid()->toRfc4122(),
-                        'trackingId' => 'draft',
-                        'filename' => $attachment->getFilename()
-                    ],
-                    UrlGeneratorInterface::ABSOLUTE_URL
-                );
-                
-                $processedContent = str_replace($originalUrl, $attachmentUrl, $processedContent);
-            }
-            
-            // Create the email with the fully processed content
-            $email = (new TemplatedEmail())
-                ->from(new Address($mail->getSenderEmail(), $mail->getSenderName() ?: ''))
-                ->to(new Address($mail->getRecipientEmail()))
-                ->subject('[TEST] ' . $mail->getSubject())
-                ->htmlTemplate('emails/generic.html.twig')
-                ->context([
-                    'subject' => $mail->getSubject(),
-                    'headline' => str_replace(":", ":<br/>", $mail->getSubject()),
-                    'content' => $processedContent,
-                    'trackingUrl' => $trackingUrl,
-                    'imprint' => "PlanFreizeit 2025,01 [TEST]",
-                ]);
-            
-            // Send the email
-            $this->mailer->send($email);
             
             return new JsonResponse([
                 'success' => true,
@@ -497,25 +380,5 @@ class MailingController extends AbstractController
         }
     }
     
-    /**
-     * Process the test email content to add tracking
-     */
-    private function processTestContent(string $content, Mail $mail, string $trackingUrl): string
-    {
-        // Add the tracking image at the end of the content
-        $trackingImage = '<img src="' . $trackingUrl . '" alt="" width="1" height="1" style="display:none;" />';
-        
-        // Process placeholders if a recipient is set
-        $anmeldung = $mail->getRecipient();
-        if ($anmeldung) {
-            $content = str_ireplace("(vorname)", $anmeldung->getFirstname(), $content);
-            $content = str_ireplace("(nachname)", $anmeldung->getLastname(), $content);
-        } else {
-            // For test emails without a specific recipient, use placeholder values
-            $content = str_ireplace("(vorname)", "[Vorname]", $content);
-            $content = str_ireplace("(nachname)", "[Nachname]", $content);
-        }
-        
-        return $content . $trackingImage;
-    }
+    // Method removed and moved to MailProcessingService
 }
