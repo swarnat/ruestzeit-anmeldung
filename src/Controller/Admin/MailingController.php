@@ -4,18 +4,26 @@ namespace App\Controller\Admin;
 
 use App\Entity\Admin;
 use App\Entity\Anmeldung;
+use App\Entity\Mail;
+use App\Entity\MailAttachment;
 use App\Enum\AnmeldungStatus;
 use App\Enum\PersonenTyp;
 use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\AnmeldungRepository;
+use App\Repository\MailAttachmentRepository;
 use App\Repository\RuestzeitRepository;
 use App\Service\S3FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
@@ -26,7 +34,10 @@ class MailingController extends AbstractController
         protected AnmeldungRepository $anmeldungRepository,
         protected RuestzeitRepository $ruestzeitRepository,
         protected EntityManagerInterface $entityManager,
-        protected S3FileUploader $s3FileUploader
+        protected S3FileUploader $s3FileUploader,
+        protected MailerInterface $mailer,
+        protected MailAttachmentRepository $mailAttachmentRepository,
+        protected UrlGeneratorInterface $urlGenerator
     ) {
     }
     
@@ -42,6 +53,7 @@ class MailingController extends AbstractController
         }
         
         return $this->render('admin/mailing/index.html.twig', [
+            'subject' => "Information zu: " . $ruestzeit->getTitle(),
             'ruestzeit' => $ruestzeit,
             'anmeldungen' => $anmeldungen,
         ]);
@@ -55,6 +67,10 @@ class MailingController extends AbstractController
         $recipientType = $request->request->get('recipient_type');
         $individualRecipient = $request->request->get('individual_recipient');
         $customEmail = $request->request->get('custom_email');
+        $attachmentIds = $request->request->all('attachments') ?? [];
+
+        //$requestContext = new RequestContext("/", "GET", $this->currentRuestzeitGenerator->get()->getDomain(), "https", 80, 443);
+        //$this->urlGenerator->setContext($requestContext);
 
         if (empty($subject) || empty($content)) {
             $this->addFlash('error', 'Betreff und Inhalt dürfen nicht leer sein.');
@@ -73,13 +89,170 @@ class MailingController extends AbstractController
             $this->addFlash('error', 'Keine Empfänger gefunden.');
             return $this->redirect('/admin?routeName=admin_mailing');
         }
+
+        // Get the current ruestzeit
+        $ruestzeit = $this->currentRuestzeitGenerator->get();
+        if (!$ruestzeit) {
+            $this->addFlash('error', 'Keine aktive Rüstzeit gefunden.');
+            return $this->redirect('/admin?routeName=admin_mailing');
+        }
+
+        // Get the current admin user
+        /** @var Admin $admin */
+        $admin = $this->getUser();
         
-        // Here would be the actual email sending logic
-        // For now, we just display a success message with recipient count
+        // Get attachments if any
+        $attachments = [];
+        if (!empty($attachmentIds)) {
+            foreach($attachmentIds as $attachmentId) {
+                $attachments[] = $this->mailAttachmentRepository->findOneBy(['uuid' => $attachmentId]);
+            }
+        }
         
-        $this->addFlash('success', 'Versand wird durchgeführt an ' . count($recipients) . ' Empfänger');
+        // Process each recipient
+        $sentCount = 0;
+        foreach ($recipients as $recipient) {
+            try {
+                // Create a Mail entity for tracking
+                $mail = new Mail();
+                $mail->setSubject($subject);
+                $mail->setContent($content);
+                $mail->setRuestzeit($ruestzeit);
+                $mail->setSender($admin);
+                
+                // Set recipient information
+                if ($recipient instanceof Anmeldung) {
+                    $mail->setRecipient($recipient);
+                    $mail->setRecipientEmail($recipient->getEmail());
+                    $mail->setRecipientName($recipient->getFirstname() . ' ' . $recipient->getLastname());
+                } else {
+                    // Custom email recipient
+                    $mail->setRecipientEmail($recipient->email);
+                }
+                
+                // Set sender information
+                $mail->setSenderEmail($admin->getEmail());
+                $mail->setSenderName($admin->getUsername()); // Use username as name since Admin doesn't have firstname/lastname
+                
+                // Add attachments
+                foreach ($attachments as $attachment) {
+                    // only add attachments, which are added in content
+                    if(strpos($content, $attachment->getS3Key()) !== false) {
+                    
+                        $mail->addAttachment($attachment);
+
+                    }
+                }
+                
+                // Save the mail entity to get an ID
+                $this->entityManager->persist($mail);
+                $this->entityManager->flush();
+                
+                // Send the email with tracking
+                $this->sendEmail($mail);
+                
+                $sentCount++;
+            } catch (\Exception $e) {
+                dump($e);exit();
+                // Log the error but continue with other recipients
+                // In a production environment, you might want to log this to a file or monitoring service
+                error_log('Error sending email: ' . $e->getMessage());
+            }
+        }
+        
+        if ($sentCount > 0) {
+            $this->addFlash('success', 'E-Mail wurde an ' . $sentCount . ' Empfänger versendet.');
+        } else {
+            $this->addFlash('error', 'Es konnten keine E-Mails versendet werden.');
+        }
         
         return $this->redirect('/admin?routeName=admin_mailing');
+    }
+    
+    /**
+     * Send an email with tracking
+     */
+    private function sendEmail(Mail $mail): void
+    {
+        // Get the tracking URL for the logo
+        $trackingUrl = $this->urlGenerator->generate(
+            'mail_tracking_open',
+            ['trackingId' => $mail->getUuid()->toRfc4122()],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+        
+        $anmeldung = $mail->getRecipient();
+
+        // Create the email
+        $email = (new TemplatedEmail())
+            ->from(new Address($mail->getSenderEmail(), $mail->getSenderName() ?: ''))
+            ->to(new Address($mail->getRecipientEmail(), $mail->getRecipientName() ?: ''))
+            ->subject($mail->getSubject())
+            ->htmlTemplate('emails/generic.html.twig')
+            ->context([
+                'subject' => $mail->getSubject(),
+                'headline' => str_replace(":", ":<br/>", $mail->getSubject()),
+                'content' => $this->processContent($mail->getContent(), $mail, $trackingUrl),
+                'trackingUrl' => $trackingUrl,
+                'imprint' => "PlanFreizeit 2025,01",                
+            ]);
+        
+        // Add attachments if any
+        foreach ($mail->getAttachments() as $attachment) {
+            $attachmentUrl = $this->urlGenerator->generate(
+                'mail_tracking_attachment',
+                [
+                    'attachmentId' => $attachment->getUuid()->toRfc4122(),
+                    'trackingId' => $mail->getUuid()->toRfc4122(),
+                    'filename' => $attachment->getFilename()
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            
+            // Replace the original attachment URL with the tracking URL in the content
+            $originalUrl = $this->s3FileUploader->getPublicUrl($attachment->getS3Key());
+
+            $mail->setContent(str_replace($originalUrl, $attachmentUrl, $mail->getContent()));
+            
+            // Get the file content from S3 and attach it to the email
+            // $s3Key = $attachment->getS3Key();
+            // $tempFile = tempnam(sys_get_temp_dir(), 'mail_attachment_');
+            // file_put_contents($tempFile, file_get_contents($this->s3FileUploader->getPublicUrl($s3Key)));
+            
+            // Add the attachment to the email
+            // $email->attachFromPath($tempFile, $attachment->getFilename(), $attachment->getMimeType());
+        }
+        
+        // Send the email
+        $this->mailer->send($email);
+    }
+    
+    /**
+     * Process the email content to add tracking
+     */
+    private function processContent(string $content, Mail $mail, string $trackingUrl): string
+    {
+        // Add the tracking image at the end of the content
+        $trackingImage = '<img src="' . $trackingUrl . '" alt="" width="1" height="1" style="display:none;" />';
+        
+        // Process attachment links to use tracking URLs
+        foreach ($mail->getAttachments() as $attachment) {
+            $originalUrl = $this->s3FileUploader->getPublicUrl($attachment->getS3Key());
+            $trackingUrl = $this->urlGenerator->generate(
+                'mail_tracking_attachment',
+                [
+                    'attachmentId' => $attachment->getUuid()->toRfc4122(),
+                    'trackingId' => $mail->getUuid()->toRfc4122(),
+                    'filename' => $attachment->getFilename()
+                ],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+            
+            $content = str_replace($originalUrl, $trackingUrl, $content);
+        }
+
+        
+        return $content . $trackingImage;
     }
     
     /**

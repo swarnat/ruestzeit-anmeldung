@@ -11,7 +11,7 @@ services:
       - database
     environment:
       DATABASE_URL: "mysql://symfony:symfony@database:3306/symfony?serverVersion=mariadb-10.6.15"
-      MAILER_DSN: "smtp://localhost:1025"
+      MAILER_DSN: "smtp://mailer:1025"
       SERVER_NAME: "http://localhost:8080"
     ports:
       - "8000:8000"
@@ -32,7 +32,7 @@ services:
     image: axllent/mailpit
     ports:
       - "1025"
-      - "8025"
+      - "8025:8025"
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1

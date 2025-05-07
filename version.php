@@ -1,4 +1,5 @@
 <?php
+define("ABSPATH", __DIR__);
 
 define("PLANFREIZEIT_VERSION", "3.0.4");
 define("PLANFREIZEIT_VERSION_DATE", "14.04.2025");

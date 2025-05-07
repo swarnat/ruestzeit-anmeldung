@@ -137,6 +137,12 @@ class Ruestzeit
      */
     #[ORM\OneToMany(targetEntity: MailAttachment::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
     private Collection $mailAttachments;
+    
+    /**
+     * @var Collection<int, Mail>
+     */
+    #[ORM\OneToMany(targetEntity: Mail::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
+    private Collection $mails;
 
     public function getFlyerFile(): ?UploadedFile
     {
@@ -169,6 +175,7 @@ class Ruestzeit
         $this->customFields = new ArrayCollection();
         $this->categories = new ArrayCollection();
         $this->mailAttachments = new ArrayCollection();
+        $this->mails = new ArrayCollection();
     }
 
     public function __toString(): string
@@ -751,6 +758,36 @@ class Ruestzeit
             // set the owning side to null (unless already changed)
             if ($mailAttachment->getRuestzeit() === $this) {
                 $mailAttachment->setRuestzeit(null);
+            }
+        }
+
+        return $this;
+    }
+    
+    /**
+     * @return Collection<int, Mail>
+     */
+    public function getMails(): Collection
+    {
+        return $this->mails;
+    }
+
+    public function addMail(Mail $mail): static
+    {
+        if (!$this->mails->contains($mail)) {
+            $this->mails->add($mail);
+            $mail->setRuestzeit($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMail(Mail $mail): static
+    {
+        if ($this->mails->removeElement($mail)) {
+            // set the owning side to null (unless already changed)
+            if ($mail->getRuestzeit() === $this) {
+                $mail->setRuestzeit(null);
             }
         }
 
