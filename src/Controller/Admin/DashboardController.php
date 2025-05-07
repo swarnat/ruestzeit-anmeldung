@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Admin;
 use App\Entity\Anmeldung;
 use App\Entity\Category;
+use App\Entity\Config;
 use App\Entity\CustomField;
 use App\Entity\Landkreis;
 use App\Entity\Location;
@@ -112,10 +113,10 @@ class DashboardController extends AbstractDashboardController
         
         yield MenuItem::section('Verwaltung');
 
+        yield MenuItem::linkToRoute("Auswertungen", 'fas fa-table', 'admin_statistics');
+                
         yield MenuItem::linkToRoute("Bezeichnungen", 'fas fa-upload', 'ruestzeit_label_overwrite');
         
-        yield MenuItem::linkToRoute("Auswertungen", 'fas fa-table', 'admin_statistics');
-
         yield MenuItem::linkToCrud('Landkreise', 'fas fa-flag', Landkreis::class);
         
         yield MenuItem::linkToCrud('Kategorie', 'fas fa-list', Category::class);
@@ -123,9 +124,15 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Zusatzfelder', 'fas fa-list-check', CustomField::class)
             ->setController(CustomFieldCrudController::class);
         
+        yield MenuItem::section('System');
+
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
                 ->setEntityId($this->getUser()?->getId())
                 ->setAction('edit');
+
+        yield MenuItem::linkToRoute("Einstellungen", 'fas fa-cog', 'admin_settings');
+
+
     }
 
     public function configureAssets(): Assets

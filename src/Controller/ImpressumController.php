@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anmeldung;
 use App\Enum\AnmeldungStatus;
 use App\Form\AnmeldungType;
+use App\Repository\ConfigRepository;
 use App\Repository\RuestzeitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,14 +18,18 @@ class ImpressumController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private ConfigRepository $configRepository
     ) {
     }
 
     #[Route('/impressum', name: 'impressum')]
     public function index(Request $request, Environment $twig, RuestzeitRepository $ruestzeitRepository): Response
     {
-        
-        return new Response($twig->render('impressum.html.twig'));
+        $context = [
+            "imprint" => $this->configRepository->getValue('imprint', '')
+        ];
+
+        return new Response($twig->render('impressum.html.twig', $context));
     }
 
 }

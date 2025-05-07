@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Mail;
 use App\Entity\MailAttachment;
+use App\Repository\ConfigRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
@@ -15,7 +16,8 @@ class MailProcessingService
     public function __construct(
         private S3FileUploader $s3FileUploader,
         private MailerInterface $mailer,
-        private UrlGeneratorInterface $urlGenerator
+        private UrlGeneratorInterface $urlGenerator,
+        private ConfigRepository $configRepository
     ) {
     }
 
@@ -80,6 +82,8 @@ class MailProcessingService
             $trackingId = "draft";
         }
 
+        $ruestzeit = $mail->getRuestzeit();
+
         // Generate tracking URL
         $trackingUrl = $this->urlGenerator->generate(
             'mail_tracking_open',
@@ -96,8 +100,12 @@ class MailProcessingService
         $processedContent = $this->processAttachments($processedContent, $mail, $trackingId);
         
         // Create the email
-        $subject = $isTest ? '[TEST] ' . $mail->getSubject() : $mail->getSubject();
-        $imprint = $isTest ? "PlanFreizeit 2025,01 [TEST]" : "PlanFreizeit 2025,01";
+        $subject = $mail->getSubject();
+        $imprint = $this->configRepository->getValue('imprint_mail', '');
+        if($isTest) {
+            $subject = "[TEST] " . $subject;
+            $imprint .= "<br/><br/><strong>Dies ist eine Test E-Mail!</strong>";
+        }
         
         $email = (new TemplatedEmail())
             ->replyTo(new Address($mail->getSenderEmail()))
@@ -109,6 +117,7 @@ class MailProcessingService
                 'headline' => str_replace(":", ":<br/>", $mail->getSubject()),
                 'content' => $processedContent,
                 'trackingUrl' => $trackingUrl,
+                'ruestzeit' => $ruestzeit,
                 'imprint' => $imprint,
             ]);
         
