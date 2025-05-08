@@ -1,0 +1,27 @@
+/* Custom styles for EasyAdmin dashboard */
+
+/* Attachment list styling */
+.attachment-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.attachment-list li {
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.attachment-list li:last-child {
+    border-bottom: none;
+}
+
+.attachment-list .fas.fa-check {
+    color: #28a745;
+    margin-left: 8px;
+}
+
+.attachment-list .fas.fa-times {
+    color: #dc3545;
+    margin-left: 8px;
+}

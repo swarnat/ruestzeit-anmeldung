@@ -133,6 +133,11 @@ class Anmeldung
         $this->categories = new ArrayCollection();
         $this->customFieldAnswers = new ArrayCollection();
     }
+    
+    public function __toString(): string
+    {
+        return $this->lastname . ", " . $this->firstname;
+    }    
 
     public function getId(): ?int
     {

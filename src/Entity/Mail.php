@@ -285,4 +285,10 @@ class Mail
         
         return $click ? $click->getClickedAt() : null;
     }
+
+    /** Dummy function for EasyAdmin Index View */
+    public function getAttachmentsWithStatus(): ?string
+    {
+        return null; // Ignoriert, da `formatValue` den echten Wert liefert
+    }    
 }

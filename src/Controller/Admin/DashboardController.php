@@ -9,6 +9,7 @@ use App\Entity\Config;
 use App\Entity\CustomField;
 use App\Entity\Landkreis;
 use App\Entity\Location;
+use App\Entity\Mail;
 use App\Entity\Ruestzeit;
 use App\Generator\CurrentRuestzeitGenerator;
 use App\Repository\RuestzeitRepository;
@@ -24,6 +25,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+/**
+ * @method \App\Entity\Admin getUser()
+ */
 class DashboardController extends AbstractDashboardController
 {
     public function __construct(
@@ -108,9 +112,14 @@ class DashboardController extends AbstractDashboardController
         );
 
         yield MenuItem::linkToRoute("Unterschriften", 'fas fa-upload', 'app_anmeldung_unterschriften');
-        
+
+        yield MenuItem::section('Kommunikation');
+
         yield MenuItem::linkToRoute("E-Mail Versand", 'fas fa-envelope', 'admin_mailing');
         
+        yield MenuItem::linkToCrud('E-Mail Übersicht', 'fas fa-envelope-open-text', Mail::class)
+            ->setController(MailOverviewController::class);        
+       
         yield MenuItem::section('Verwaltung');
 
         yield MenuItem::linkToRoute("Auswertungen", 'fas fa-table', 'admin_statistics');
@@ -127,7 +136,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('System');
 
         yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
-                ->setEntityId($this->getUser()?->getId())
+                ->setEntityId($this->getUser() ? $this->getUser()->getId() : null)
                 ->setAction('edit');
 
         yield MenuItem::linkToRoute("Einstellungen", 'fas fa-cog', 'admin_settings');
@@ -141,6 +150,7 @@ class DashboardController extends AbstractDashboardController
                 // ->addWebpackEncoreEntry('Bulma')
                 // ->addWebpackEncoreEntry('admin')
                 // ->addWebpackEncoreEntry('app')
+                ->addCssFile('css/admin-custom.css')
                 ;
-    }     
+    }
 }

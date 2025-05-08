@@ -1,4 +1,15 @@
 
+## 3.1.0 - 2025-05-XX
+
+**Please check settings and set imprint after update!**
+
+### Feature
+  - add feature to configure imprint for web and mail in admin panel
+  - add newsletter function to inform registered persons / member
+  - add tracking of mails sent over newsletter function
+  - add tracking of opened file links in mails send over newsletter function
+  - implement imprint configuration
+
 ## 3.0.4 - 2025-04-14
 
 ### Fix
