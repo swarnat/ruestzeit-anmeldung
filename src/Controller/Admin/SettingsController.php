@@ -34,6 +34,9 @@ class SettingsController extends AbstractController
     #[Route('/admin/settings', name: 'admin_settings')]
     public function index(Request $request): Response
     {
+        // Only allow ROLE_ADMIN to access this controller
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        
         $imprintValue = $this->configRepository->getValue(self::IMPRINT_KEY) ?? '';
         $imprintMailValue = $this->configRepository->getValue(self::IMPRINT_MAIL_KEY) ?? '';
         

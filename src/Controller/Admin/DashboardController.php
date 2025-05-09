@@ -135,11 +135,17 @@ class DashboardController extends AbstractDashboardController
         
         yield MenuItem::section('System');
 
-        yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
+        if($this->isGranted("ROLE_ADMIN")) {
+            yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class);
+
+            yield MenuItem::linkToRoute("Einstellungen", 'fas fa-cog', 'admin_settings');
+        } else {
+            yield MenuItem::linkToCrud('Benutzer', 'fas fa-person', Admin::class)
                 ->setEntityId($this->getUser() ? $this->getUser()->getId() : null)
                 ->setAction('edit');
+        }
 
-        yield MenuItem::linkToRoute("Einstellungen", 'fas fa-cog', 'admin_settings');
+        
 
 
     }

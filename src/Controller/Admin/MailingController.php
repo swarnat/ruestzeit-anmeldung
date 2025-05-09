@@ -27,7 +27,6 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 
-#[IsGranted('ROLE_ADMIN')]
 class MailingController extends AbstractController
 {
     public function __construct(

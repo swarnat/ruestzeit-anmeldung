@@ -10,6 +10,11 @@
   - add tracking of opened file links in mails send over newsletter function
   - implement imprint configuration
 
+### Fix
+  - hide real S3 URL for flyer and cache file within local application to reduce S3 traffic costs
+  - UI of user editing improved
+  - only ADMIN role can create new users and edit imprint
+
 ## 3.0.4 - 2025-04-14
 
 ### Fix

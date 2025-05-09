@@ -25,8 +25,7 @@ class RuestzeitShareController extends AbstractController
     }
 
     #[Route('/admin/ruestzeit/{id}/share', name: 'admin_ruestzeit_share')]
-    #[IsGranted('ROLE_ADMIN')]
-    public function share(Request $request, Ruestzeit $ruestzeit): Response
+        public function share(Request $request, Ruestzeit $ruestzeit): Response
     {
         // Check if the current user is the owner
         if ($ruestzeit->getAdmin() !== $this->getUser()) {
@@ -80,7 +79,6 @@ class RuestzeitShareController extends AbstractController
     }
 
     #[Route('/admin/share-invitation/{token}/revoke', name: 'admin_ruestzeit_revoke_invitation', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
     public function revokeInvitation(string $token): Response
     {
         $invitation = $this->entityManager->getRepository(RuestzeitShareInvitation::class)
@@ -112,7 +110,6 @@ class RuestzeitShareController extends AbstractController
     }
 
     #[Route('/admin/share-invitation/{token}', name: 'admin_share_invitation_accept')]
-    #[IsGranted('ROLE_ADMIN')]
     public function acceptInvitation(string $token): Response
     {
         $invitation = $this->entityManager->getRepository(RuestzeitShareInvitation::class)
