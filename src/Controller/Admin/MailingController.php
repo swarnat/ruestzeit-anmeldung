@@ -196,7 +196,12 @@ class MailingController extends AbstractController
                     return [];
                 }
                 $anmeldung = $this->anmeldungRepository->find($individualRecipientId);
-                return $anmeldung ? [$anmeldung] : [];
+                
+                // Check if the individual registration has a valid email address
+                if ($anmeldung && !empty($anmeldung->getEmail()) && filter_var($anmeldung->getEmail(), FILTER_VALIDATE_EMAIL)) {
+                    return [$anmeldung];
+                }
+                return [];
                 
             case 'custom_email':
                 if (empty($customEmail) || !filter_var($customEmail, FILTER_VALIDATE_EMAIL)) {
@@ -208,16 +213,26 @@ class MailingController extends AbstractController
                 return [$customRecipient];
                 
             case 'mitarbeiter':
-                return $this->anmeldungRepository->findBy([
+                $mitarbeiter = $this->anmeldungRepository->findBy([
                     'ruestzeit' => $ruestzeit,
                     'personenTyp' => PersonenTyp::MITARBEITER,
                 ]);
                 
+                // Filter out registrations with invalid email addresses
+                return array_filter($mitarbeiter, function(Anmeldung $anmeldung) {
+                    return !empty($anmeldung->getEmail()) && filter_var($anmeldung->getEmail(), FILTER_VALIDATE_EMAIL);
+                });
+                
             case 'active':
-                return $this->anmeldungRepository->findBy([
+                $active = $this->anmeldungRepository->findBy([
                     'ruestzeit' => $ruestzeit,
                     'status' => AnmeldungStatus::ACTIVE,
                 ]);
+                
+                // Filter out registrations with invalid email addresses
+                return array_filter($active, function(Anmeldung $anmeldung) {
+                    return !empty($anmeldung->getEmail()) && filter_var($anmeldung->getEmail(), FILTER_VALIDATE_EMAIL);
+                });
                 
             default:
                 return [];
