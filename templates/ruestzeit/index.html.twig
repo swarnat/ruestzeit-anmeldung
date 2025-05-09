@@ -61,8 +61,8 @@
 							</div>
 						{% endif %}
 						{% if ruestzeit.imageUrl != "" %}
-							<a href="{{ ruestzeit.flyerUrl }}" target="_blank" tabindex="-1">
-								<img src="{{ ruestzeit.imageUrl }}" alt="Flyer zur {{ ruestzeit.title }}"/>
+							<a href="{{ path('flyer_download', {'ruestzeitId': ruestzeit.slug}) }}" target="_blank" tabindex="-1">
+								<img src="{{ path('flyer_preview', {'ruestzeitId': ruestzeit.slug}) }}" alt="Flyer zur {{ ruestzeit.title }}"/>
 							</a>
 						{% endif %}
 					</div>

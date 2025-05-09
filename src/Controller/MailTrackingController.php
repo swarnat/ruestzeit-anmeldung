@@ -131,9 +131,27 @@ class MailTrackingController extends AbstractController
     private function outputMedia(MailAttachment $attachment)
     {
         $s3Key = $attachment->getS3Key();
-        $url = $this->s3FileUploader->getPublicUrl($s3Key);
-
-        // Redirect to the actual file
-        return $this->redirect($url);
+        
+        // Download and cache the file from S3 (this also caches the content type)
+        $filePath = $this->s3FileUploader->downloadAndCache($s3Key);
+        
+        // Get the content type from cache or S3
+        $contentType = $this->s3FileUploader->getContentType($s3Key);
+        
+        // Create a BinaryFileResponse with the cached file
+        $response = new BinaryFileResponse($filePath);
+        
+        // Set the content type
+        $response->headers->set('Content-Type', $contentType);
+        
+        // Set the content disposition to attachment with the original filename
+        $filename = $attachment->getFilename() ?? basename($s3Key);
+        $disposition = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_INLINE,
+            $filename
+        );
+        $response->headers->set('Content-Disposition', $disposition);
+        
+        return $response;
     }
 }
