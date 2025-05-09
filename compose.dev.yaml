@@ -29,7 +29,7 @@ services:
       - db-data:/var/lib/mysql
 
   mailer:
-    image: axllent/mailpit
+    image: axllent/mailpit:v1.24
     ports:
       - "1025"
       - "8025:8025"

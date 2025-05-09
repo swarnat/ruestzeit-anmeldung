@@ -93,8 +93,7 @@ class S3FileUploader
         if ($extension) {
             $filename .= '.' . $extension;
         }
-        dump($this->s3Client);
-        exit();
+
         $cachePath = $this->cacheDir . '/' . $filename;
         $metaPath = $this->cacheDir . '/' . $filename . '.meta';
         
