@@ -89,7 +89,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Rüstzeiten');
         yield MenuItem::linkToCrud('Orte', 'fas fa-map-marker-alt', Location::class);
-        yield MenuItem::linkToCrud('Rüstzeiten', 'fas fa-map-marker-alt', Ruestzeit::class);
+        yield MenuItem::linkToCrud('Rüstzeiten', 'fas fa-calendar-day', Ruestzeit::class);
 
         yield MenuItem::section('Anmeldungen');
 
@@ -111,7 +111,9 @@ class DashboardController extends AbstractDashboardController
             routeName: 'app_anmeldung_import'
         );
 
-        yield MenuItem::linkToRoute("Unterschriften", 'fas fa-upload', 'app_anmeldung_unterschriften');
+        yield MenuItem::linkToRoute("Unterschriften", 'fas fa-signature', 'app_anmeldung_unterschriften');
+
+        yield MenuItem::linkToCrud('Gruppen', 'fas fa-people-group', Category::class);
 
         yield MenuItem::section('Kommunikation');
 
@@ -124,12 +126,10 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::linkToRoute("Auswertungen", 'fas fa-table', 'admin_statistics');
                 
-        yield MenuItem::linkToRoute("Bezeichnungen", 'fas fa-upload', 'ruestzeit_label_overwrite');
+        yield MenuItem::linkToRoute("Bezeichnungen", 'fas fa-font', 'ruestzeit_label_overwrite');
         
         yield MenuItem::linkToCrud('Landkreise', 'fas fa-flag', Landkreis::class);
         
-        yield MenuItem::linkToCrud('Kategorie', 'fas fa-list', Category::class);
-
         yield MenuItem::linkToCrud('Zusatzfelder', 'fas fa-list-check', CustomField::class)
             ->setController(CustomFieldCrudController::class);
         
