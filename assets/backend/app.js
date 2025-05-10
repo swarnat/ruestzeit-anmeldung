@@ -4,26 +4,45 @@ import "./bootstrap.js"
 import './styles/admin.scss'; 
 
 import TomSelect from 'tom-select'
+import axios from 'axios'
 
 // import axios from 'axios';
 // import TomSelect from "tom-select/dist/js/tom-select.complete.min";
+
+let currentTimeout = false;
+let currentUpdateCategory = "";
 
 window.addEventListener("load", function () {
   var checkboxes = document.getElementsByClassName("categoryAssignment");
 
   for (var i = 0; i < checkboxes.length; i++) {
     checkboxes[i].addEventListener("change", (e) => {
+      e.stopPropagation();
+      
+      console.log(currentUpdateCategory, e.target.dataset.category);
 
-      update(e.target);
+      if(currentTimeout !== false && currentUpdateCategory == e.target) {
+        window.clearTimeout(currentTimeout);
+      }
+
+      currentUpdateCategory = e.target;
+
+      currentTimeout = window.setTimeout(() => {
+        update(e.target);
+      }, 150);
     });
 
     colorize(checkboxes[i]);
 
     checkboxes[i].closest("td").addEventListener("click", (e) => {
-      var checkbox = e.target.querySelector("input");
+      e.stopPropagation();
+
+      var checkbox = e.currentTarget.querySelector("input");
       checkbox.checked = !checkbox.checked
       
-      update(checkbox)
+      var event = new Event('change');
+      checkbox.dispatchEvent(event);      
+      // update(checkbox)
     });
   }
 

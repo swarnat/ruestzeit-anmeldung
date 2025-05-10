@@ -58,20 +58,18 @@ class CategoryCrudController extends AbstractCrudController
     {
         $assignAction = Action::new('Zuweisungen')
             ->linkToRoute('teilnehmer_cat_assignments')
-            // ... line 81
             ->setIcon('fa-solid fa-table-list')
+            ->createAsGlobalAction();
 
-            ->createAsBatchAction();
-
-            return parent::configureActions($actions)
-            ->add(Crud::PAGE_INDEX, $assignAction);     
+        return parent::configureActions($actions)
+            ->add(Crud::PAGE_INDEX, $assignAction);
     }
 
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInPlural("Kategorien")
-            ->setEntityLabelInSingular("Kategorie")
+            ->setEntityLabelInPlural("Gruppen")
+            ->setEntityLabelInSingular("Gruppe")
             ->setDateFormat('d.MM.Y')
             ->setTimeFormat('HH:mm')
             ->setDateTimeFormat('d.MM.Y HH:mm')

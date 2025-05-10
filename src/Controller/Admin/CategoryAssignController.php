@@ -62,6 +62,7 @@ class CategoryAssignController extends AbstractController
 
         return $this->render('categories/assign.html.twig', [
             'controller_name' => 'CategoryAssignController',
+            "ruestzeit" => $ruestzeit,
             "categories" => $categories,
             "anmeldungen" => $anmeldungen
         ]);
