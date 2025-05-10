@@ -4,6 +4,7 @@ twig:
     globals:
         # the value is the service's id
         current_ruestzeit_service: '@App\Generator\CurrentRuestzeitGenerator'
+        privacyagreement_url: '%env(PRIVACYAGREEMENT_URL)%'
 
 when@test:
     twig:

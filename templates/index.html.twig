@@ -90,11 +90,11 @@
 			<h1>PlanFreizeit</h1>
 			<p>Eine Anwendung der
 				<strong>
-					<a href="https://datentechnik-warnat.de/">Datentechnik Warnat</a>
+					<a href="https://datentechnik-warnat.de/" target="_blank">Datentechnik Warnat</a>
 				</strong>
 				entwickelt für die
 				<strong>
-					<a href="https://www.kirche-hohndorf.de">Kirchgemeinde Hohndorf</a>
+					<a href="https://www.kirche-hohndorf.de" target="_blank">Kirchgemeinde Hohndorf</a>
 				</strong>.</p>
 		</br>
 	</div>
@@ -128,7 +128,9 @@
 <div class="footer">
 	<div class="content has-text-centered">
 		<a href="/impressum">Impressum</a>
+		{% if privacyagreement_url is not empty %}
 		-
-		<a href="https://kirche-hohndorf.de/datenschutzerklaerung/" target="_blank">Datenschutz</a>
+		<a href="{{ privacyagreement_url }}" target="_blank">Datenschutz</a>
+		{% endif %}
 	</div>
 </div>{% endblock %}{% block footer %}{% endblock %}

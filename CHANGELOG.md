@@ -1,7 +1,9 @@
 
-## 3.1.0 - 2025-05-XX
+## 3.1.0 - TBD
 
-**Please check settings and set imprint after update!**
+### After update:
+  - Please check settings and set imprint in admin UI!
+  - Define PRIVACYAGREEMENT_URL in .env.local of environment of docker container
 
 ### Feature
   - add feature to configure imprint for web and mail in admin panel
@@ -9,6 +11,7 @@
   - add tracking of mails sent over newsletter function
   - add tracking of opened file links in mails send over newsletter function
   - implement imprint configuration
+  - allow configuration of url, where privacy agreement is shown
 
 ### Fix
   - hide real S3 URL for flyer and cache file within local application to reduce S3 traffic costs
