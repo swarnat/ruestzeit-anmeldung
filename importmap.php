@@ -26,7 +26,6 @@ return [
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
     ],
-
     'file-loader' => [
         'version' => '6.2.0',
     ],
@@ -106,7 +105,7 @@ return [
         'type' => 'css',
     ],
     'quill-resize-image' => [
-        'version' => '1.0.4',
+        'version' => '1.0.11',
     ],
     'bulma/css/bulma.min.css' => [
         'version' => '1.0.3',
