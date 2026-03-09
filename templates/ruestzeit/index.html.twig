@@ -31,11 +31,18 @@
 
 								</header>
 								<div class="card-content">
+									{% if ruestzeit.dateFrom != ruestzeit.dateTo %}
 
 									Ab
 									{{ ruestzeit.dateFrom | format_date('medium') }}<br/>
 									Bis
 									{{ ruestzeit.dateTo | format_date('medium') }}
+									{% else %}
+									
+									Datum:
+									{{ ruestzeit.dateFrom | format_date('medium') }}<br/>
+
+									{% endif %}									
 								</div>
 							</div>
 						{% endif %}
