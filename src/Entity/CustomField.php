@@ -32,6 +32,18 @@ class CustomField
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $intern = false;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    private bool $fullWidth = false;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $sequence = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $optionsElementCssClass = null;
+
     #[ORM\ManyToOne(inversedBy: 'customFields')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Admin $owner = null;
@@ -105,6 +117,54 @@ class CustomField
     public function setIntern(bool $intern): static
     {
         $this->intern = $intern;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function isFullWidth(): bool
+    {
+        return $this->fullWidth;
+    }
+
+    public function setFullWidth(bool $fullWidth): static
+    {
+        $this->fullWidth = $fullWidth;
+
+        return $this;
+    }
+
+    public function getSequence(): ?int
+    {
+        return $this->sequence;
+    }
+
+    public function setSequence(?int $sequence): static
+    {
+        $this->sequence = $sequence;
+
+        return $this;
+    }
+
+    public function getOptionsElementCssClass(): ?string
+    {
+        return $this->optionsElementCssClass;
+    }
+
+    public function setOptionsElementCssClass(?string $optionsElementCssClass): static
+    {
+        $this->optionsElementCssClass = $optionsElementCssClass;
+
         return $this;
     }
 

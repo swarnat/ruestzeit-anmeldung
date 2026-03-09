@@ -17,6 +17,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class CustomFieldCrudController extends AbstractCrudController
@@ -55,8 +57,22 @@ class CustomFieldCrudController extends AbstractCrudController
     {
         yield FormField::addColumn(12);
         yield TextField::new('title', 'Frage/Label');
+        yield TextareaField::new('description', 'Beschreibung / Hinweis')
+            ->setHelp('Optionaler Hinweistext, der unter dem Feld im Frontend angezeigt wird.')
+            ->hideOnIndex();
+        yield TextField::new('optionsElementCssClass', 'Option-Element CSS-Klasse')
+            ->setHelp('Optional. CSS-Klasse für Label-Elemente bei Checkbox- und Radio-Optionen im Frontend.')
+            ->hideOnIndex();
 
-        yield FormField::addColumn(6);
+        yield FormField::addColumn(4);
+        yield IntegerField::new('sequence', 'Reihenfolge')
+            ->setHelp('Kleinere Werte werden zuerst angezeigt. Leerer Wert = am Ende.');
+
+        yield FormField::addColumn(4);
+        yield BooleanField::new('fullWidth', 'Volle Breite')
+            ->setHelp('Wenn aktiviert, wird das Feld im Frontend über beide Spalten dargestellt.');
+
+        yield FormField::addColumn(4);
         yield BooleanField::new('optional', 'Optional')
             ->setHelp('Wenn aktiviert, muss dieses Feld nicht zwingend ausgefüllt werden');
         

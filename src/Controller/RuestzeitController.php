@@ -3,6 +3,7 @@
 namespace App\Controller;
 use App\Entity\Protocol;
 use App\Entity\Anmeldung;
+use App\Entity\CustomField;
 use App\Entity\CustomFieldAnswer;
 use App\Enum\AnmeldungStatus;
 use App\Enum\CustomFieldType;
@@ -58,6 +59,7 @@ class RuestzeitController extends AbstractController
         $this->currentRuestzeitGenerator->set($ruestzeit);
 
         $allowRegistration = false;
+        $customFields = $this->getSortedPublicCustomFields($ruestzeit);
 
         if (
             $request->get('pw', null) !== null &&
@@ -228,6 +230,7 @@ class RuestzeitController extends AbstractController
                                 'ruestzeit' => $ruestzeit,
                                 'initial_ctoken' => $initialcToken,
                                 'allowRegistration' => $allowRegistration,
+                                'customFields' => $customFields,
                                 'form' => !empty($formView) ? $formView : [],
                             ]));
                         }
@@ -282,8 +285,46 @@ class RuestzeitController extends AbstractController
             'allowRegistration' => $allowRegistration,
             'initial_ctoken' => $initialcToken,
             'canonical' => $ruestzeit->getUrl(),
+            'customFields' => $customFields,
             'form' => !empty($formView) ? $formView : [],
         ]));
+    }
+
+    /**
+     * @return array<int, CustomField>
+     */
+    private function getSortedPublicCustomFields(\App\Entity\Ruestzeit $ruestzeit): array
+    {
+        $customFields = array_values(array_filter(
+            $ruestzeit->getCustomFields()->toArray(),
+            static fn (CustomField $customField): bool => !$customField->isIntern()
+        ));
+
+        usort($customFields, static function (CustomField $a, CustomField $b): int {
+            $aSequence = $a->getSequence();
+            $bSequence = $b->getSequence();
+
+            if ($aSequence === null && $bSequence === null) {
+                return $a->getId() <=> $b->getId();
+            }
+
+            if ($aSequence === null) {
+                return 1;
+            }
+
+            if ($bSequence === null) {
+                return -1;
+            }
+
+            $sequenceComparison = $aSequence <=> $bSequence;
+            if ($sequenceComparison !== 0) {
+                return $sequenceComparison;
+            }
+
+            return $a->getId() <=> $b->getId();
+        });
+
+        return $customFields;
     }
 
     private function getErrorMessages(\Symfony\Component\Form\Form $form) {

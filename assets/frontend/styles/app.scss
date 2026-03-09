@@ -15,7 +15,10 @@
     --bulma-input-border-color: #dbdbdb;
   }
 }
-
+.radio.row {
+  margin-left: 0 !important;
+  padding:0 0 5px 0;
+}
 .radio + .radio {
   margin-left: 10px;
 }

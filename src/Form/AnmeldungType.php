@@ -110,8 +110,34 @@ class AnmeldungType extends AbstractType
 
         // Add custom fields based on Ruestzeit configuration
         if ($currentRuestzeit) {
-            foreach ($currentRuestzeit->getCustomFields() as $customField) {
+            $customFields = $currentRuestzeit->getCustomFields()->toArray();
+            usort($customFields, function (CustomField $a, CustomField $b): int {
+                $aSequence = $a->getSequence();
+                $bSequence = $b->getSequence();
+
+                if ($aSequence === null && $bSequence === null) {
+                    return $a->getId() <=> $b->getId();
+                }
+
+                if ($aSequence === null) {
+                    return 1;
+                }
+
+                if ($bSequence === null) {
+                    return -1;
+                }
+
+                $sequenceComparison = $aSequence <=> $bSequence;
+                if ($sequenceComparison !== 0) {
+                    return $sequenceComparison;
+                }
+
+                return $a->getId() <=> $b->getId();
+            });
+
+            foreach ($customFields as $customField) {
                 $fieldName = 'custom_field_' . $customField->getId();
+                $helpText = $customField->getDescription();
 
                 switch ($customField->getType()) {
                     case CustomFieldType::INPUT:
@@ -119,6 +145,7 @@ class AnmeldungType extends AbstractType
                             'mapped' => false,
                             'label' => $customField->getTitle(),
                             'required' => !$customField->isOptional(),
+                            'help' => $helpText,
                         ]);
                         break;
                     case CustomFieldType::TEXTAREA:
@@ -126,6 +153,7 @@ class AnmeldungType extends AbstractType
                             'mapped' => false,
                             'label' => $customField->getTitle(),
                             'required' => !$customField->isOptional(),
+                            'help' => $helpText,
                         ]);
                         break;
                     case CustomFieldType::DATE:
@@ -133,6 +161,7 @@ class AnmeldungType extends AbstractType
                             'mapped' => false,
                             'label' => $customField->getTitle(),
                             'required' => !$customField->isOptional(),
+                            'help' => $helpText,
                             'widget' => 'single_text',
                             'html5' => false,
                             'format' => 'dd.MM.yyyy',
@@ -145,6 +174,7 @@ class AnmeldungType extends AbstractType
                             'mapped' => false,
                             'label' => $customField->getTitle(),
                             'required' => !$customField->isOptional(),
+                            'help' => $helpText,
                             'choices' => array_combine($options, $options),
                             'expanded' => true,
                             'multiple' => true,
@@ -156,6 +186,7 @@ class AnmeldungType extends AbstractType
                             'mapped' => false,
                             'label' => $customField->getTitle(),
                             'required' => !$customField->isOptional(),
+                            'help' => $helpText,
                             'choices' => array_combine($options, $options),
                             'expanded' => true,
                         ]);
