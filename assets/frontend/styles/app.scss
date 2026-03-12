@@ -22,7 +22,9 @@
 .radio + .radio {
   margin-left: 10px;
 }
-
+.fieldtype-readonly_text .help {
+  font-size:inherit;
+}
 @font-face {
   font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
   font-family: "Nunito";

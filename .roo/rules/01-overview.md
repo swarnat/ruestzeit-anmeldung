@@ -26,7 +26,7 @@ This project is a Symfony platform for creating and managing **Ruestzeit** event
 
 ## CustomField and CustomFieldAnswer
 
-**CustomField** defines dynamic event-specific questions, including optional description/help text, a full-width layout toggle for frontend rendering, numeric sequence-based ordering, and optional CSS classes for checkbox/radio option label elements. **CustomFieldAnswer** stores participant responses to those questions, allowing flexible form extension without schema changes.
+**CustomField** defines dynamic event-specific questions, including optional description/help text, a full-width layout toggle for frontend rendering, numeric sequence-based ordering, and optional CSS classes for checkbox/radio option label elements. It also supports a read-only text type that displays only label and description in the public form without creating an input or answer payload. **CustomFieldAnswer** stores participant responses to answerable custom field types, allowing flexible form extension without schema changes.
 
 ## LanguageOverwrite
 

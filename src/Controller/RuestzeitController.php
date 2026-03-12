@@ -131,6 +131,10 @@ class RuestzeitController extends AbstractController
 
                         // Handle custom field answers
                         foreach ($ruestzeit->getCustomFields() as $customField) {
+                            if ($customField->getType() === CustomFieldType::READONLY_TEXT) {
+                                continue;
+                            }
+
                             $fieldName = 'custom_field_' . $customField->getId();
                             $value = $request->get('anmeldung')[$fieldName] ?? null;
                             

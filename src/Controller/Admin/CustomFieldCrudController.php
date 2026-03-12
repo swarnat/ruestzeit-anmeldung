@@ -88,9 +88,10 @@ class CustomFieldCrudController extends AbstractCrudController
                 'Datum' => CustomFieldType::DATE,
                 'Checkbox' => CustomFieldType::CHECKBOX,
                 'Radio Box' => CustomFieldType::RADIO,
+                'ReadOnly Text' => CustomFieldType::READONLY_TEXT,
             ])
             ->renderExpanded()
-            ->setHelp('Bei Checkbox und Radio Box können Sie unten die Optionen konfigurieren');
+            ->setHelp('Bei Checkbox und Radio Box können Sie unten die Optionen konfigurieren. ReadOnly Text zeigt nur Label und Beschreibung ohne Eingabefeld.');
 
         yield FormField::addColumn(6);            
 

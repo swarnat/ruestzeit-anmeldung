@@ -443,6 +443,9 @@ class AnmeldungCrudController extends AbstractCrudController
                 yield FormField::addPanel('Zusatzfelder')->setColumns(12);
 
                 foreach ($customFields as $index => $field) {
+                    if ($field->getType() === \App\Enum\CustomFieldType::READONLY_TEXT) {
+                        continue;
+                    }
 
                     if (!empty($contextEntity)) {
                         $answers = $this->entityManager->getRepository(CustomFieldAnswer::class)->findBy([
@@ -649,6 +652,10 @@ class AnmeldungCrudController extends AbstractCrudController
         ]);
 
         foreach ($customFields as $field) {
+            if ($field->getType() === \App\Enum\CustomFieldType::READONLY_TEXT) {
+                continue;
+            }
+
             $fieldName = 'customFieldAnswers_' . $field->getId();
 
             // Remove existing answers

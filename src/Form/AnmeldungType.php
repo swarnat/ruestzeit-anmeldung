@@ -191,6 +191,9 @@ class AnmeldungType extends AbstractType
                             'expanded' => true,
                         ]);
                         break;
+                    case CustomFieldType::READONLY_TEXT:
+                        // Intentionally no form field: label + description are rendered directly in Twig.
+                        break;
                 }
             }
         }

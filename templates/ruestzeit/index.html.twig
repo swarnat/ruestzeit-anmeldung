@@ -385,14 +385,19 @@
 					{# Custom Fields #}
 					<div class="columns is-multiline">
 						{% for customField in customFields|default([]) %}
-							{% set fieldName = 'custom_field_' ~ customField.id %}
-							{% set field = attribute(form, fieldName) %}
+							{% set isReadOnlyText = customField.type.value == 'readonly_text' %}
+							{% if not isReadOnlyText %}
+								{% set fieldName = 'custom_field_' ~ customField.id %}
+								{% set field = attribute(form, fieldName) %}
+							{% endif %}
 							{% set optionLabelClass = customField.optionsElementCssClass|default('') %}
 							<div class="column {{ customField.fullWidth ? 'is-12' : 'is-6' }}">
-								<div class="field">
-									<label class="label">{{ form_label(field) }}</label>
+								<div class="field fieldtype-{{  customField.type.value }}">
+									<label class="label">{{ isReadOnlyText ? customField.title : form_label(field) }}</label>
 									<div class="control">
-										{% if customField.type.value == 'input' %}
+										{% if isReadOnlyText %}
+											{# Read-only block intentionally renders no input control #}
+										{% elseif customField.type.value == 'input' %}
 											<input class="input" type="text" name="{{ field_name(field) }}" value="{{ field_value(field) }}" {% if not customField.optional %} required {% endif %} {{ autocomplete |raw }}>
 										{% elseif customField.type.value == 'textarea' %}
 											<textarea class="textarea" name="{{ field_name(field) }}" {% if not customField.optional %} required {% endif %} {{ autocomplete |raw }}>{{ field_value(field) }}</textarea>
@@ -421,7 +426,9 @@
 									{% if customField.description is not empty %}
 										<p class="help">{{ customField.description }}</p>
 									{% endif %}
-									{{ form_errors(field) }}
+									{% if not isReadOnlyText %}
+										{{ form_errors(field) }}
+									{% endif %}
 								</div>
 							</div>
 						{% endfor %}

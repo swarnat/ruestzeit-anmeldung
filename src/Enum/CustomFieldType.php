@@ -9,4 +9,5 @@ enum CustomFieldType: string
     case DATE = 'date';
     case CHECKBOX = 'checkbox';
     case RADIO = 'radio';
+    case READONLY_TEXT = 'readonly_text';
 }
