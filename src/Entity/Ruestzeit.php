@@ -36,6 +36,7 @@ class Ruestzeit
     private ?string $description = null;
 
     #[ORM\OneToMany(targetEntity: Anmeldung::class, mappedBy: 'ruestzeit', orphanRemoval: true)]
+    #[ORM\OrderBy(['lastname' => 'ASC', 'firstname' => 'ASC'])]
     private Collection $anmeldungen;
 
     #[ORM\Column(length: 255, unique: true)]
