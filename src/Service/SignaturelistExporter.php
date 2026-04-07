@@ -73,13 +73,12 @@ class SignaturelistExporter
 
     public function generateXLS(Ruestzeit $ruestzeit, array $fields, string $filename, array $options)
     {
-        $query = $this->entityManager->createQuery('SELECT a, cfa
-            FROM App\Entity\Anmeldung a 
-            LEFT JOIN App\Entity\CustomFieldAnswer cfa
-            WHERE a.ruestzeit = ' . $ruestzeit->getId() . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' ORDER BY a.lastname, a.firstname");
-        $anmeldungen = $query->getResult();
+        $anmeldungen = $ruestzeit->getActiveAnmeldungen();
+        $datalist = $this->generateData($anmeldungen, $fields, $options);
 
-        $anmeldeListe = $this->getGroups($anmeldungen, $options);
+        $anmeldeListe = $this->getGroups($datalist, $options);
+        
+        // $anmeldeListe = $this->getGroups($anmeldungen, $options);
 
         $spreadsheet = new Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
@@ -116,7 +115,7 @@ class SignaturelistExporter
                     $colName = $this->num2column($colIndex + 1);
     
                     $functionName = "get" . ucfirst($field->getProperty());
-                    $activeWorksheet->setCellValueExplicit($colName . ($rowId + 2), $rowData->$functionName(), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                    $activeWorksheet->setCellValueExplicit($colName . ($rowId + 2), $rowData[$field->getProperty()], \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
                     
                     $colIndex++;
                 }
