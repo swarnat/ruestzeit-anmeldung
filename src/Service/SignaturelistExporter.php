@@ -75,7 +75,7 @@ class SignaturelistExporter
     {
         $query = $this->entityManager->createQuery('SELECT a, cfa
             FROM App\Entity\Anmeldung a 
-            LEFT JOIN App\Entity\CustomFieldAnser cfa
+            LEFT JOIN App\Entity\CustomFieldAnswer cfa
             WHERE a.ruestzeit = ' . $ruestzeit->getId() . " AND a.status = '" . AnmeldungStatus::ACTIVE->value . "' ORDER BY a.lastname, a.firstname");
         $anmeldungen = $query->getResult();
 
