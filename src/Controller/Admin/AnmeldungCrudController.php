@@ -603,6 +603,7 @@ class AnmeldungCrudController extends AbstractCrudController
             ->add(TextFilter::new('postalcode'))
             ->add(DateTimeFilter::new('birthdate'))
             ->add(TextFilter::new('city'))
+            ->add(TextFilter::new('personenTyp'))
             ->add(
                 LandkreisFilter::new('landkreis')
                     ->setChoicesCallback(new Landkreis($this->entityManager, 1))
