@@ -75,11 +75,12 @@ class LKErz26 extends Base
                 } else {
                     $activeWorksheet->setCellValue("H" . $rowIndex, "Teilnehmer");
                 }
-                $rowIndex++;
+                
                 if($rowIndex == 21) $rowIndex = 28;
                 if($rowIndex == 44) $rowIndex = 49;
                 if($rowIndex == 65) $rowIndex = 70;
     
+                $rowIndex++;
                 // $activeWorksheet
                 //     ->getStyle('A' . $rowIndex . ':L' . $rowIndex)
                 //     ->getAlignment()
