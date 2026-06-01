@@ -60,6 +60,9 @@ class SignaturelistExporter
             case "lkerz":
                 $className = '\App\SignaturelistExporter\LKErz';
                 break;
+            case "lkerz26":
+                $className = '\App\SignaturelistExporter\LKErz26';
+                break;
             case "lkzwickau":
                 $className = '\App\SignaturelistExporter\LKZwickau';
                 break;
