@@ -44,7 +44,8 @@ class LKErz26 extends Base
 
         $baseSheet = clone $spreadsheet->getSheet(0);
         $spreadsheet->removeSheetByIndex(0);
-
+        
+        $rowIndex = 9;
         foreach ($anmeldeListe as $groupTitle => $anmeldungen) {
             $activeWorksheet = $spreadsheet->addSheet(clone $baseSheet);
             if(!empty($groupTitle)) {
@@ -57,9 +58,9 @@ class LKErz26 extends Base
             $activeWorksheet->setCellValue("E6", $this->ruestzeit->getDateFrom()->format("d.m.Y"));
             $activeWorksheet->setCellValue("G6", $this->ruestzeit->getDateTo()->format("d.m.Y"));
 
-            $rowIndex = 9;
             // $activeWorksheet->removeRow($rowIndex, 100);        
             foreach ($anmeldungen as $index => $anmeldung) {
+
                 $activeWorksheet->mergeCells("B" . $rowIndex . ":C" . $rowIndex);
                 $activeWorksheet->mergeCells("D" . $rowIndex . ":F" . $rowIndex);
 
@@ -74,7 +75,7 @@ class LKErz26 extends Base
                 } else {
                     $activeWorksheet->setCellValue("H" . $rowIndex, "Teilnehmer");
                 }
-
+                $rowIndex++;
                 if($rowIndex == 21) $rowIndex = 28;
                 if($rowIndex == 44) $rowIndex = 49;
                 if($rowIndex == 65) $rowIndex = 70;
