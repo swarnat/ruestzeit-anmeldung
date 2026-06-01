@@ -76,9 +76,9 @@ class LKErz26 extends Base
                     $activeWorksheet->setCellValue("H" . $rowIndex, "Teilnehmer");
                 }
                 
-                if($rowIndex == 21) $rowIndex = 28;
-                if($rowIndex == 44) $rowIndex = 49;
-                if($rowIndex == 65) $rowIndex = 70;
+                if($rowIndex == 21) $rowIndex = 27;
+                if($rowIndex == 44) $rowIndex = 48;
+                if($rowIndex == 65) $rowIndex = 69;
     
                 $rowIndex++;
                 // $activeWorksheet
