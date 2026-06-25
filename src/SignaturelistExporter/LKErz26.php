@@ -45,8 +45,8 @@ class LKErz26 extends Base
         $baseSheet = clone $spreadsheet->getSheet(0);
         $spreadsheet->removeSheetByIndex(0);
         
-        $rowIndex = 9;
         foreach ($anmeldeListe as $groupTitle => $anmeldungen) {
+            $rowIndex = 9;            
             $activeWorksheet = $spreadsheet->addSheet(clone $baseSheet);
             if(!empty($groupTitle)) {
                 $activeWorksheet->setTitle(substr($groupTitle, 0, 30));
